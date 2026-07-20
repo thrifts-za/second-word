@@ -91,7 +91,9 @@ app.get('/health', (c) =>
 app.get('/v1/bibles', async (c) => {
   try {
     const client = new YouVersionClient(c.env.YOUVERSION_APP_KEY)
-    const listed = await client.listEnglishBibles()
+    // A version collection is optional in some YouVersion entitlements; the
+    // configured version remains independently licensed and verifiable.
+    const listed = await client.listEnglishBibles().catch(() => [])
     // Some app keys are licensed for a configured version but not a browsable
     // collection. That version is still verified and therefore safe to show;
     // do not leave the settings control empty because discovery was withheld.
