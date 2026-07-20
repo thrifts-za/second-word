@@ -68,7 +68,9 @@ export class YouVersionClient {
    * The passage endpoint returns no translation name or copyright, so
    * attribution has to come from here. Verified 2026-07-20.
    */
-  private bibleCache = new Map<string, BibleRecord>()
+  /** Shared only for real Worker clients; test/custom transports stay isolated. */
+  private static readonly productionBibleCache = new Map<string, BibleRecord>()
+  private readonly bibleCache: Map<string, BibleRecord>
 
   private readonly fetchImpl: typeof fetch
 
@@ -79,6 +81,7 @@ export class YouVersionClient {
     // Workers detaches `this` from a bare `fetch` reference, which throws
     // "Illegal invocation" at call time. Wrap it rather than pass it through.
     this.fetchImpl = fetchImpl ?? ((input, init) => fetch(input, init))
+    this.bibleCache = fetchImpl ? new Map() : YouVersionClient.productionBibleCache
   }
 
   private headers(): HeadersInit {

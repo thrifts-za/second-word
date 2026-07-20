@@ -107,9 +107,9 @@ describe('analyze', () => {
     expect(outcome.kind).toBe('unverifiable')
   })
 
-  it('still renders when attribution lookup fails', async () => {
+  it('fails closed when publisher attribution cannot be verified', async () => {
     const outcome = await runAnalyze(request, deps({ youversion: youVersionStub({ bibles: false }) }))
-    expect(outcome.kind).toBe('ok')
+    expect(outcome.kind).toBe('unverifiable')
   })
 
   it('routes a safety-flagged draft away from a tone rewrite', async () => {

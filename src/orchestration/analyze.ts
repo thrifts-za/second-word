@@ -103,6 +103,9 @@ export async function runAnalyze(
 
   const { passage, attemptedCount } = resolved
   const bible = await deps.youversion.getBible(bibleId).catch(() => null)
+  // Publisher attribution is part of the provenance contract. An unavailable
+  // metadata record is not an excuse to render unlabeled Scripture.
+  if (!bible) return { kind: 'unverifiable', attemptedCount }
   const entry = PRINCIPLE_LIBRARY[analysis.principle]
 
   const draftDigest = await digestDraft(request.draft, deps.signingKey)
@@ -133,9 +136,9 @@ export async function runAnalyze(
       // The only source of verse text in the system.
       verse_text: passage.content,
       bible_id: bibleId,
-      translation: bible?.localizedAbbreviation ?? '',
+      translation: bible.localizedAbbreviation,
       attribution: buildAttribution(bible),
-      attribution_url: bible?.deepLink ?? null,
+      attribution_url: bible.deepLink,
       why: analysis.why || entry.explanation,
       question: analysis.question || entry.question,
       analysis_token: analysisToken,

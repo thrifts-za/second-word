@@ -114,14 +114,15 @@ app.get('/v1/epigraph', async (c) => {
       client.getPassage(c.env.DEFAULT_BIBLE_ID, EPIGRAPH_REFERENCE),
       client.getBible(c.env.DEFAULT_BIBLE_ID).catch(() => null),
     ])
-    if (!passage) return c.json({ error: 'passage_unverifiable' }, 502)
+    // A verse without its required publisher attribution must not render.
+    if (!passage || !bible) return c.json({ error: 'passage_unverifiable' }, 502)
 
     return c.json({
       reference: passage.displayReference,
       verse_text: passage.content,
-      translation: bible?.localizedAbbreviation ?? '',
-      attribution: bible?.copyright ?? bible?.localizedTitle ?? '',
-      attribution_url: bible?.deepLink ?? null,
+      translation: bible.localizedAbbreviation,
+      attribution: bible.copyright ?? bible.localizedTitle,
+      attribution_url: bible.deepLink,
     })
   } catch (error) {
     return errorResponse(c, error)
@@ -129,7 +130,9 @@ app.get('/v1/epigraph', async (c) => {
 })
 
 app.post('/v1/analyze', async (c) => {
-  const parsed = AnalyzeRequestSchema.safeParse(await c.req.json().catch(() => null))
+  const body = await readBoundedJson(c)
+  if (body.kind === 'too_large') return c.json({ error: 'payload_too_large', max_bytes: MAX_BODY_BYTES }, 413)
+  const parsed = AnalyzeRequestSchema.safeParse(body.value)
   if (!parsed.success) {
     return c.json({ error: 'invalid_request', detail: parsed.error.flatten() }, 400)
   }
@@ -166,7 +169,9 @@ app.post('/v1/analyze', async (c) => {
 })
 
 app.post('/v1/rewrite', async (c) => {
-  const parsed = RewriteRequestSchema.safeParse(await c.req.json().catch(() => null))
+  const body = await readBoundedJson(c)
+  if (body.kind === 'too_large') return c.json({ error: 'payload_too_large', max_bytes: MAX_BODY_BYTES }, 413)
+  const parsed = RewriteRequestSchema.safeParse(body.value)
   if (!parsed.success) {
     return c.json({ error: 'invalid_request', detail: parsed.error.flatten() }, 400)
   }
@@ -213,6 +218,25 @@ function errorResponse(c: { json: (body: unknown, status: 502 | 503) => Response
     { error: 'reflection_unavailable', message: 'Reflection is unavailable right now. Your draft has not changed.' },
     503,
   )
+}
+
+/**
+ * The content-length check above rejects a known large request before it is
+ * read. This second check is the actual boundary: clients may omit or lie
+ * about that header, and a Worker must never parse an unbounded JSON body.
+ */
+async function readBoundedJson(c: { req: { text: () => Promise<string> } }): Promise<
+  | { kind: 'ok'; value: unknown }
+  | { kind: 'too_large' }
+> {
+  const raw = await c.req.text().catch(() => null)
+  if (raw === null) return { kind: 'ok', value: null }
+  if (new TextEncoder().encode(raw).byteLength > MAX_BODY_BYTES) return { kind: 'too_large' }
+  try {
+    return { kind: 'ok', value: JSON.parse(raw) }
+  } catch {
+    return { kind: 'ok', value: null }
+  }
 }
 
 export default app
