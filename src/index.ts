@@ -90,7 +90,14 @@ app.get('/health', (c) =>
 /** Versions are sourced from the app's YouVersion entitlement, never a hard-coded list. */
 app.get('/v1/bibles', async (c) => {
   try {
-    const bibles = await new YouVersionClient(c.env.YOUVERSION_APP_KEY).listEnglishBibles()
+    const client = new YouVersionClient(c.env.YOUVERSION_APP_KEY)
+    const listed = await client.listEnglishBibles()
+    // Some app keys are licensed for a configured version but not a browsable
+    // collection. That version is still verified and therefore safe to show;
+    // do not leave the settings control empty because discovery was withheld.
+    const bibles = listed.length > 0
+      ? listed
+      : (await client.getBible(c.env.DEFAULT_BIBLE_ID).then((bible) => (bible ? [bible] : [])))
     return c.json({
       bibles: bibles.map((bible) => ({
         id: bible.id,
