@@ -17,7 +17,9 @@
  */
 
 /** Diameter, and the inset used to place it inside the field's corner. */
-export const BADGE_SIZE = 24
+export const BADGE_SIZE = 34
+/** Conservative width used before a host browser has laid the prompt out. */
+export const BADGE_PROMPT_WIDTH = 132
 
 /** Width of the browser's resize grip, plus a little air. */
 const GRIP_CLEARANCE = 18
@@ -87,17 +89,19 @@ const HOST_STYLE: ReadonlyArray<readonly [string, string]> = [
 const SHADOW_STYLE = `
   .badge {
     position: fixed;
-    width: ${BADGE_SIZE}px;
+    min-width: ${BADGE_SIZE}px;
     height: ${BADGE_SIZE}px;
-    border-radius: 50%;
+    padding: 0 10px 0 8px;
+    border-radius: 17px;
     display: none;
     align-items: center;
     justify-content: center;
+    gap: 6px;
     box-sizing: border-box;
     border: none;
     background: #c4705a;
     color: #fdfbf7;
-    font: 600 13px/1 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
+    font: 600 11px/1 system-ui, -apple-system, 'Segoe UI', sans-serif;
     cursor: pointer;
     pointer-events: auto;
     box-shadow: 0 1px 4px rgba(38, 22, 16, 0.28);
@@ -112,9 +116,19 @@ const SHADOW_STYLE = `
     outline: 2px solid #c4705a;
     outline-offset: 2px;
   }
+  .badge .mark {
+    font: 600 19px/.8 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
+    transform: translateY(-1px);
+  }
+  .badge .copy {
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
 
   /* Thinking: a quiet breathing dot while the model reads. Shows life. */
   .badge.thinking {
+    width: ${BADGE_SIZE}px;
+    padding: 0;
     background: #fff;
     border: 1px solid #d8d5ce;
     box-shadow: 0 1px 3px rgba(38, 22, 16, 0.14);
@@ -171,7 +185,13 @@ export class SecondWordBadge {
       this.element.className = 'badge'
       this.element.setAttribute('role', 'button')
       this.element.setAttribute('tabindex', '0')
-      this.element.textContent = options.label
+      const mark = document.createElement('span')
+      mark.className = 'mark'
+      mark.textContent = options.label
+      const copy = document.createElement('span')
+      copy.className = 'copy'
+      copy.textContent = 'A word for this'
+      this.element.append(mark, copy)
       this.element.setAttribute('aria-label', `Second Word: ${options.title}`)
       // Clicking must not pull the caret out of the message being written.
       this.element.addEventListener('mousedown', (event) => event.preventDefault())
@@ -284,8 +304,13 @@ export class SecondWordBadge {
     }
 
     this.element.style.display = 'flex'
-    const inset = Math.max(this.gripInset(), this.neighbourInset())
-    this.element.style.left = `${Math.max(0, rect.right - BADGE_SIZE - inset)}px`
+    const neighbour = this.neighbourInset()
+    const inset = Math.max(this.gripInset(), neighbour)
+    // When Grammarly owns the bottom-right corner, move to the lower-left
+    // rather than creating a second competing control in its hit target.
+    const width = this.element.getBoundingClientRect().width || BADGE_PROMPT_WIDTH
+    const left = neighbour > 0 ? rect.left + 10 : rect.right - width - inset
+    this.element.style.left = `${Math.max(0, left)}px`
     this.element.style.top = `${Math.min(window.innerHeight - BADGE_SIZE, rect.bottom - BADGE_SIZE)}px`
   }
 

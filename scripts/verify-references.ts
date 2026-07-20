@@ -5,7 +5,7 @@
  * is a passage the product can never show, which means a principle that can
  * silently fall back on camera.
  *
- *   YOUVERSION_APP_KEY=... node --experimental-strip-types scripts/verify-references.ts
+ *   YOUVERSION_APP_KEY=... npm run verify:refs
  */
 
 import { PRINCIPLE_LIBRARY } from '../src/lib/scripture-library.ts'

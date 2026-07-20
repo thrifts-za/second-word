@@ -331,10 +331,10 @@ export class SecondWordPanel {
 
   private renderSafety(result: SafetyResponse): void {
     const body = this.panel()
-    body.append(heading('Take a moment'), el('p', 'status', result.message))
+    body.append(heading('You are not alone'), el('p', 'safety__lead', 'This message can wait. You matter more than it.'), el('p', 'status', result.message))
 
     const actions = el('div', 'actions')
-    const close = button('Close', 'action')
+    const close = button('Return to my draft', 'action')
     close.addEventListener('click', () => this.callbacks.onClose())
     actions.append(close)
     body.append(actions)
@@ -379,8 +379,15 @@ export class SecondWordPanel {
   private panel(): HTMLElement {
     this.clear()
     const panel = el('div', 'panel')
+    const header = el('div', 'panel__header')
+    header.append(el('span', 'panel__name', 'Second Word'))
+    const dismiss = button('×', 'panel__dismiss')
+    dismiss.setAttribute('aria-label', 'Dismiss Second Word')
+    dismiss.title = 'Dismiss'
+    dismiss.addEventListener('click', () => this.callbacks.onClose())
+    header.append(dismiss)
     const body = el('div', 'panel__body')
-    panel.append(body)
+    panel.append(header, body)
     this.root.append(panel)
     return body
   }

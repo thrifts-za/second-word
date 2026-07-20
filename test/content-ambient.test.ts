@@ -46,6 +46,18 @@ interface Harness {
   requests: Array<Record<string, unknown>>
 }
 
+class FakeHighlight {
+  constructor(readonly ranges: Range[]) {}
+}
+
+const highlights = new Map<string, unknown>()
+
+function stubCssHighlights(): void {
+  highlights.clear()
+  Object.defineProperty(globalThis, 'CSS', { value: { highlights }, configurable: true })
+  Object.defineProperty(globalThis, 'Highlight', { value: FakeHighlight, configurable: true })
+}
+
 /** Gmail's compose DOM, plus the message being replied to. */
 function mountHarness(options: { thread?: string; quoted?: string } = {}): Harness {
   document.body.replaceChildren()
@@ -182,6 +194,9 @@ afterEach(() => {
   documentListeners.length = 0
   document.addEventListener = realAddEventListener
   vi.unstubAllGlobals()
+  Reflect.deleteProperty(globalThis, 'CSS')
+  Reflect.deleteProperty(globalThis, 'Highlight')
+  highlights.clear()
   vi.useRealTimers()
 })
 
@@ -224,6 +239,49 @@ describe('ambient path', () => {
 
     expect(badges()).toBe(1)
     expect(document.querySelector('[data-second-word-panel]')).toBeNull()
+  })
+
+  it('marks an exact local phrase without changing the draft, then clears it on the next edit', async () => {
+    const harness = mountHarness()
+    stubChrome(true)
+    stubCssHighlights()
+    stubFetch(harness, PASSAGE)
+    await load()
+
+    const draft = 'You always dismiss what I say, and it is honestly embarrassing.'
+    await type(harness, draft)
+
+    expect(highlights.size).toBe(1)
+    expect(harness.body.textContent).toBe(draft)
+    expect(harness.body.querySelectorAll('span')).toHaveLength(0)
+
+    // Clearing happens synchronously on input, before the next debounce or
+    // request. No stale marker is allowed to describe words that are gone.
+    harness.body.textContent = 'I need some time before I respond.'
+    harness.body.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    expect(highlights.size).toBe(0)
+    expect(harness.body.textContent).toBe('I need some time before I respond.')
+  })
+
+  it('restores the resolved invitation after the card is dismissed', async () => {
+    const harness = mountHarness()
+    stubChrome(true)
+    stubFetch(harness, PASSAGE)
+    await load()
+
+    await type(harness, 'Dave, I sent the handover pack on the 14th and you were on the email. Please check before copying in the team.')
+
+    const badge = document.querySelector<HTMLElement>('second-word-badge')!
+    badge.shadowRoot!.querySelector<HTMLElement>('.badge')!.click()
+    const dismiss = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!
+      .querySelector<HTMLButtonElement>('.panel__dismiss')!
+    dismiss.click()
+
+    expect(badges()).toBe(1)
+    expect(document.querySelector('second-word-overlay')).toBeNull()
+    expect(harness.requests).toHaveLength(1)
   })
 
   it('sends the message being replied to, without its quoted history', async () => {

@@ -20,6 +20,7 @@ import type {
   SafetyResponse,
 } from '../src/lib/contracts'
 import { SecondWordBadge } from '../extension/src/badge'
+import { SecondWordOverlay } from '../extension/src/overlay'
 import { createScheduler } from '../extension/src/scheduler'
 import { SecondWordPanel, type AnalyzeOptions } from '../src/ui/panel'
 import { SCENARIOS, type Scenario } from './scenarios'
@@ -57,7 +58,9 @@ function clearChecked(): void {
 
 let scenario: Scenario = SCENARIOS[0]!
 let panel: SecondWordPanel | null = null
+let overlay: SecondWordOverlay | null = null
 let badge: SecondWordBadge | null = null
+let offer: AnalyzeResponse | SafetyResponse | null = null
 let lastEvaluated = ''
 let debounceTimer: number | undefined
 
@@ -72,6 +75,9 @@ const scheduler = createScheduler<AnalyzeResponse | SafetyResponse | NoMomentRes
 function renderScenario(next: Scenario): void {
   scenario = next
   closePanel()
+  badge?.destroy()
+  badge = null
+  offer = null
   chipSlot.replaceChildren()
   clearChecked()
   lastEvaluated = ''
@@ -107,9 +113,9 @@ for (const item of SCENARIOS) {
 function closePanel(): void {
   panel?.destroy()
   panel = null
+  overlay?.destroy()
+  overlay = null
   panelSlot.replaceChildren()
-  badge?.destroy()
-  badge = null
 }
 
 function buildPanel(): SecondWordPanel {
@@ -124,6 +130,7 @@ function buildPanel(): SecondWordPanel {
     },
     onClose: () => {
       closePanel()
+      restoreBadge()
       draftField.focus()
     },
   })
@@ -136,9 +143,11 @@ inviteButton.addEventListener('click', () => {
     return
   }
   closePanel()
+  badge?.destroy()
+  badge = null
   chipSlot.replaceChildren()
   panel = buildPanel()
-  panelSlot.append(panel.host)
+  overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
   panel.renderConsent(true)
 })
 
@@ -201,6 +210,7 @@ async function evaluateDraft(): Promise<void> {
 
 /** Automatic detection is not automatic interruption. The badge waits. */
 function showBadge(result: AnalyzeResponse | SafetyResponse): void {
+  offer = result
   const safety = !('verified_reference_id' in result)
   badge?.destroy()
   badge = new SecondWordBadge({
@@ -212,7 +222,7 @@ function showBadge(result: AnalyzeResponse | SafetyResponse): void {
       badge = null
       closePanel()
       panel = buildPanel()
-      panelSlot.append(panel.host)
+      overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
       // Already paid for. Re-running it to display it would be a second call.
       if ('verified_reference_id' in result) panel.present(result)
       else panel.presentSafety(result)
@@ -220,8 +230,17 @@ function showBadge(result: AnalyzeResponse | SafetyResponse): void {
   })
 }
 
+/** A choice to keep writing is not a choice to lose the reading forever. */
+function restoreBadge(): void {
+  if (!offer || !draftField.value.trim()) return
+  showBadge(offer)
+}
+
 draftField.addEventListener('input', () => {
   clearChecked()
+  offer = null
+  badge?.destroy()
+  badge = null
   window.clearTimeout(debounceTimer)
   debounceTimer = window.setTimeout(() => void evaluateDraft(), DEBOUNCE_MS)
 })
@@ -309,6 +328,8 @@ async function loadProvider(): Promise<void> {
 
 fillButton.addEventListener('click', () => {
   closePanel()
+  badge?.destroy()
+  badge = null
   chipSlot.replaceChildren()
   lastEvaluated = ''
   draftField.value = scenario.suggestedDraft
@@ -323,6 +344,8 @@ fillButton.addEventListener('click', () => {
 sendButton.addEventListener('click', () => {
   if (!draftField.value.trim()) return
   closePanel()
+  badge?.destroy()
+  badge = null
   chipSlot.replaceChildren()
   const note = document.createElement('span')
   note.className = 'sent'
@@ -330,6 +353,7 @@ sendButton.addEventListener('click', () => {
   chipSlot.append(note)
   draftField.value = ''
   lastEvaluated = ''
+  offer = null
 })
 
 renderScenario(SCENARIOS[0]!)

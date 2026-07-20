@@ -77,7 +77,9 @@ pre-challenge webinar. Confirm against `docs.gloo.com` when credentials arrive, 
 ```bash
 npm run verify:all      # typechecks, 54 tests, both bundles
 npm run verify:refs     # every reviewed reference resolves against YouVersion
-curl https://<worker>/health/upstream
+npm run preflight       # analyze -> Scripture -> signed rewrite -> tamper rejection
+# Once the keys are available, require the deployed provider to be Gloo:
+REQUIRE_GLOO=1 npm run preflight
 ```
 
 Then load `extension/dist` unpacked in Chrome and open a real Gmail compose window. Gmail changes

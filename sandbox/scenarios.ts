@@ -73,6 +73,38 @@ export const SCENARIOS: Scenario[] = [
       'So sorry to hear this Nomsa. He is in a better place now and everything happens for a reason. At least you got to say goodbye. Let me know if you need anything and do not worry about the client files at all.',
   },
   {
+    id: 'good-news',
+    tab: 'A win worth celebrating',
+    surface: 'email',
+    location: 'Inbox - Re: We got it',
+    received: {
+      from: 'Aisha, Project Lead',
+      meta: 'to the team, 14:06',
+      body:
+        'We have just been told that our proposal was selected. Thank you for the late nights, the honest feedback, and the way everyone carried each other through this.',
+    },
+    composerLabel: 'Your reply to Aisha and the team',
+    placeholder: 'Write the gratitude you actually want to send.',
+    suggestedDraft:
+      'We actually did it! This is huge. I am so proud of all of us and grateful for every person who kept showing up when this looked impossible.',
+  },
+  {
+    id: 'apology',
+    tab: 'I need to make it right',
+    surface: 'email',
+    location: 'Inbox - Re: Yesterday',
+    received: {
+      from: 'Lebo',
+      meta: 'to me, 09:12',
+      body:
+        'I left that conversation feeling dismissed. I know you were under pressure, but the way you spoke to me in front of everyone stayed with me.',
+    },
+    composerLabel: 'Your reply to Lebo',
+    placeholder: 'Write the apology you mean.',
+    suggestedDraft:
+      'You are right. I spoke to you in a way that was dismissive and unfair, especially in front of the team. I am sorry. You did not deserve that from me.',
+  },
+  {
     id: 'ordinary',
     tab: 'An ordinary message',
     surface: 'email',

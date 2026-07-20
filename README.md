@@ -117,6 +117,7 @@ npm test              # 143 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion
+npm run preflight     # probes the deployed vertical slice with a safe fixture
 ```
 
 Local backend, with a `.dev.vars` holding `TOKEN_SIGNING_KEY` and `LLM_PROVIDER`:

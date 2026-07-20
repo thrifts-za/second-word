@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BADGE_SIZE, SecondWordBadge } from '../extension/src/badge'
+import { BADGE_PROMPT_WIDTH, BADGE_SIZE, SecondWordBadge } from '../extension/src/badge'
 
 let field: HTMLTextAreaElement
 let measured = 0
@@ -76,7 +76,7 @@ describe('badge: positioning', () => {
     // D35, matching where people already expect to find it.
     const badge = mount()
     badge.reposition()
-    expect(badge.element.style.left).toBe(`${500 - BADGE_SIZE}px`)
+    expect(badge.element.style.left).toBe(`${500 - BADGE_PROMPT_WIDTH}px`)
     expect(badge.element.style.top).toBe(`${300 - BADGE_SIZE}px`)
     badge.destroy()
   })
@@ -184,6 +184,12 @@ describe('badge: interaction', () => {
     expect(badge.element.title).toContain('noticed something')
     badge.destroy()
   })
+
+  it('uses a readable invitation instead of an unexplained icon', () => {
+    const badge = mount()
+    expect(badge.element.textContent).toContain('A word for this')
+    badge.destroy()
+  })
 })
 
 describe('badge: staying out of the way', () => {
@@ -212,7 +218,7 @@ describe('badge: staying out of the way', () => {
     const badge = new SecondWordBadge({ field: div, label: '"', title: 'x', onOpen: () => {} })
     badge.reposition()
 
-    expect(badge.element.style.left).toBe(`${500 - BADGE_SIZE}px`)
+    expect(badge.element.style.left).toBe(`${500 - BADGE_PROMPT_WIDTH}px`)
     badge.destroy()
   })
 })
@@ -231,8 +237,9 @@ describe('badge: sharing the corner', () => {
     const badge = mount()
     badge.reposition()
 
-    // Clear of the corner by more than the resize grip alone would need.
-    expect(parseFloat(badge.element.style.left)).toBeLessThan(500 - BADGE_SIZE - 18)
+    // A readable prompt gets its own lower-left edge, not another control
+    // competing for Grammarly's bottom-right hit target.
+    expect(parseFloat(badge.element.style.left)).toBe(110)
     badge.destroy()
   })
 
@@ -243,7 +250,7 @@ describe('badge: sharing the corner', () => {
     const badge = mount()
     badge.reposition()
 
-    expect(parseFloat(badge.element.style.left)).toBeLessThan(500 - BADGE_SIZE - 18)
+    expect(parseFloat(badge.element.style.left)).toBe(110)
     badge.destroy()
   })
 
@@ -256,7 +263,7 @@ describe('badge: sharing the corner', () => {
     const badge = new SecondWordBadge({ field: div, label: '"', title: 'x', onOpen: () => {} })
     badge.reposition()
 
-    expect(badge.element.style.left).toBe(`${500 - BADGE_SIZE}px`)
+    expect(badge.element.style.left).toBe(`${500 - BADGE_PROMPT_WIDTH}px`)
     badge.destroy()
   })
 })

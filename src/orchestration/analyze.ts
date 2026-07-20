@@ -41,8 +41,8 @@ export interface AnalyzeDeps {
  * and verify; a wrong number is worse than none, so none is hard-coded here.
  */
 const SAFETY_MESSAGE =
-  'This looks heavier than anything a rewrite could help with, and your draft has not been changed. ' +
-  'If you are carrying something hard right now, please reach out to someone you trust, or a crisis line where you are. You do not have to hold it alone.'
+  'Before we do anything with these words: you are not alone, and your life is more precious than this conversation. ' +
+  'Second Word will not turn this into a rewrite. Please step toward someone you trust, or a crisis line where you are, and let them be with you now.'
 
 export async function runAnalyze(
   request: AnalyzeRequest,
