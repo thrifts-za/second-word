@@ -6,13 +6,9 @@
  * payment details even on its free tier, and every card tried was declined, so
  * no credentials exist yet to test against.
  *
- * UNVERIFIED, and both overridable by env var so wiring credentials never
- * needs a code change:
- *   - token URL and API base, taken from the pre-challenge webinar
- *   - the model name
- *
- * Confirm against docs.gloo.com when credentials land, then update
- * docs/api-notes.md.
+ * Endpoint defaults were confirmed against Gloo's official developer
+ * quickstart on 2026-07-20. They remain overridable because available models
+ * are organization-specific and credentials still need a live smoke test.
  */
 
 import { GlooAnalysisSchema, GlooRewritesSchema, type GlooAnalysis, type GlooRewrites } from '../lib/contracts'
@@ -26,8 +22,8 @@ import {
 } from './model'
 
 const DEFAULT_TOKEN_URL = 'https://platform.ai.gloo.com/oauth2/token'
-const DEFAULT_API_BASE = 'https://platform.ai.gloo.com/ai/v1'
-const DEFAULT_MODEL = 'meta.llama3-3-70b-instruct'
+const DEFAULT_API_BASE = 'https://platform.ai.gloo.com/ai/v2'
+const DEFAULT_MODEL = 'gloo-openai-gpt-5-mini'
 
 export interface GlooConfig {
   clientId: string

@@ -68,14 +68,15 @@ LLM_PROVIDER = "gloo"    # was "workers-ai"
 
 Then redeploy. Nothing else changes: same interface, same prompts, same schema, same allow-lists.
 
-**The Gloo path is unverified.** Token URL, API base and model name are best-effort values from the
-pre-challenge webinar. Confirm against `docs.gloo.com` when credentials arrive, override with
-`GLOO_TOKEN_URL` / `GLOO_API_BASE` / `GLOO_MODEL` if they differ, and update `docs/api-notes.md`.
+**The Gloo path still needs a live credential smoke test.** OAuth, the `/ai/v2` base URL, and the
+default model were verified against Gloo's official developer quickstart on 2026-07-20. Model
+access remains organization-specific: override `GLOO_TOKEN_URL` / `GLOO_API_BASE` / `GLOO_MODEL`
+if needed, then run the required-Gloo preflight below before claiming it is live.
 
 ## 5. Before filming
 
 ```bash
-npm run verify:all      # typechecks, 54 tests, both bundles
+npm run verify:all      # typechecks, tests, both bundles, extension artifact gate
 npm run verify:refs     # every reviewed reference resolves against YouVersion
 npm run preflight       # analyze -> Scripture -> signed rewrite -> tamper rejection
 # Once the keys are available, require the deployed provider to be Gloo:
