@@ -18,7 +18,9 @@
 import type { ComposerAdapter } from './types'
 
 /** Inputs where a passing glance is a security incident. D18. */
-const FORBIDDEN_INPUT_TYPES = new Set(['password', 'hidden'])
+// Search and form fields are not messages. Treating a large site-search box
+// as a composer would be a privacy mistake, not merely an awkward badge.
+const FORBIDDEN_INPUT_TYPES = new Set(['password', 'hidden', 'search', 'email', 'url', 'tel', 'number'])
 
 const FORBIDDEN_AUTOCOMPLETE = /^(one-time-code|cc-|current-password|new-password)/i
 
