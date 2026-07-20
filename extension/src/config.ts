@@ -12,6 +12,7 @@ const KEYS = {
   globalOff: 'globalOff',
   disabledSites: 'disabledSites',
   ambient: 'ambient',
+  translationId: 'translationId',
 } as const
 
 interface Stored {
@@ -30,6 +31,8 @@ interface Stored {
    * Off by default. Until it is on, Second Word only speaks when pressed.
    */
   [KEYS.ambient]?: boolean
+  /** A YouVersion version ID selected from the Worker-provided entitlement list. */
+  [KEYS.translationId]?: string
 }
 
 /** chrome.storage is absent in tests and in the sandbox build. */
@@ -40,7 +43,7 @@ function storage(): chrome.storage.LocalStorageArea | null {
 async function read(): Promise<Stored> {
   const area = storage()
   if (!area) return {}
-  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient])) as Stored
+  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.translationId])) as Stored
 }
 
 export async function apiBase(): Promise<string> {
@@ -78,6 +81,10 @@ export async function setApiBase(value: string): Promise<void> {
   await storage()?.set({ [KEYS.apiBase]: value.replace(/\/$/, '') })
 }
 
+export async function setTranslationId(value: string): Promise<void> {
+  await storage()?.set({ [KEYS.translationId]: value })
+}
+
 export async function settings(): Promise<Required<Stored>> {
   const stored = await read()
   return {
@@ -85,5 +92,6 @@ export async function settings(): Promise<Required<Stored>> {
     globalOff: stored[KEYS.globalOff] ?? false,
     disabledSites: stored[KEYS.disabledSites] ?? [],
     ambient: stored[KEYS.ambient] ?? false,
+    translationId: stored[KEYS.translationId] ?? '',
   }
 }

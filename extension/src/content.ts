@@ -32,7 +32,7 @@ import { SecondWordBadge } from './badge'
 import { SecondWordOverlay } from './overlay'
 import { markMoments, type MomentMarker } from './moment-marker'
 import { createScheduler } from './scheduler'
-import { apiBase, isAmbient, isEnabledFor } from './config'
+import { apiBase, isAmbient, isEnabledFor, settings } from './config'
 
 /**
  * Gmail is the generic adapter plus the one thing only Gmail can do. D14.
@@ -339,6 +339,7 @@ async function analyze(
   options: AnalyzeOptions & { received?: string },
 ): Promise<AnalyzeResponse | SafetyResponse> {
   const base = await apiBase()
+  const translationId = (await settings()).translationId
   const response = await fetch(`${base}/v1/analyze`, {
     method: 'POST',
     signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
@@ -349,6 +350,7 @@ async function analyze(
       ...(options.principle ? { principle_hint: options.principle } : {}),
       ...(options.context ? { context: options.context } : {}),
       ...(options.received ? { received_message: options.received } : {}),
+      ...(translationId ? { translation_id: translationId } : {}),
     }),
   })
   if (!response.ok) throw new Error(`analyze failed: ${response.status}`)

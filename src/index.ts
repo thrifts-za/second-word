@@ -87,6 +87,22 @@ app.get('/health', (c) =>
   }),
 )
 
+/** Versions are sourced from the app's YouVersion entitlement, never a hard-coded list. */
+app.get('/v1/bibles', async (c) => {
+  try {
+    const bibles = await new YouVersionClient(c.env.YOUVERSION_APP_KEY).listEnglishBibles()
+    return c.json({
+      bibles: bibles.map((bible) => ({
+        id: bible.id,
+        abbreviation: bible.localizedAbbreviation,
+        title: bible.localizedTitle,
+      })),
+    })
+  } catch (error) {
+    return errorResponse(c, error)
+  }
+})
+
 /**
  * Live upstream probe. Required by the preflight checklist before filming:
  * a green /health only means the Worker booted, not that Scripture is reachable.

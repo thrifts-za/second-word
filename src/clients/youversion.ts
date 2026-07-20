@@ -21,6 +21,7 @@ const BASE_URL = 'https://api.youversion.com/v1'
 const PASSAGE_TIMEOUT_MS = 4000
 /** Attribution is best-effort, so it gets a tighter leash. */
 const BIBLE_TIMEOUT_MS = 2500
+const BIBLE_LIST_TIMEOUT_MS = 4000
 
 export interface Passage {
   referenceId: string
@@ -161,6 +162,30 @@ export class YouVersionClient {
     const record = toBibleRecord((await response.json()) as RawBible)
     this.bibleCache.set(record.id, record)
     return record
+  }
+
+  /**
+   * Only YouVersion can say which translations this app is licensed to show.
+   * The client uses this list for its picker instead of shipping a speculative
+   * catalogue of popular versions.
+   */
+  async listEnglishBibles(): Promise<BibleRecord[]> {
+    let response: Response
+    try {
+      response = await this.fetchImpl(`${BASE_URL}/bibles?language_ranges=en*&page_size=50`, {
+        headers: this.headers(),
+        signal: AbortSignal.timeout(BIBLE_LIST_TIMEOUT_MS),
+      })
+    } catch (error) {
+      if ((error as Error).name === 'TimeoutError' || (error as Error).name === 'AbortError') {
+        throw new YouVersionError('bible list lookup timed out', 504)
+      }
+      throw error
+    }
+    if (!response.ok) throw new YouVersionError(`bible list lookup failed (${response.status})`, response.status)
+
+    const body = (await response.json()) as { data?: RawBible[] }
+    return (body.data ?? []).map(toBibleRecord).filter((bible) => Boolean(bible.id))
   }
 
   /**

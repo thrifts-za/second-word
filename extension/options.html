@@ -41,7 +41,7 @@
   label.row input { margin-top: 3px; }
   .row__hint { display: block; font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
 
-  input[type="url"] {
+  input[type="url"], select {
     width: 100%;
     padding: 9px 11px;
     border: 1px solid var(--line);
@@ -75,6 +75,12 @@
   <div class="wrap">
     <h1>Second Word</h1>
     <p class="tagline">Scripture in the space between reaction and response.</p>
+
+    <div class="card">
+      <h2>Translation</h2>
+      <p>Only versions available to this app through YouVersion appear here. Your choice stays in this browser.</p>
+      <select id="translation" aria-label="Bible translation"><option>Loading available versions…</option></select>
+    </div>
 
     <div class="card">
       <h2>What this sees</h2>
