@@ -9,9 +9,10 @@ Nobody carries a Bible to work, and nobody stops mid-email to search for a verse
 most of the working week happens in a text box: Slack, Teams, WhatsApp, email, a prompt
 box at one in the morning. Second Word puts Scripture there.
 
-It watches for the moments that will still matter in a year, and it is quiet the rest of
-the time. It never posts, never blocks Send, never edits without a click, and never
-writes into the box you are typing in.
+Once a person explicitly enables automatic noticing, it watches for the moments that
+will still matter in a year and stays quiet the rest of the time. Until then it only
+reads a draft they choose to reflect on. It never posts, never blocks Send, never edits
+without a click, and never writes into the box they are typing in.
 
 Built for the [Scripture in New Frontiers](https://www.kaggle.com/competitions/scripture-in-new-frontiers)
 challenge, on the YouVersion Platform API and Gloo AI Studio. MIT licensed.
@@ -23,11 +24,11 @@ challenge, on the YouVersion Platform API and Gloo AI Studio. MIT licensed.
 
 ## Three ideas hold this together
 
-**It cannot wait to be asked.** An earlier version had a button. That fails on its own
-terms: the moment you most need a pause is the moment you are least willing to reach for
-one, and nobody presses a button to be reminded to give thanks. So it looks on its own
-once typing settles, and a mark appears in the corner of the box. Nothing opens. Clicking
-it is still your choice. Automatic detection is not automatic interruption.
+**It should not have to wait to be asked—but that is the person's choice.** The moment
+you most need a pause is the moment you are least willing to reach for one, and nobody
+presses a button to be reminded to give thanks. So, after explicit opt-in, it looks once
+typing settles and a mark appears in the corner of the box. Nothing opens. Clicking it is
+still your choice. Automatic detection is not automatic interruption.
 
 **It reads the message you are answering.** Proverbs 16:2 as an architectural argument
 rather than a decoration: you cannot weigh yourself. A reply to a rejection is calm on its
@@ -113,7 +114,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 143 tests, no credentials needed
+npm test              # 160 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion
