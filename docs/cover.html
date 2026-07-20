@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Second Word - cover</title>
+<style>
+  /* Kaggle cover image. Render at 1200x630 and screenshot #cover.
+     Same vocabulary as the panel: Bible-page typography, hanging verse
+     marker, hairline rule, one clay accent. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body { background: #2a2d33; display: grid; place-items: center; min-height: 100vh; }
+
+  #cover {
+    width: 1200px;
+    height: 630px;
+    background: #16181d;
+    color: #ece9e2;
+    padding: 74px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .book { font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif; }
+
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #6b6862;
+  }
+
+  .wordmark {
+    font-size: 78px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-top: 16px;
+  }
+
+  .tagline {
+    font-size: 27px;
+    font-style: italic;
+    color: #9a978f;
+    margin-top: 18px;
+  }
+
+  /* The epigraph, set like a Bible page: hanging marker, rule at the margin. */
+  .epigraph {
+    position: relative;
+    padding-left: 30px;
+    border-left: 1px solid #c4705a;
+    max-width: 720px;
+  }
+
+  .epigraph__marker {
+    position: absolute;
+    left: 12px;
+    top: 4px;
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #c4705a;
+  }
+
+  .epigraph__text { font-size: 25px; line-height: 1.5; color: #ece9e2; }
+
+  .epigraph__ref {
+    margin-top: 12px;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #6b6862;
+  }
+
+  .foot {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .question {
+    font-size: 21px;
+    line-height: 1.45;
+    color: #ece9e2;
+    max-width: 560px;
+  }
+
+  .apis { font-size: 13px; line-height: 1.7; color: #6b6862; text-align: right; }
+  .apis strong { color: #9a978f; font-weight: 500; }
+</style>
+</head>
+<body>
+  <div id="cover">
+    <div>
+      <div class="eyebrow">Scripture in New Frontiers</div>
+      <h1 class="wordmark book">Second Word</h1>
+      <p class="tagline book">Scripture in the space between reaction and response.</p>
+    </div>
+
+    <blockquote class="epigraph">
+      <span class="epigraph__marker">21</span>
+      <p class="epigraph__text book">Do not let them out of your sight, keep them within your heart.</p>
+      <p class="epigraph__ref">Proverbs 4:20-21 &middot; NIV</p>
+    </blockquote>
+
+    <div class="foot">
+      <p class="question book">Most of what you send this week should be fast. One or two messages will still matter in a year.</p>
+      <p class="apis"><strong>YouVersion Platform API</strong><br />Gloo AI Studio</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "chrome"
+    ]
+  },
+  "include": [
+    "src/ui/**/*.ts",
+    "src/lib/**/*.ts",
+    "sandbox/**/*.ts",
+    "extension/src/**/*.ts",
+    "test/gmail-adapter.test.ts",
+    "test/fixtures/**/*.ts",
+    "test/gmail-received.test.ts",
+    "test/generic-adapter.test.ts",
+    "test/badge.test.ts",
+    "test/choose-adapter.test.ts",
+    "test/content-ambient.test.ts",
+    "test/overlay.test.ts"
+  ]
+}

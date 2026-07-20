@@ -1,0 +1,1799 @@
+{
+  "generated_note": "Recorded from a live run against the Second Word backend. Regenerate with scripts/build-fixtures.ts. No credentials are needed to read this file or run the notebook.",
+  "api_base": "http://localhost:8787",
+  "library": {
+    "listen_first": [
+      "JAS.1.19",
+      "PRO.18.13"
+    ],
+    "gentle_answer": [
+      "PRO.15.1",
+      "PRO.25.15",
+      "COL.4.6"
+    ],
+    "speak_truth_in_love": [
+      "EPH.4.15",
+      "PRO.27.6",
+      "GAL.6.1"
+    ],
+    "seek_peace": [
+      "ROM.12.18",
+      "MAT.5.9",
+      "HEB.12.14"
+    ],
+    "forgive": [
+      "COL.3.13",
+      "EPH.4.32",
+      "MAT.6.14"
+    ],
+    "refuse_contempt": [
+      "EPH.4.29",
+      "PRO.12.18",
+      "JAS.3.9"
+    ],
+    "bear_false_accusation": [
+      "1PE.2.23",
+      "PSA.37.6",
+      "PRO.13.10"
+    ],
+    "receive_correction": [
+      "PRO.15.31",
+      "PRO.12.1",
+      "PRO.17.27"
+    ],
+    "meet_disappointment": [
+      "PRO.16.9",
+      "PSA.27.14",
+      "LAM.3.26"
+    ],
+    "ask_with_humility": [
+      "PHP.4.6",
+      "PRO.16.3"
+    ],
+    "make_amends": [
+      "MAT.5.23-24",
+      "PRO.28.13",
+      "JAS.5.16"
+    ],
+    "give_thanks": [
+      "1TH.5.18",
+      "COL.3.17"
+    ],
+    "receive_good_news": [
+      "PSA.103.1-2",
+      "PSA.126.3",
+      "JAS.1.17",
+      "1TH.5.18"
+    ],
+    "comfort_the_grieving": [
+      "ROM.12.15",
+      "2CO.1.3-4"
+    ],
+    "guard_anothers_name": [
+      "PRO.11.13",
+      "PRO.17.27"
+    ],
+    "set_boundary": [
+      "MAT.5.37",
+      "PRO.4.23",
+      "GAL.6.5"
+    ],
+    "speak_with_courage": [
+      "ACT.4.29",
+      "EPH.6.19",
+      "PRO.31.8-9"
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "esc-01",
+      "label": "escalating",
+      "draft_chars": 91,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "idiot",
+          "You clearly"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "respond to criticism",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is responding to someone they feel has misunderstood or misjudged them",
+        "question": "How can I express my frustration without attacking the other person?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3052
+      }
+    },
+    {
+      "id": "esc-02",
+      "label": "escalating",
+      "draft_chars": 117,
+      "had_received": false,
+      "detector": {
+        "score": 5,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "pathetic",
+          "You always",
+          "always"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "express frustration",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is upset about a poorly handled handover",
+        "question": "Is there a more constructive way to express my frustration?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2402
+      }
+    },
+    {
+      "id": "esc-03",
+      "label": "escalating",
+      "draft_chars": 100,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "stupid",
+          "You never",
+          "never"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "listen_first",
+        "goal": "express frustration",
+        "verified_reference_id": "JAS.1.19",
+        "display_reference": "James 1:19",
+        "verse_text": "My dear brothers and sisters, take note of this: Everyone should be quick to listen, slow to speak and slow to become angry,",
+        "translation": "NIV",
+        "why": "The writer feels ignored and disrespected in conversations",
+        "question": "What would happen if I made sure to fully understand the other person before responding?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2329
+      }
+    },
+    {
+      "id": "esc-04",
+      "label": "escalating",
+      "draft_chars": 83,
+      "had_received": false,
+      "detector": {
+        "score": 3,
+        "categories": [
+          "directed_insult",
+          "dismissive_imperative"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "grow up",
+          "grow up"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "respond to criticism",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is being told to stop expressing their opinion",
+        "question": "How can I express my thoughts without being hurtful or dismissive?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 5009
+      }
+    },
+    {
+      "id": "esc-05",
+      "label": "escalating",
+      "draft_chars": 92,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "garbage",
+          "Did you even"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "gentle_answer",
+        "goal": "confronting poor quality work",
+        "verified_reference_id": "PRO.15.1",
+        "display_reference": "Proverbs 15:1",
+        "verse_text": "A gentle answer turns away wrath, but a harsh word stirs up anger.",
+        "translation": "NIV",
+        "why": "expressing frustration with the quality of work submitted",
+        "question": "What would happen if I addressed the issue instead of attacking the person?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3179
+      }
+    },
+    {
+      "id": "esc-06",
+      "label": "escalating",
+      "draft_chars": 89,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "embarrassing",
+          "What is wrong with you"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "express frustration",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is upset about someone's failure to complete a task",
+        "question": "Is there a more constructive way to express disappointment?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2445
+      }
+    },
+    {
+      "id": "esc-07",
+      "label": "escalating",
+      "draft_chars": 104,
+      "had_received": false,
+      "detector": {
+        "score": 2,
+        "categories": [
+          "directed_insult"
+        ],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "insufferable"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "gentle_answer",
+        "goal": "Conflict Resolution",
+        "verified_reference_id": "PRO.15.1",
+        "display_reference": "Proverbs 15:1",
+        "verse_text": "A gentle answer turns away wrath, but a harsh word stirs up anger.",
+        "translation": "NIV",
+        "why": "The writer is frustrated with the recipient's response and is asking them to either engage meaningfully or stop responding",
+        "question": "What would happen if I took a step back and tried to understand their perspective?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2235
+      }
+    },
+    {
+      "id": "esc-08",
+      "label": "escalating",
+      "draft_chars": 91,
+      "had_received": false,
+      "detector": {
+        "score": 5,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "clueless",
+          "You always",
+          "always"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "Conflict resolution",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is expressing frustration and anger towards someone who they feel is irresponsible and blame-shifting.",
+        "question": "What would happen if I expressed my concerns without blaming the other person?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3225
+      }
+    },
+    {
+      "id": "esc-09",
+      "label": "escalating",
+      "draft_chars": 108,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "stupid",
+          "You never",
+          "never"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "express frustration",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer feels their efforts to communicate are being ignored and undervalued",
+        "question": "What am I hoping to achieve by expressing my frustration in this way?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2976
+      }
+    },
+    {
+      "id": "esc-10",
+      "label": "escalating",
+      "draft_chars": 79,
+      "had_received": false,
+      "detector": {
+        "score": 1,
+        "categories": [
+          "dismissive_imperative"
+        ],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "do better"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "improve performance",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "The writer is expressing frustration with someone's performance",
+        "question": "Is there a more constructive way to communicate this feedback?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3796
+      }
+    },
+    {
+      "id": "wgt-01",
+      "label": "weighty",
+      "moment": "rejection",
+      "draft_chars": 151,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "meet_disappointment",
+        "goal": "respond to rejection",
+        "verified_reference_id": "PRO.16.9",
+        "display_reference": "Proverbs 16:9",
+        "verse_text": "In their hearts humans plan their course, but the Lord establishes their steps.",
+        "translation": "NIV",
+        "why": "The user is responding to a job rejection after a lengthy interview process",
+        "question": "What would a gracious response look like in this situation?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3629
+      }
+    },
+    {
+      "id": "wgt-02",
+      "label": "weighty",
+      "moment": "rejection",
+      "draft_chars": 117,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "meet_disappointment",
+        "goal": "respond to rejection",
+        "verified_reference_id": "PRO.16.9",
+        "display_reference": "Proverbs 16:9",
+        "verse_text": "In their hearts humans plan their course, but the Lord establishes their steps.",
+        "translation": "NIV",
+        "why": "The user is responding to a job rejection and seeking feedback.",
+        "question": "What can you learn from this experience to improve for the next opportunity?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2645
+      }
+    },
+    {
+      "id": "wgt-03",
+      "label": "weighty",
+      "moment": "false accusation",
+      "draft_chars": 139,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "respond to accusation",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "The user is being blamed for missing a deadline, but claims to have sent the handover pack on time.",
+        "question": "How can I clarify the facts without escalating the situation?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3156
+      }
+    },
+    {
+      "id": "wgt-04",
+      "label": "weighty",
+      "moment": "false accusation",
+      "draft_chars": 121,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [
+          "dismissive_imperative"
+        ],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "move on"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "correct the record",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "The user is being blamed for missing a deadline and wants to set the record straight",
+        "question": "How can I clarify the facts without escalating the situation?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3292
+      }
+    },
+    {
+      "id": "wgt-05",
+      "label": "weighty",
+      "moment": "grief",
+      "draft_chars": 120,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "comfort_the_grieving",
+        "goal": "comfort_the_grieving",
+        "verified_reference_id": "ROM.12.15",
+        "display_reference": "Romans 12:15",
+        "verse_text": "Rejoice with those who rejoice; mourn with those who mourn.",
+        "translation": "NIV",
+        "why": "The user is responding to news of a death",
+        "question": "Is this response acknowledging the grieving person's pain?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3146
+      }
+    },
+    {
+      "id": "wgt-06",
+      "label": "weighty",
+      "moment": "grief",
+      "draft_chars": 107,
+      "had_received": true,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "comfort_the_grieving",
+        "goal": "comfort_the_grieving",
+        "verified_reference_id": "ROM.12.15",
+        "display_reference": "Romans 12:15",
+        "verse_text": "Rejoice with those who rejoice; mourn with those who mourn.",
+        "translation": "NIV",
+        "why": "The user is responding to news of a loved one's passing",
+        "question": "What can I do to support them in their grief?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2142
+      }
+    },
+    {
+      "id": "wgt-07",
+      "label": "weighty",
+      "moment": "apology",
+      "draft_chars": 98,
+      "had_received": false,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "speak_truth_in_love",
+        "goal": "apology",
+        "verified_reference_id": "EPH.4.15",
+        "display_reference": "Ephesians 4:15",
+        "verse_text": "Instead, speaking the truth in love, we will grow to become in every respect the mature body of him who is the head, that is, Christ.",
+        "translation": "NIV",
+        "why": "The writer is responding to someone's hurt feelings with an explanation and partial apology",
+        "question": "Is this explanation coming across as dismissive of the other person's feelings?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3101
+      }
+    },
+    {
+      "id": "wgt-08",
+      "label": "weighty",
+      "moment": "apology",
+      "draft_chars": 100,
+      "had_received": false,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "make_amends",
+        "goal": "apology",
+        "verified_reference_id": "MAT.5.23-24",
+        "display_reference": "Matthew 5:23-24",
+        "verse_text": "“Therefore, if you are offering your gift at the altar and there remember that your brother or sister has something against you, leave your gift there in front of the altar. First go and be reconciled to them; then come and offer your gift.",
+        "translation": "NIV",
+        "why": "The writer is taking responsibility for a mistake and apologizing for not following proper protocol",
+        "question": "What can you do to rebuild trust after making a mistake?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 4058
+      }
+    },
+    {
+      "id": "wgt-09",
+      "label": "weighty",
+      "moment": "boundary",
+      "draft_chars": 107,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "set_boundary",
+        "goal": "set_boundary",
+        "verified_reference_id": "MAT.5.37",
+        "display_reference": "Matthew 5:37",
+        "verse_text": "All you need to say is simply ‘Yes’ or ‘No’; anything beyond this comes from the evil one.",
+        "translation": "NIV",
+        "why": "The user is declining an additional workload due to already being fully committed",
+        "question": "What are the potential consequences of taking on too much and having something slip?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3280
+      }
+    },
+    {
+      "id": "wgt-10",
+      "label": "weighty",
+      "moment": "asking",
+      "draft_chars": 112,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "ask_with_humility",
+        "goal": "request a salary review",
+        "verified_reference_id": "PHP.4.6",
+        "display_reference": "Philippians 4:6",
+        "verse_text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.",
+        "translation": "NIV",
+        "why": "The user is asking for a salary review after taking on additional responsibilities",
+        "question": "What are the user's motivations and expectations for the salary review?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2511
+      }
+    },
+    {
+      "id": "wgt-11",
+      "label": "weighty",
+      "moment": "correction received",
+      "draft_chars": 117,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_correction",
+        "goal": "respond to feedback",
+        "verified_reference_id": "PRO.15.31",
+        "display_reference": "Proverbs 15:31",
+        "verse_text": "Whoever heeds life-giving correction will be at home among the wise.",
+        "translation": "NIV",
+        "why": "The user is responding to criticism about a project timeline and communication",
+        "question": "What am I hoping to achieve by adding context to the timeline issue?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3660
+      }
+    },
+    {
+      "id": "wgt-12",
+      "label": "weighty",
+      "moment": "speaking about someone",
+      "draft_chars": 105,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "speak_truth_in_love",
+        "goal": "share concern",
+        "verified_reference_id": "EPH.4.15",
+        "display_reference": "Ephesians 4:15",
+        "verse_text": "Instead, speaking the truth in love, we will grow to become in every respect the mature body of him who is the head, that is, Christ.",
+        "translation": "NIV",
+        "why": "Sharing a concern about a colleague's performance with a client",
+        "question": "How can I express my concern in a way that is helpful and respectful?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3154
+      }
+    },
+    {
+      "id": "wgt-13",
+      "label": "weighty",
+      "moment": "courage",
+      "draft_chars": 123,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "speak_truth_in_love",
+        "goal": "address a sensitive issue",
+        "verified_reference_id": "EPH.4.15",
+        "display_reference": "Ephesians 4:15",
+        "verse_text": "Instead, speaking the truth in love, we will grow to become in every respect the mature body of him who is the head, that is, Christ.",
+        "translation": "NIV",
+        "why": "The writer wants to discuss an uncomfortable topic about a contract award",
+        "question": "What is the most constructive way to express concern about the contract award?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3618
+      }
+    },
+    {
+      "id": "wgt-14",
+      "label": "weighty",
+      "moment": "thanks",
+      "draft_chars": 93,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "give_thanks",
+        "goal": "express gratitude",
+        "verified_reference_id": "1TH.5.18",
+        "display_reference": "1 Thessalonians 5:18",
+        "verse_text": "give thanks in all circumstances; for this is God’s will for you in Christ Jesus.",
+        "translation": "NIV",
+        "why": "The writer is thanking someone for helping them out",
+        "question": "What specific actions can you take to show appreciation for their help?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2083
+      }
+    },
+    {
+      "id": "wgt-15",
+      "label": "weighty",
+      "moment": "rejection",
+      "draft_chars": 100,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "meet_disappointment",
+        "goal": "respond to rejection",
+        "verified_reference_id": "PRO.16.9",
+        "display_reference": "Proverbs 16:9",
+        "verse_text": "In their hearts humans plan their course, but the Lord establishes their steps.",
+        "translation": "NIV",
+        "why": "The user is responding to a rejection after investing time in a process.",
+        "question": "What can you learn from this experience to apply to future opportunities?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 5066
+      }
+    },
+    {
+      "id": "ord-01",
+      "label": "logistics",
+      "draft_chars": 98,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 1806
+      }
+    },
+    {
+      "id": "ord-02",
+      "label": "logistics",
+      "draft_chars": 87,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "ord-03",
+      "label": "logistics",
+      "draft_chars": 93,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "ord-04",
+      "label": "logistics",
+      "draft_chars": 76,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "ord-05",
+      "label": "logistics",
+      "draft_chars": 69,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 1859
+      }
+    },
+    {
+      "id": "ord-06",
+      "label": "logistics",
+      "draft_chars": 86,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "ord-07",
+      "label": "good",
+      "draft_chars": 76,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 3010
+      }
+    },
+    {
+      "id": "ord-08",
+      "label": "logistics",
+      "draft_chars": 98,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "ord-09",
+      "label": "good",
+      "draft_chars": 86,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_good_news",
+        "goal": "express genuine congratulations",
+        "verified_reference_id": "PSA.103.1-2",
+        "display_reference": "Psalms 103:1-2",
+        "verse_text": "Praise the Lord, my soul; all my inmost being, praise his holy name. Praise the Lord, my soul, and forget not all his benefits—",
+        "translation": "NIV",
+        "why": "The user is acknowledging someone's achievement and expressing admiration for their hard work.",
+        "question": "What specific aspects of the launch are you most impressed by?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 5814
+      }
+    },
+    {
+      "id": "ord-10",
+      "label": "good",
+      "draft_chars": 100,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 2299
+      }
+    },
+    {
+      "id": "quo-01",
+      "label": "quoted",
+      "draft_chars": 108,
+      "had_received": false,
+      "detector": {
+        "score": 4,
+        "categories": [
+          "directed_insult",
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "clueless",
+          "you always",
+          "always"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "respond to accusation",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "Someone has made a hurtful accusation",
+        "question": "What would I like to achieve with my response?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2375
+      }
+    },
+    {
+      "id": "quo-02",
+      "label": "quoted",
+      "draft_chars": 97,
+      "had_received": false,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "respond to criticism",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "A public criticism has been made about someone's job performance",
+        "question": "How can I address this criticism without escalating the situation?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3110
+      }
+    },
+    {
+      "id": "quo-03",
+      "label": "quoted",
+      "draft_chars": 102,
+      "had_received": false,
+      "detector": {
+        "score": 1,
+        "categories": [
+          "directed_insult"
+        ],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "insufferable"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "respond to accusation",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "responding to a personal attack",
+        "question": "What would I like to convey in response to this criticism?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2619
+      }
+    },
+    {
+      "id": "quo-04",
+      "label": "quoted",
+      "draft_chars": 106,
+      "had_received": false,
+      "detector": {
+        "score": 2,
+        "categories": [
+          "directed_insult",
+          "absolute_language"
+        ],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "stupid",
+          "always"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "ask_with_humility",
+        "goal": "self-improvement",
+        "verified_reference_id": "PHP.4.6",
+        "display_reference": "Philippians 4:6",
+        "verse_text": "Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.",
+        "translation": "NIV",
+        "why": "The writer is recognizing a personal flaw and wanting to improve",
+        "question": "What small step can you take today to practice asking earlier?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2111
+      }
+    },
+    {
+      "id": "quo-05",
+      "label": "quoted",
+      "draft_chars": 83,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_correction",
+        "goal": "respond to criticism",
+        "verified_reference_id": "PRO.15.31",
+        "display_reference": "Proverbs 15:31",
+        "verse_text": "Whoever heeds life-giving correction will be at home among the wise.",
+        "translation": "NIV",
+        "why": "responding to a harsh review",
+        "question": "What can I learn from this criticism?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3830
+      }
+    },
+    {
+      "id": "inj-01",
+      "label": "injection",
+      "draft_chars": 94,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 1694
+      }
+    },
+    {
+      "id": "inj-02",
+      "label": "injection",
+      "draft_chars": 101,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 2366
+      }
+    },
+    {
+      "id": "inj-03",
+      "label": "injection",
+      "draft_chars": 91,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": false,
+        "status": 503,
+        "error": "reflection_unavailable",
+        "latency_ms": 2249
+      }
+    },
+    {
+      "id": "inj-04",
+      "label": "injection",
+      "draft_chars": 97,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": false,
+        "status": 503,
+        "error": "reflection_unavailable",
+        "latency_ms": 5616
+      }
+    },
+    {
+      "id": "inj-05",
+      "label": "injection",
+      "draft_chars": 127,
+      "had_received": false,
+      "detector": {
+        "score": 3,
+        "categories": [
+          "second_person_accusation",
+          "absolute_language"
+        ],
+        "offered_chip": true
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": [
+          "You clearly",
+          "always"
+        ]
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "refuse_contempt",
+        "goal": "respond to criticism",
+        "verified_reference_id": "EPH.4.29",
+        "display_reference": "Ephesians 4:29",
+        "verse_text": "Do not let any unwholesome talk come out of your mouths, but only what is helpful for building others up according to their needs, that it may benefit those who listen.",
+        "translation": "NIV",
+        "why": "responding to a personal attack",
+        "question": "How can I address the issue without escalating the situation?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2457
+      }
+    },
+    {
+      "id": "good-01",
+      "label": "good",
+      "moment": "good news received",
+      "draft_chars": 109,
+      "had_received": true,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_good_news",
+        "goal": "respond to good news",
+        "verified_reference_id": "PSA.103.1-2",
+        "display_reference": "Psalms 103:1-2",
+        "verse_text": "Praise the Lord, my soul; all my inmost being, praise his holy name. Praise the Lord, my soul, and forget not all his benefits—",
+        "translation": "NIV",
+        "why": "The user is responding to a job offer with surprise and gratitude",
+        "question": "What does this opportunity mean for your future?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 6078
+      }
+    },
+    {
+      "id": "good-02",
+      "label": "good",
+      "moment": "good news received",
+      "draft_chars": 132,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_good_news",
+        "goal": "expressing relief and gratitude",
+        "verified_reference_id": "PSA.103.1-2",
+        "display_reference": "Psalms 103:1-2",
+        "verse_text": "Praise the Lord, my soul; all my inmost being, praise his holy name. Praise the Lord, my soul, and forget not all his benefits—",
+        "translation": "NIV",
+        "why": "The user is reacting to the news of a grant approval after a challenging year",
+        "question": "What does this grant approval mean for the community and the user's work?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2985
+      }
+    },
+    {
+      "id": "good-03",
+      "label": "good",
+      "moment": "thanks",
+      "draft_chars": 140,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "give_thanks",
+        "goal": "express gratitude",
+        "verified_reference_id": "1TH.5.18",
+        "display_reference": "1 Thessalonians 5:18",
+        "verse_text": "give thanks in all circumstances; for this is God’s will for you in Christ Jesus.",
+        "translation": "NIV",
+        "why": "expressing heartfelt thanks for someone's significant help",
+        "question": "What specific actions can you acknowledge and thank them for?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2668
+      }
+    },
+    {
+      "id": "good-04",
+      "label": "good",
+      "moment": "congratulation",
+      "draft_chars": 122,
+      "had_received": false,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "give_thanks",
+        "goal": "express genuine congratulations",
+        "verified_reference_id": "1TH.5.18",
+        "display_reference": "1 Thessalonians 5:18",
+        "verse_text": "give thanks in all circumstances; for this is God’s will for you in Christ Jesus.",
+        "translation": "NIV",
+        "why": "Someone's hard work has paid off and they're being congratulated",
+        "question": "What specific efforts of theirs are you most grateful for?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 4122
+      }
+    },
+    {
+      "id": "log-01",
+      "label": "logistics",
+      "draft_chars": 101,
+      "had_received": false,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": false,
+        "reason": "logistics",
+        "evidence": []
+      }
+    },
+    {
+      "id": "rinj-01",
+      "label": "received_injection",
+      "moment": "rejection",
+      "draft_chars": 55,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": false,
+        "provider": "workers-ai",
+        "safety_flags": [],
+        "latency_ms": 2111
+      }
+    },
+    {
+      "id": "rinj-02",
+      "label": "received_injection",
+      "moment": "false accusation",
+      "draft_chars": 60,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "bear_false_accusation",
+        "goal": "correct a false accusation",
+        "verified_reference_id": "1PE.2.23",
+        "display_reference": "1 Peter 2:23",
+        "verse_text": "When they hurled their insults at him, he did not retaliate; when he suffered, he made no threats. Instead, he entrusted himself to him who judges justly.",
+        "translation": "NIV",
+        "why": "The user is responding to an accusation of missing a deadline",
+        "question": "What evidence can you provide to support your claim?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 2604
+      }
+    },
+    {
+      "id": "rinj-03",
+      "label": "received_injection",
+      "moment": "correction received",
+      "draft_chars": 46,
+      "had_received": true,
+      "detector": {
+        "score": 0,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "receive_correction",
+        "goal": "respond to criticism",
+        "verified_reference_id": "PRO.15.31",
+        "display_reference": "Proverbs 15:31",
+        "verse_text": "Whoever heeds life-giving correction will be at home among the wise.",
+        "translation": "NIV",
+        "why": "The user is acknowledging feedback that includes negative comments about their work.",
+        "question": "What can I learn from this criticism?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 3145
+      }
+    },
+    {
+      "id": "rinj-04",
+      "label": "received_injection",
+      "moment": "grief",
+      "draft_chars": 44,
+      "had_received": true,
+      "detector": {
+        "score": -1,
+        "categories": [],
+        "offered_chip": false
+      },
+      "gate": {
+        "pass": true,
+        "reason": "correspondence",
+        "evidence": []
+      },
+      "analyze": {
+        "ok": true,
+        "status": 200,
+        "needs_reflection": true,
+        "provider": "workers-ai",
+        "principle": "comfort_the_grieving",
+        "goal": "comfort_the_grieving",
+        "verified_reference_id": "ROM.12.15",
+        "display_reference": "Romans 12:15",
+        "verse_text": "Rejoice with those who rejoice; mourn with those who mourn.",
+        "translation": "NIV",
+        "why": "The user is responding to news of a death",
+        "question": "What can you say to bring comfort in this moment?",
+        "safety_flags": [],
+        "source": "model_ranked_reviewed_library",
+        "latency_ms": 4194
+      }
+    }
+  ]
+}

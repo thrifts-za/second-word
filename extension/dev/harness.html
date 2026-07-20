@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Second Word - Gmail harness</title>
+<style>
+  body { margin: 0; padding: 28px; background: #f6f8fc; font: 14px/1.5 system-ui, sans-serif; color: #202124; }
+  .note { max-width: 720px; margin: 0 auto 20px; font-size: 12.5px; color: #5f6368; }
+  .nH[role="dialog"] {
+    max-width: 720px; margin: 0 auto; background: #fff; border-radius: 8px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.16); overflow: hidden;
+  }
+  .hdr { background: #f2f6fc; padding: 11px 16px; font-size: 13px; font-weight: 500; }
+  .fields { padding: 8px 16px; border-bottom: 1px solid #e8eaed; font-size: 13px; color: #5f6368; }
+  .fields div { padding: 6px 0; border-bottom: 1px solid #f1f3f4; }
+  .aoP { padding: 14px 16px; }
+  .adn { padding: 12px 16px; border-bottom: 1px solid #e8eaed; }
+  .a3s { font-size: 13px; color: #3c4043; white-space: pre-wrap; }
+  .gmail_quote { color: #9aa0a6; font-size: 12px; margin-top: 8px; }
+  .Am { min-height: 150px; outline: none; font-size: 14px; }
+  .Am:empty:before { content: attr(data-placeholder); color: #9aa0a6; }
+  .btC { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid #e8eaed; }
+  .dC { background: #0b57d0; color: #fff; padding: 9px 22px; border-radius: 18px; font-size: 14px; font-weight: 500; cursor: pointer; }
+</style>
+</head>
+<body>
+  <p class="note">
+    Development harness. Reproduces Gmail's compose DOM so the built content script can be
+    checked without a Google account. It is not Gmail, and it does not prove the selectors
+    still match the real thing.
+  </p>
+  <div id="root"></div>
+
+  <script>
+    // The extension APIs are absent on a plain page. Stub the two things
+    // config.ts reads, with ambient ON, which is what the harness is for.
+    window.chrome = {
+      storage: {
+        local: {
+          get: async () => ({ ambient: true, apiBase: 'https://stub.invalid' }),
+          set: async () => {},
+        },
+      },
+    }
+
+    // Stand in for the Worker so the whole client path can be exercised with
+    // no credentials and no latency: attach, gate, schedule, badge, open.
+    // This is a harness, not a test of the model.
+    const realFetch = window.fetch.bind(window)
+    window.fetch = async (input, init) => {
+      const url = String(input)
+      if (!url.includes('/v1/')) return realFetch(input, init)
+      const body = JSON.parse(init.body)
+      window.__secondWordCalls = (window.__secondWordCalls || 0) + 1
+      window.__secondWordLastRequest = body
+
+      if (url.endsWith('/v1/analyze')) {
+        return new Response(JSON.stringify({
+          request_id: 'req_harness',
+          goal: 'answer without returning the blow',
+          principle: 'bear_false_accusation',
+          verified_reference_id: 'PSA.37.6',
+          display_reference: 'Psalm 37:6',
+          verse_text: 'He will make your righteous reward shine like the dawn, your vindication like the noonday sun.',
+          bible_id: '111',
+          translation: 'NIV',
+          attribution: 'The Holy Bible, New International Version',
+          attribution_url: 'https://www.bible.com/versions/111',
+          why: 'You are answering a claim about you that is not true.',
+          question: 'What do you want to be true after you send this?',
+          analysis_token: 'harness.token',
+          safety_flags: [],
+          source: 'model_ranked_reviewed_library',
+          provider: 'fake',
+          latency_ms: 12,
+        }), { headers: { 'content-type': 'application/json' } })
+      }
+
+      return new Response(JSON.stringify({
+        rewrites: { clearer: 'I sent the pack on the 14th and you were copied. Happy to forward the thread.' },
+        goal_preserved: true,
+        register_preserved: true,
+        principle: 'bear_false_accusation',
+        provider: 'fake',
+        latency_ms: 9,
+      }), { headers: { 'content-type': 'application/json' } })
+    }
+
+    // Built with DOM calls, not markup strings, matching the rule the product follows.
+    const d = (attrs, cls) => {
+      const node = document.createElement('div')
+      if (cls) node.className = cls
+      for (const [k, v] of Object.entries(attrs || {})) node.setAttribute(k, v)
+      return node
+    }
+
+    const dialog = d({ role: 'dialog', 'aria-label': 'New Message' }, 'nH Hd')
+
+    const header = d({}, 'hdr')
+    header.textContent = 'Re: Client handover went badly'
+
+    const fields = d({}, 'fields')
+    const to = d({})
+    to.textContent = 'To: dave@company.com, +4 others'
+    const subject = d({})
+    subject.textContent = 'Re: Client handover went badly'
+    fields.append(to, subject)
+
+    // The message being replied to. Without this the reply below is calm on
+    // its face and there is nothing in the draft to weigh. Proverbs 16:2.
+    const received = d({}, 'adn ads')
+    const receivedBody = d({}, 'a3s aiL')
+    receivedBody.append(document.createTextNode(
+      'You missed the handover deadline again and the client noticed. This is the second time this quarter.'
+    ))
+    const quoted = d({}, 'gmail_quote')
+    quoted.textContent = 'On Monday you wrote: the pack is ready to go whenever you are.'
+    receivedBody.append(quoted)
+    received.append(receivedBody)
+
+    const wrap = d({}, 'aoP')
+    const body = d({
+      g_editable: 'true',
+      role: 'textbox',
+      contenteditable: 'true',
+      'aria-label': 'Message Body',
+      'data-placeholder': 'Write your reply',
+    }, 'Am Al editable')
+
+    const controls = d({}, 'btC')
+    const send = d({ role: 'button', 'data-tooltip': 'Send', 'aria-label': 'Send' }, 'dC')
+    send.textContent = 'Send'
+
+    wrap.append(body)
+    controls.append(send)
+    dialog.append(header, fields, received, wrap, controls)
+    document.querySelector('#root').append(dialog)
+  </script>
+
+  <script src="../dist/content.js"></script>
+</body>
+</html>

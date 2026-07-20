@@ -1,0 +1,87 @@
+import { describe, expect, it } from 'vitest'
+import { AnalyzeRequestSchema, GlooAnalysisSchema, MAX_DRAFT_LENGTH } from '../src/lib/contracts'
+import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, orderedCandidates } from '../src/lib/scripture-library'
+
+const valid = {
+  needs_reflection: true,
+  goal: 'Correct a claim without being dismissed',
+  principle: 'gentle_answer',
+  candidate_reference_ids: ['PRO.15.1'],
+  why: 'The point can survive without the heat carrying it.',
+  question: 'What do you want to be true after you send this?',
+  safety_flags: [],
+}
+
+describe('Gloo output contract', () => {
+  it('accepts a well-formed analysis', () => {
+    expect(GlooAnalysisSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it('gives the model no way to hand us Scripture', () => {
+    // The schema is strict, so an added verse_text field is a hard failure
+    // rather than something we would have to strip later.
+    const withVerse = { ...valid, verse_text: 'A gentle answer turns away wrath' }
+    expect(GlooAnalysisSchema.safeParse(withVerse).success).toBe(false)
+  })
+
+  it('rejects a principle outside the reviewed enum', () => {
+    expect(GlooAnalysisSchema.safeParse({ ...valid, principle: 'be_nicer' }).success).toBe(false)
+  })
+
+  it('rejects a malformed reference', () => {
+    expect(
+      GlooAnalysisSchema.safeParse({ ...valid, candidate_reference_ids: ['Proverbs 15:1'] }).success,
+    ).toBe(false)
+  })
+
+  it('caps the draft length', () => {
+    const tooLong = { draft: 'x'.repeat(MAX_DRAFT_LENGTH + 1), surface: 'sandbox' }
+    expect(AnalyzeRequestSchema.safeParse(tooLong).success).toBe(false)
+  })
+
+  it('rejects unknown request fields, including anything thread-shaped', () => {
+    const smuggled = { draft: 'hello there friend', surface: 'sandbox', thread_context: 'parent comment' }
+    expect(AnalyzeRequestSchema.safeParse(smuggled).success).toBe(false)
+  })
+})
+
+describe('scripture library', () => {
+  it('every principle has at least two reviewed candidates', () => {
+    for (const entry of Object.values(PRINCIPLE_LIBRARY)) {
+      expect(entry.candidates.length).toBeGreaterThanOrEqual(2)
+    }
+  })
+
+  it('every candidate is a USFM reference, single verse or range', () => {
+    for (const id of ALLOWED_REFERENCE_IDS) {
+      expect(id).toMatch(/^[1-9A-Z]{3}\.\d{1,3}\.\d{1,3}(-\d{1,3})?$/)
+    }
+  })
+
+  it('accepts a verse range, which the platform supports', () => {
+    expect(GlooAnalysisSchema.safeParse({ ...valid, candidate_reference_ids: ['PRO.4.20-21'] }).success).toBe(true)
+  })
+
+  it('covers moments beyond conflict', () => {
+    // The reframe: this is correspondence, not a temper guard.
+    for (const principle of ['meet_disappointment', 'bear_false_accusation', 'make_amends', 'comfort_the_grieving'] as const) {
+      expect(PRINCIPLE_LIBRARY[principle].candidates.length).toBeGreaterThanOrEqual(2)
+      expect(PRINCIPLE_LIBRARY[principle].moment.length).toBeGreaterThan(10)
+    }
+  })
+
+  it('behavioural constraints are original prose, not verse text', () => {
+    for (const entry of Object.values(PRINCIPLE_LIBRARY)) {
+      expect(entry.constraint.length).toBeGreaterThan(30)
+      expect(entry.constraint).not.toMatch(/["“”]/)
+    }
+  })
+
+  it('ranks the model preference first, then falls back to the reviewed order', () => {
+    expect(orderedCandidates('gentle_answer', ['COL.4.6'])).toEqual(['COL.4.6', 'PRO.15.1', 'PRO.25.15'])
+  })
+
+  it('drops references the model proposed from another principle', () => {
+    expect(orderedCandidates('gentle_answer', ['JAS.1.19'])).toEqual(['PRO.15.1', 'PRO.25.15', 'COL.4.6'])
+  })
+})

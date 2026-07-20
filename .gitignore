@@ -1,0 +1,8 @@
+node_modules/
+.dev.vars
+.wrangler/
+dist/
+
+# Build output. Judges and reviewers run `npm run build`.
+sandbox/main.js
+.gstack/

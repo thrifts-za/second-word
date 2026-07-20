@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Second Word</title>
+<style>
+  :root {
+    --ink: #1b1d21;
+    --ink-soft: #5c5f66;
+    --ink-faint: #8d9096;
+    --line: #e2e0db;
+    --clay: #c4705a;
+    --book: 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+    --ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px 60px;
+    background: #f4f3f0;
+    color: var(--ink);
+    font-family: var(--ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 520px; margin: 0 auto; }
+
+  h1 { font-family: var(--book); font-size: 25px; font-weight: 400; margin: 0 0 6px; }
+  .tagline { margin: 0 0 26px; font-family: var(--book); font-style: italic; font-size: 15px; color: var(--ink-soft); }
+
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 3px; padding: 20px; margin-bottom: 16px; }
+
+  h2 { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 12px; font-weight: 500; }
+
+  p { margin: 0 0 12px; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+  p:last-child { margin-bottom: 0; }
+
+  label.row { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; cursor: pointer; }
+  label.row input { margin-top: 3px; }
+  .row__hint { display: block; font-size: 12.5px; color: var(--ink-faint); margin-top: 3px; }
+
+  input[type="url"] {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    font-family: var(--ui);
+    font-size: 13px;
+  }
+
+  input:focus-visible, button:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+  button {
+    margin-top: 10px;
+    padding: 7px 14px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #fff;
+    font-family: var(--ui);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  button:hover { border-color: var(--clay); }
+
+  .saved { font-size: 12.5px; color: var(--clay); margin-left: 10px; }
+
+  ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.65; color: var(--ink-soft); }
+  li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Second Word</h1>
+    <p class="tagline">Scripture in the space between reaction and response.</p>
+
+    <div class="card">
+      <h2>What this sees</h2>
+      <ul>
+        <li>Only the text you are typing in a reply box, and only after you ask.</li>
+        <li>Never the message you are replying to, the thread, your address, or who you are writing to.</li>
+        <li>Nothing is stored. There is no account and no history.</li>
+      </ul>
+      <p>Second Word runs on Gmail only. It stays silent unless you press it, or unless what you have typed is plainly heated.</p>
+    </div>
+
+    <div class="card">
+      <h2>Let it look</h2>
+      <label class="row">
+        <input type="checkbox" id="ambient" />
+        <span>
+          Notice on its own
+          <span class="row__hint">
+            Without this, Second Word only speaks when you press it, and the moment you
+            most need it is the moment you are least likely to. With it on, your draft and
+            the message you are answering are sent for a reading shortly after you stop
+            typing. Nothing is stored, nothing is shown unless something is genuinely at
+            stake, and nothing is ever sent or edited for you.
+          </span>
+        </span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>Turn it off</h2>
+      <label class="row">
+        <input type="checkbox" id="global-off" />
+        <span>
+          Off everywhere
+          <span class="row__hint">Nothing runs, on any site, until you turn this back on.</span>
+        </span>
+      </label>
+      <label class="row" style="margin-top: 14px;">
+        <input type="checkbox" id="gmail-off" />
+        <span>
+          Off on Gmail
+          <span class="row__hint">Leaves the extension installed and does nothing there.</span>
+        </span>
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>Backend</h2>
+      <p>Where reflection requests are sent. Change this only if you are running your own.</p>
+      <input type="url" id="api-base" spellcheck="false" />
+      <button id="save" type="button">Save</button>
+      <span class="saved" id="saved" hidden>Saved</span>
+    </div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

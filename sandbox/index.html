@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en" data-api="https://second-word.nkosithrifts.workers.dev">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Second Word - try it</title>
+<meta name="description" content="Scripture in the space between reaction and response. For the messages that will still matter in a year." />
+<style>
+  :root {
+    --page: #f4f3f0;
+    --card: #ffffff;
+    --ink: #1b1d21;
+    --ink-soft: #5c5f66;
+    --ink-faint: #8d9096;
+    --line: #e2e0db;
+    --clay: #c4705a;
+    --book: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+    --ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--ui);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 44px 20px 80px; }
+
+  /* masthead ------------------------------------------------------------ */
+
+  .wordmark {
+    font-family: var(--book);
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin: 0 0 8px;
+    font-weight: 400;
+  }
+
+  .tagline { margin: 0; font-family: var(--book); font-style: italic; font-size: 16px; color: var(--ink-soft); }
+
+  /* The product's own verse, fetched from YouVersion like every other one. */
+  .epigraph {
+    margin: 26px 0 0;
+    padding-left: 16px;
+    border-left: 1px solid var(--clay);
+    max-width: 50ch;
+    min-height: 44px;
+  }
+
+  .epigraph__text { margin: 0; font-family: var(--book); font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+  .epigraph__ref { margin: 6px 0 0; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+
+  .instruction {
+    margin: 26px 0 0;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    max-width: 56ch;
+  }
+
+  .instruction strong { color: var(--ink); font-weight: 500; }
+
+  /* tabs ---------------------------------------------------------------- */
+
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 30px 0 14px; }
+
+  .tab {
+    padding: 7px 12px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink-soft);
+    font-family: var(--ui);
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+
+  .tab:hover { border-color: var(--clay); color: var(--ink); }
+  .tab:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+  .tab--on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+  /* message ------------------------------------------------------------- */
+
+  .surface { background: var(--card); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+
+  .surface__header {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  .received { padding: 18px; }
+  .received__from { font-size: 13px; font-weight: 500; }
+  .received__meta { font-size: 12px; color: var(--ink-faint); margin: 2px 0 9px; }
+  .received__body { margin: 0; font-size: 14.5px; line-height: 1.65; }
+
+  .privacy-strip {
+    padding: 9px 18px;
+    background: #fbfaf8;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--ink-faint);
+  }
+
+  /* composer ------------------------------------------------------------ */
+
+  .composer { padding: 16px 18px 18px; }
+
+  .composer__label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 9px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    padding: 12px 13px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    background: #fff;
+    color: var(--ink);
+    font-family: var(--ui);
+    font-size: 14.5px;
+    line-height: 1.65;
+    resize: vertical;
+  }
+
+  textarea:focus { outline: 2px solid var(--clay); outline-offset: 1px; border-color: transparent; }
+
+  #panel-slot:not(:empty) { margin-top: 13px; }
+
+  .composer__foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 11px;
+    min-height: 34px;
+    flex-wrap: wrap;
+  }
+
+  .composer__spacer { flex: 1; }
+
+  .send {
+    padding: 7px 16px;
+    border: 0;
+    border-radius: 3px;
+    background: var(--ink);
+    color: #fff;
+    font-family: var(--ui);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .send:hover { background: #000; }
+  .send:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+  /* The invitation. Kept for the moments no classifier can see. */
+  .invite {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    background: #fff;
+    color: var(--ink-soft);
+    font-family: var(--ui);
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+
+  .invite:hover { border-color: var(--clay); color: var(--ink); }
+  .invite:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+
+  .invite__dot { width: 5px; height: 5px; border-radius: 50%; background: var(--clay); flex: none; }
+
+  .draft-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ink-faint);
+  }
+
+  .draft-hint button {
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--ink-soft);
+    font-family: var(--ui);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* footer -------------------------------------------------------------- */
+
+  .notes {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink-faint);
+  }
+
+  .notes p { margin: 0 0 10px; max-width: 62ch; }
+  .notes a { color: var(--ink-soft); }
+
+  .sent { font-size: 13px; color: var(--ink-soft); font-style: italic; }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1 class="wordmark">Second Word</h1>
+      <p class="tagline">Scripture in the space between reaction and response.</p>
+
+      <blockquote class="epigraph" id="epigraph">
+        <p class="epigraph__text" id="epigraph-text"></p>
+        <p class="epigraph__ref" id="epigraph-ref"></p>
+      </blockquote>
+
+      <p class="instruction">
+        Most of what you send this week should be fast. One or two messages will still matter in a
+        year. <strong>Pick a moment below and write what you would actually send.</strong>
+      </p>
+    </header>
+
+    <nav class="tabs" id="tabs" aria-label="Choose a moment"></nav>
+
+    <section class="surface" aria-live="polite">
+      <div class="surface__header" id="location"></div>
+
+      <article class="received">
+        <div class="received__from" id="from"></div>
+        <div class="received__meta" id="meta"></div>
+        <p class="received__body" id="body"></p>
+      </article>
+
+      <div class="privacy-strip">
+        Second Word reads the message above as well as what you write. A reply to a decline letter is calm on its face, and the weight sits in what arrived. Nothing is stored, and nothing is ever sent for you.
+      </div>
+
+      <div class="composer">
+        <label class="composer__label" for="draft" id="composer-label"></label>
+        <textarea id="draft"></textarea>
+
+        <div class="composer__foot">
+          <button class="invite" id="invite" type="button">
+            <span class="invite__dot"></span>Second Word
+          </button>
+          <div id="chip-slot"></div>
+          <div class="composer__spacer"></div>
+          <button class="send" id="send" type="button">Send</button>
+        </div>
+
+        <div id="panel-slot"></div>
+
+        <p class="draft-hint">
+          Not sure what you would write? <button type="button" id="fill">Use a draft someone might really send</button>
+        </p>
+      </div>
+    </section>
+
+    <footer class="notes">
+      <p>
+        This runs live. Shortly after you stop typing, your draft and the message you are
+        answering are sent to a Cloudflare Worker, which asks <span id="provider">the model</span>
+        whether anything is at stake and which principle applies, then fetches the passage itself
+        from the YouVersion Platform API. The model never writes Scripture. It names a reference
+        from a reviewed list, and the words come from YouVersion.
+      </p>
+      <p>
+        Most of the time it says nothing, and nothing appears. A mark shows in the corner of the
+        box only when something is genuinely at stake, and the passage waits until you click it.
+        It never sends, never blocks Send, and never edits without a click.
+      </p>
+      <p>
+        What is sent: what you wrote, and the message above it. Not the page, not who you are.
+        Nothing is stored.
+      </p>
+      <p>
+        <a href="https://github.com/" id="repo-link">Source code</a> &middot;
+        <a href="https://www.kaggle.com/competitions/scripture-in-new-frontiers">Scripture in New Frontiers</a>
+      </p>
+    </footer>
+  </main>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "name": "second-word",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Scripture in the space between reaction and response.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.browser.json",
+    "verify:refs": "node --experimental-strip-types scripts/verify-references.ts",
+    "build:sandbox": "esbuild sandbox/main.ts --bundle --format=esm --target=es2022 --outfile=sandbox/main.js --minify",
+    "dev:sandbox": "esbuild sandbox/main.ts --bundle --format=esm --target=es2022 --outfile=sandbox/main.js --watch --servedir=sandbox --serve=8788",
+    "build:extension": "esbuild extension/src/content.ts --bundle --format=iife --target=es2022 --outfile=extension/dist/content.js --minify && esbuild extension/src/options.ts --bundle --format=esm --target=es2022 --outfile=extension/dist/options.js --minify && cp extension/manifest.json extension/options.html extension/dist/ && mkdir -p extension/dist/icons && cp extension/icons/*.png extension/dist/icons/",
+    "build": "npm run build:sandbox && npm run build:extension",
+    "verify:all": "npm run typecheck && npm test && npm run build",
+    "deploy:worker": "wrangler deploy",
+    "deploy:sandbox": "wrangler pages deploy sandbox --project-name second-word"
+  },
+  "dependencies": {
+    "hono": "^4.6.14",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260714.1",
+    "@types/chrome": "^0.2.2",
+    "@types/node": "^26.1.1",
+    "esbuild": "^0.28.1",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8",
+    "wrangler": "^4.90.0"
+  }
+}

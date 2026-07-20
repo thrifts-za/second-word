@@ -1,0 +1,30 @@
+name = "second-word"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+# The YouVersion app key is a PUBLIC key. Safe here.
+# Gloo credentials are SECRETS. Set with:
+#   wrangler secret put GLOO_CLIENT_ID
+#   wrangler secret put GLOO_CLIENT_SECRET
+#   wrangler secret put TOKEN_SIGNING_KEY
+[vars]
+YOUVERSION_APP_KEY = "zIdKbkilUOBYhUE0Y3Txh8HxikIOr8AGyZifFsWGeeJywbY7"
+DEFAULT_BIBLE_ID = "111"
+DEFAULT_LOCALE = "en"
+# Which model reads the draft. The competition requires Gloo and the
+# submission runs on it; workers-ai is the stand-in while Gloo AI Studio
+# is unreachable (its free tier requires payment details).
+LLM_PROVIDER = "workers-ai"
+WORKERS_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+ALLOWED_ORIGINS = "https://second-word.pages.dev,https://master.second-word.pages.dev,https://mail.google.com,http://localhost:8788,http://localhost:8789"
+
+# Cloudflare Workers AI. No key needed; the binding is the credential.
+[ai]
+binding = "AI"
+
+# Gloo access token cache. Create with:
+#   wrangler kv namespace create TOKEN_CACHE
+# [[kv_namespaces]]
+# binding = "TOKEN_CACHE"
+# id = "<fill me in>"
