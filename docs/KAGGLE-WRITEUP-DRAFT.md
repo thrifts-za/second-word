@@ -10,6 +10,10 @@ of joy that deserves more than a quick reaction. Those are often the exact
 moments when people do not stop to seek wisdom. Second Word brings a verified
 word into that space without taking over it.
 
+The problem is common and relational, not merely grammatical: a YouGov omnibus
+survey found that 57% of U.S. social-media users had posted or texted something
+they later regretted. [Source](IMPACT-EVIDENCE.md)
+
 Second Word is a Chrome extension and public sandbox. When a person explicitly
 enables automatic noticing, it waits until typing settles. A local gate keeps
 ordinary logistics in the browser. For a consequential draft, **Living Margin**
