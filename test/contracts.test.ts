@@ -28,6 +28,30 @@ describe('Gloo output contract', () => {
     expect(GlooAnalysisSchema.safeParse({ ...valid, principle: 'be_nicer' }).success).toBe(false)
   })
 
+  it('accepts safety flags the model wrote with a hyphen, and normalises them', () => {
+    // The single most important path in the product, and it was failing. The
+    // model returns "self-harm" (natural English); the enum is "self_harm".
+    // Under .strict() that one character failed the whole parse and a genuine
+    // crisis message got a 503 instead of a caring response.
+    const parsed = GlooAnalysisSchema.safeParse({ ...valid, safety_flags: ['self-harm', 'crisis'] })
+    expect(parsed.success).toBe(true)
+    if (parsed.success) expect(parsed.data.safety_flags).toEqual(['self_harm', 'crisis'])
+  })
+
+  it('drops a safety flag it does not recognise rather than failing the whole analysis', () => {
+    // A model inventing "suicidal" must not take the rest of the response down
+    // with it. Better to lose one label than to lose the whole reply.
+    const parsed = GlooAnalysisSchema.safeParse({ ...valid, safety_flags: ['suicidal', 'crisis'] })
+    expect(parsed.success).toBe(true)
+    if (parsed.success) expect(parsed.data.safety_flags).toEqual(['crisis'])
+  })
+
+  it('still accepts the canonical underscore flags unchanged', () => {
+    const parsed = GlooAnalysisSchema.safeParse({ ...valid, safety_flags: ['self_harm', 'threat'] })
+    expect(parsed.success).toBe(true)
+    if (parsed.success) expect(parsed.data.safety_flags).toEqual(['self_harm', 'threat'])
+  })
+
   it('rejects a malformed reference', () => {
     expect(
       GlooAnalysisSchema.safeParse({ ...valid, candidate_reference_ids: ['Proverbs 15:1'] }).success,

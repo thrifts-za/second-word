@@ -29,8 +29,20 @@ export interface AnalyzeDeps {
   requestId?: () => string
 }
 
+/**
+ * Shown when a draft signals self-harm, abuse, a threat or crisis.
+ *
+ * Deliberately not a passage and not a rewrite. It is gentle, it changes
+ * nothing, and it points outward to a person rather than to a verse.
+ *
+ * REVIEW BEFORE SUBMISSION: for a self-harm disclosure a real product should
+ * name a verified crisis line for the reader's region (in South Africa, SADAG,
+ * 0800 567 567). That is a content and locale decision for the builder to make
+ * and verify; a wrong number is worse than none, so none is hard-coded here.
+ */
 const SAFETY_MESSAGE =
-  'This looks like a heavier moment than a rewrite can help with. Your draft has not been changed.'
+  'This looks heavier than anything a rewrite could help with, and your draft has not been changed. ' +
+  'If you are carrying something hard right now, please reach out to someone you trust, or a crisis line where you are. You do not have to hold it alone.'
 
 export async function runAnalyze(
   request: AnalyzeRequest,

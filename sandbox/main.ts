@@ -14,6 +14,7 @@
 import { gate, isMateriallyChanged } from '../src/lib/detector'
 import type {
   AnalyzeResponse,
+  NoMomentResponse,
   RewriteMode,
   RewriteResponse,
   SafetyResponse,
@@ -62,7 +63,7 @@ let debounceTimer: number | undefined
 
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
-const scheduler = createScheduler<AnalyzeResponse | SafetyResponse>()
+const scheduler = createScheduler<AnalyzeResponse | SafetyResponse | NoMomentResponse>()
 
 // ---------------------------------------------------------------------------
 // Scenario switching
@@ -162,7 +163,12 @@ async function evaluateDraft(): Promise<void> {
   if (!gate(draft, received).pass) return
   lastEvaluated = draft
 
-  let result: AnalyzeResponse | SafetyResponse | null
+  // Show life the instant the gate opens: a breathing dot in the corner while
+  // the model reads, so the ~3s call is never dead air.
+  badge?.destroy()
+  badge = new SecondWordBadge({ field: draftField, label: '“', title: 'Second Word is reading this', thinking: true, onOpen: () => {} })
+
+  let result: AnalyzeResponse | SafetyResponse | NoMomentResponse | null
   try {
     result = await scheduler.submit(`${draft}\u0000${received}`, () => analyze(draft, { received }))
   } catch {
@@ -170,24 +176,37 @@ async function evaluateDraft(): Promise<void> {
     // the reading service could not answer, so say exactly that rather than go
     // blank, which would make an automatic product look like it did nothing.
     // Never shown for silence: silence is a 200 and does not throw.
+    badge?.destroy()
+    badge = null
     showChecked()
     return
   }
 
+  // Clear the thinking dot before deciding what, if anything, to show.
+  badge?.destroy()
+  badge = null
+
   if (result === null) return // Superseded: the draft it describes is gone.
-  if (!('verified_reference_id' in result)) return // Nothing at stake. Nothing renders.
   if (panel || draftField.value !== draft) return
 
-  showBadge(result)
+  if ('verified_reference_id' in result) {
+    showBadge(result)
+  } else if ('safety_flags' in result && result.safety_flags.length > 0) {
+    // A self-harm, abuse, threat or crisis signal. Not a passage, but never
+    // silence either: this is the moment showing up gently matters most.
+    showBadge(result)
+  }
+  // Otherwise the model said nothing is at stake. Nothing renders. Correct.
 }
 
 /** Automatic detection is not automatic interruption. The badge waits. */
-function showBadge(result: AnalyzeResponse): void {
+function showBadge(result: AnalyzeResponse | SafetyResponse): void {
+  const safety = !('verified_reference_id' in result)
   badge?.destroy()
   badge = new SecondWordBadge({
     field: draftField,
     label: '\u201C',
-    title: 'Something here may be worth a second look',
+    title: safety ? 'Take a moment' : 'Something here may be worth a second look',
     onOpen: () => {
       badge?.destroy()
       badge = null
@@ -195,7 +214,8 @@ function showBadge(result: AnalyzeResponse): void {
       panel = buildPanel()
       panelSlot.append(panel.host)
       // Already paid for. Re-running it to display it would be a second call.
-      panel.present(result)
+      if ('verified_reference_id' in result) panel.present(result)
+      else panel.presentSafety(result)
     },
   })
 }
@@ -213,7 +233,7 @@ draftField.addEventListener('input', () => {
 async function analyze(
   draft: string,
   options: AnalyzeOptions & { received?: string },
-): Promise<AnalyzeResponse | SafetyResponse> {
+): Promise<AnalyzeResponse | SafetyResponse | NoMomentResponse> {
   const response = await fetch(`${API_BASE}/v1/analyze`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -226,7 +246,7 @@ async function analyze(
     }),
   })
   if (!response.ok) throw new Error(`analyze failed: ${response.status}`)
-  return (await response.json()) as AnalyzeResponse | SafetyResponse
+  return (await response.json()) as AnalyzeResponse | SafetyResponse | NoMomentResponse
 }
 
 async function rewrite(draft: string, token: string, modes: RewriteMode[]): Promise<RewriteResponse> {

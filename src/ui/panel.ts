@@ -195,6 +195,18 @@ export class SecondWordPanel {
     this.renderPassage(result)
   }
 
+  /**
+   * Show a safety response the caller already has.
+   *
+   * A draft that signals self-harm, abuse, a threat or crisis is routed here
+   * instead of to a passage. The ambient path must not swallow it as silence:
+   * the moment someone writes that they want to give up is the moment showing
+   * up gently matters most.
+   */
+  presentSafety(result: SafetyResponse): void {
+    this.renderSafety(result)
+  }
+
   private renderPassage(result: AnalyzeResponse): void {
     const body = this.panel()
 

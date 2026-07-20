@@ -47,6 +47,8 @@ export interface BadgeOptions {
   /** Why it appeared. D10: something uninvited owes an answer. */
   title: string
   onOpen: () => void
+  /** A breathing dot while the model reads, so the box shows life. Not clickable. */
+  thinking?: boolean
 }
 
 /**
@@ -110,6 +112,25 @@ const SHADOW_STYLE = `
     outline: 2px solid #c4705a;
     outline-offset: 2px;
   }
+
+  /* Thinking: a quiet breathing dot while the model reads. Shows life. */
+  .badge.thinking {
+    background: #fff;
+    border: 1px solid #d8d5ce;
+    box-shadow: 0 1px 3px rgba(38, 22, 16, 0.14);
+    cursor: default;
+  }
+  .badge.thinking:hover { transform: none; }
+  .badge .pulse {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: #c4705a;
+    animation: sw-breathe 1.15s ease-in-out infinite;
+  }
+  @keyframes sw-breathe {
+    0%, 100% { opacity: 0.3; transform: scale(0.75); }
+    50%      { opacity: 1;   transform: scale(1); }
+  }
 `
 
 export class SecondWordBadge {
@@ -136,16 +157,26 @@ export class SecondWordBadge {
     root.append(style)
 
     this.element = document.createElement('div')
-    this.element.className = 'badge'
-    this.element.setAttribute('role', 'button')
-    this.element.setAttribute('tabindex', '0')
-    this.element.textContent = options.label
     this.element.title = options.title
-    this.element.setAttribute('aria-label', `Second Word: ${options.title}`)
 
-    // Clicking must not pull the caret out of the message being written.
-    this.element.addEventListener('mousedown', (event) => event.preventDefault())
-    this.element.addEventListener('click', () => options.onOpen())
+    if (options.thinking) {
+      // A breathing dot, no label, not interactive. It says "I am reading this"
+      // for the couple of seconds the model takes, so the box is never dead.
+      this.element.className = 'badge thinking'
+      this.element.setAttribute('aria-label', 'Second Word is reading this')
+      const pulse = document.createElement('span')
+      pulse.className = 'pulse'
+      this.element.append(pulse)
+    } else {
+      this.element.className = 'badge'
+      this.element.setAttribute('role', 'button')
+      this.element.setAttribute('tabindex', '0')
+      this.element.textContent = options.label
+      this.element.setAttribute('aria-label', `Second Word: ${options.title}`)
+      // Clicking must not pull the caret out of the message being written.
+      this.element.addEventListener('mousedown', (event) => event.preventDefault())
+      this.element.addEventListener('click', () => options.onOpen())
+    }
 
     root.append(this.element)
     ;(document.body ?? document.documentElement).append(this.host)

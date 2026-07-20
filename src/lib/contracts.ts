@@ -46,6 +46,24 @@ export const SAFETY_FLAGS = ['self_harm', 'abuse_disclosure', 'threat', 'crisis'
 export const SafetyFlagSchema = z.enum(SAFETY_FLAGS)
 export type SafetyFlag = z.infer<typeof SafetyFlagSchema>
 
+/**
+ * The safety path is the one that must never fail on a formatting difference.
+ *
+ * Models write "self-harm", we store "self_harm". Under a strict schema that
+ * one character failed the whole analysis, and a genuine crisis message came
+ * back as a 503 rather than a caring response. Normalise the separators, and
+ * drop a flag we cannot recognise rather than taking the entire reply down
+ * with it: losing one label is far better than losing the whole answer to
+ * someone in trouble.
+ */
+const SafetyFlagsSchema = z.preprocess((value) => {
+  if (!Array.isArray(value)) return value
+  const normalised = value
+    .map((item) => (typeof item === 'string' ? item.trim().toLowerCase().replace(/[\s-]+/g, '_') : item))
+    .filter((item): item is SafetyFlag => (SAFETY_FLAGS as readonly string[]).includes(item as string))
+  return [...new Set(normalised)]
+}, z.array(SafetyFlagSchema).default([]))
+
 export const MAX_DRAFT_LENGTH = 2000
 /** One line of self-declared context, in the person's own words. */
 export const MAX_CONTEXT_LENGTH = 240
@@ -92,7 +110,7 @@ export const GlooAnalysisSchema = z
     candidate_reference_ids: z.array(ReferenceIdSchema).min(1).max(5),
     why: z.string().min(1).max(300),
     question: z.string().min(1).max(160),
-    safety_flags: z.array(SafetyFlagSchema).max(4).default([]),
+    safety_flags: SafetyFlagsSchema,
   })
   .strict()
 
