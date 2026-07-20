@@ -15,6 +15,17 @@ const fixture = {
   surface: 'sandbox',
   received_message: 'You failed again and everyone knows it.',
 }
+const impactFixtures = [
+  fixture,
+  {
+    draft: 'I am grateful we won this contract. Thank you for carrying so much of the work with patience and excellence.',
+    surface: 'sandbox',
+  },
+  {
+    draft: 'I am devastated by the decision, but I want to respond with honesty and grace.',
+    surface: 'sandbox',
+  },
+]
 
 function fail(message) {
   console.error(`FAIL ${message}`)
@@ -55,6 +66,14 @@ try {
   const analysis = await analyzed.json()
   if (!analysis.analysis_token || !analysis.verse_text || !analysis.verified_reference_id) fail('Analysis did not return a signed, verified Scripture result')
   else console.log(`ok   Analyze -> verified ${analysis.display_reference} (${analysis.latency_ms}ms)`)
+
+  for (const impactFixture of impactFixtures.slice(1)) {
+    const response = await post('/v1/analyze', impactFixture)
+    if (!response.ok) throw new Error(`/v1/analyze impact fixture returned HTTP ${response.status}`)
+    const result = await response.json()
+    if (!result.verse_text || !result.verified_reference_id) fail('Impact fixture did not return verified Scripture')
+  }
+  console.log('ok   Impact breadth -> gratitude and disappointment both receive verified Scripture')
 
   const rewritten = await post('/v1/rewrite', {
     draft: fixture.draft,
