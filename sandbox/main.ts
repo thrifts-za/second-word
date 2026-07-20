@@ -66,6 +66,11 @@ let debounceTimer: number | undefined
 
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
+/** Match the extension: a demo must fail visibly, never wait forever. */
+const ANALYZE_TIMEOUT_MS = 15_000
+const REWRITE_TIMEOUT_MS = 15_000
+const PASSAGE_TIMEOUT_MS = 5_000
+const HEALTH_TIMEOUT_MS = 5_000
 const scheduler = createScheduler<AnalyzeResponse | SafetyResponse | NoMomentResponse>()
 
 // ---------------------------------------------------------------------------
@@ -255,6 +260,7 @@ async function analyze(
 ): Promise<AnalyzeResponse | SafetyResponse | NoMomentResponse> {
   const response = await fetch(`${API_BASE}/v1/analyze`, {
     method: 'POST',
+    signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       draft,
@@ -271,6 +277,7 @@ async function analyze(
 async function rewrite(draft: string, token: string, modes: RewriteMode[]): Promise<RewriteResponse> {
   const response = await fetch(`${API_BASE}/v1/rewrite`, {
     method: 'POST',
+    signal: AbortSignal.timeout(REWRITE_TIMEOUT_MS),
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ draft, analysis_token: token, modes, received_message: scenario.received.body }),
   })
@@ -287,7 +294,7 @@ async function rewrite(draft: string, token: string, modes: RewriteMode[]): Prom
  */
 async function loadEpigraph(): Promise<void> {
   try {
-    const response = await fetch(`${API_BASE}/v1/epigraph`)
+    const response = await fetch(`${API_BASE}/v1/epigraph`, { signal: AbortSignal.timeout(PASSAGE_TIMEOUT_MS) })
     if (!response.ok) throw new Error(String(response.status))
 
     const body = (await response.json()) as { verse_text?: string; reference?: string; translation?: string }
@@ -309,7 +316,7 @@ async function loadProvider(): Promise<void> {
   const label = document.querySelector<HTMLElement>('#provider')
   if (!label) return
   try {
-    const response = await fetch(`${API_BASE}/health`)
+    const response = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS) })
     if (!response.ok) return
     const body = (await response.json()) as { llm_provider?: string }
     const provider = body.llm_provider
