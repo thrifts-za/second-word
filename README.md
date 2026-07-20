@@ -115,7 +115,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 161 tests, no credentials needed
+npm test              # 163 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion

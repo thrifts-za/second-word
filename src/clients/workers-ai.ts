@@ -24,6 +24,7 @@ import {
 } from './model'
 
 export const DEFAULT_WORKERS_AI_MODEL = '@cf/meta/llama-3.3-70b-instruct-fp8-fast'
+const REST_COMPLETION_TIMEOUT_MS = 12_000
 
 /** The subset of the Workers AI binding this needs. */
 export interface WorkersAiBinding {
@@ -66,17 +67,26 @@ export class RestWorkersAiBinding implements WorkersAiBinding {
   }
 
   async run(model: string, input: unknown): Promise<unknown> {
-    const response = await this.fetchImpl(
-      `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${this.apiToken}`,
-          'content-type': 'application/json',
+    let response: Response
+    try {
+      response = await this.fetchImpl(
+        `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${this.apiToken}`,
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify(input),
+          signal: AbortSignal.timeout(REST_COMPLETION_TIMEOUT_MS),
         },
-        body: JSON.stringify(input),
-      },
-    )
+      )
+    } catch (error) {
+      if ((error as Error).name === 'TimeoutError' || (error as Error).name === 'AbortError') {
+        throw new Error('Workers AI request timed out')
+      }
+      throw new Error('Workers AI request failed')
+    }
 
     const body = (await response.json()) as {
       result?: unknown

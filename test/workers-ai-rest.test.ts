@@ -14,10 +14,12 @@ describe('RestWorkersAiBinding', () => {
     let seenUrl = ''
     let seenAuth = ''
     let seenBody: unknown
+    let sawTimeoutSignal = false
     const fetchImpl: typeof fetch = async (input, init) => {
       seenUrl = String(input)
       seenAuth = String((init?.headers as Record<string, string>).Authorization)
       seenBody = JSON.parse(String(init?.body))
+      sawTimeoutSignal = init?.signal instanceof AbortSignal
       return Response.json({ result: { response: 'hello' }, success: true, errors: [] })
     }
 
@@ -32,6 +34,7 @@ describe('RestWorkersAiBinding', () => {
     )
     expect(seenAuth).toBe('Bearer cf-token')
     expect((seenBody as { max_tokens: number }).max_tokens).toBe(50)
+    expect(sawTimeoutSignal).toBe(true)
     // Returns the inner result object, the same shape the platform binding gives,
     // so WorkersAiModel's text extraction does not need to know which was used.
     expect(out).toEqual({ response: 'hello' })
@@ -44,6 +47,14 @@ describe('RestWorkersAiBinding', () => {
       })
     const binding = new RestWorkersAiBinding('acct', 'token', fetchImpl)
     await expect(binding.run('m', { messages: [] })).rejects.toThrow(/quota exceeded/)
+  })
+
+  it('bounds a stalled REST call and exposes no provider detail', async () => {
+    const fetchImpl: typeof fetch = async () => {
+      throw new DOMException('upstream did not return', 'TimeoutError')
+    }
+    const binding = new RestWorkersAiBinding('acct', 'secret-token', fetchImpl)
+    await expect(binding.run('m', { messages: [] })).rejects.toThrow('Workers AI request timed out')
   })
 
   it('drives a full analyze through WorkersAiModel over REST', async () => {
