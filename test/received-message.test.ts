@@ -133,7 +133,9 @@ describe('received message: reaches the model provider', () => {
           choices: [
             {
               message: {
-                content: JSON.stringify({
+                tool_calls: [{ function: {
+                  name: 'select_reviewed_scripture',
+                  arguments: JSON.stringify({
                   needs_reflection: true,
                   goal: 'reply well',
                   principle: 'meet_disappointment',
@@ -141,7 +143,8 @@ describe('received message: reaches the model provider', () => {
                   why: 'a rejection',
                   question: 'what matters here',
                   safety_flags: [],
-                }),
+                  }),
+                } }],
               },
             },
           ],

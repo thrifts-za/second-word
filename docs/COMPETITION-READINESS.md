@@ -25,7 +25,7 @@ without contempt, and gratitude in moments of victory.
 | In-context extension artifact | Green, package-level | `npm run preflight:extension` checks the built MV3 artifact, production endpoint, consent copy, and Living Margin bundle. |
 | Living Margin safety | Green, automated | CSS Custom Highlights only; it inserts no nodes or text, clears on the next edit, and falls back silently; `test/moment-marker.test.ts` and `test/content-ambient.test.ts`. |
 | Sandbox and deployed Worker | Green | `npm run verify:all`, then `npm run preflight`; deployed Worker version `e52cbc58-c572-403c-bc4a-b6eaf8b2175b` at the time of audit. |
-| Gloo adapter protocol | Green, mocked | `test/gloo.test.ts` verifies OAuth client credentials, token caching, documented `/ai/v2/chat/completions`, and strict structured output. |
+| Gloo adapter protocol | Green, mocked | `test/gloo.test.ts` verifies OAuth client credentials, token caching, documented `/ai/v2/chat/completions`, and a required `select_reviewed_scripture` tool call with strict structured arguments. |
 
 ## Competition gates still open
 

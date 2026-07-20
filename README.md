@@ -64,8 +64,9 @@ Both gates must agree before anything appears. Either one alone is silence.
 
 These are not stylistic. They are the product.
 
-1. **The model never produces Scripture.** `GlooAnalysisSchema` is strict and has no
-   verse-text field, so a model that tries to hand us Scripture fails validation rather
+1. **The model never produces Scripture.** Gloo analysis is a required
+   `select_reviewed_scripture` tool call validated by strict `GlooAnalysisSchema`, which
+   has no verse-text field. A model that tries to hand us Scripture fails validation rather
    than being cleaned up afterwards. Verse text can only enter through `YouVersionClient`.
 2. **The model may rank, never introduce.** Candidate references outside the reviewed
    library for the selected principle are dropped before any fetch happens.

@@ -21,7 +21,13 @@ describe('Gloo provider protocol', () => {
         if (String(input).endsWith('/oauth2/token')) {
           return Response.json({ access_token: 'short-lived-token', expires_in: 3600 })
         }
-        return Response.json({ choices: [{ message: { content: JSON.stringify(analysis) } }] })
+        return Response.json({
+          choices: [{
+            message: {
+              tool_calls: [{ function: { name: 'select_reviewed_scripture', arguments: JSON.stringify(analysis) } }],
+            },
+          }],
+        })
       },
     )
 
@@ -42,8 +48,29 @@ describe('Gloo provider protocol', () => {
       expect(completion.init?.headers).toMatchObject({ authorization: 'Bearer short-lived-token' })
       expect(JSON.parse(String(completion.init?.body))).toMatchObject({
         model: 'gloo-openai-gpt-5-mini',
-        response_format: { type: 'json_object' },
+        tool_choice: 'required',
+        tools: [{ function: { name: 'select_reviewed_scripture' } }],
       })
     }
+  })
+
+  it('rejects a completion that does not call the one required selection tool', async () => {
+    const model = new GlooModel(
+      { clientId: 'id', clientSecret: 'secret' },
+      async (input) => {
+        if (String(input).endsWith('/oauth2/token')) return Response.json({ access_token: 'token' })
+        return Response.json({
+          choices: [{
+            message: {
+              tool_calls: [{ function: { name: 'invent_a_verse', arguments: JSON.stringify(analysis) } }],
+            },
+          }],
+        })
+      },
+    )
+
+    await expect(model.analyze({ draft: 'This matters.', locale: 'en' })).rejects.toThrow(
+      'analysis response did not call the required tool',
+    )
   })
 })

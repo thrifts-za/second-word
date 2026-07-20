@@ -25,6 +25,35 @@ const DEFAULT_TOKEN_URL = 'https://platform.ai.gloo.com/oauth2/token'
 const DEFAULT_API_BASE = 'https://platform.ai.gloo.com/ai/v2'
 const DEFAULT_MODEL = 'gloo-openai-gpt-5-mini'
 
+const ANALYSIS_TOOL_NAME = 'select_reviewed_scripture'
+
+/**
+ * Gloo V2 tool use makes the moment selection machine-readable before our own
+ * schema validation. The tool is deliberately a selection, never a verse
+ * lookup: the Worker, not a model, verifies and retrieves Scripture from
+ * YouVersion after this call.
+ */
+const ANALYSIS_TOOL = {
+  type: 'function',
+  function: {
+    name: ANALYSIS_TOOL_NAME,
+    description: 'Select one reviewed Scripture principle and ranked reference IDs for a consequential draft.',
+    parameters: {
+      type: 'object',
+      properties: {
+        needs_reflection: { type: 'boolean' },
+        goal: { type: 'string' },
+        principle: { type: 'string' },
+        candidate_reference_ids: { type: 'array', items: { type: 'string' } },
+        why: { type: 'string' },
+        question: { type: 'string' },
+        safety_flags: { type: 'array', items: { type: 'string' } },
+      },
+      required: ['needs_reflection', 'goal', 'principle', 'candidate_reference_ids', 'why', 'question', 'safety_flags'],
+    },
+  },
+} as const
+
 export interface GlooConfig {
   clientId: string
   clientSecret: string
@@ -116,13 +145,47 @@ export class GlooModel implements ReflectionModel {
     return content
   }
 
+  private async analyzeWithTool(system: string, user: string): Promise<GlooAnalysis> {
+    const token = await this.accessToken()
+    const response = await this.fetchImpl(`${this.apiBase}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${token}`,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: this.config.model ?? DEFAULT_MODEL,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user },
+        ],
+        temperature: 0.2,
+        max_tokens: 260,
+        tools: [ANALYSIS_TOOL],
+        tool_choice: 'required',
+      }),
+    })
+
+    if (!response.ok) {
+      throw new ModelError(`analysis tool call failed (${response.status})`, this.provider, response.status)
+    }
+
+    const body = (await response.json()) as {
+      choices?: Array<{ message?: { tool_calls?: Array<{ function?: { name?: string; arguments?: string } }> } }>
+    }
+    const calls = body.choices?.[0]?.message?.tool_calls
+    const call = calls?.[0]
+    if (calls?.length !== 1 || call?.function?.name !== ANALYSIS_TOOL_NAME || !call.function.arguments) {
+      throw new ModelError('analysis response did not call the required tool', this.provider)
+    }
+    return parseStructured(call.function.arguments, GlooAnalysisSchema, 'analysis tool arguments', this.provider)
+  }
+
   async analyze({ draft, locale, context, receivedMessage, principleHint }: AnalyzeInput): Promise<GlooAnalysis> {
-    const raw = await this.complete(
-      analyzeSystemPrompt(principleHint),
+    return this.analyzeWithTool(
+      analyzeSystemPrompt(principleHint, 'tool'),
       userMessage(draft, locale, context, receivedMessage),
-      260,
     )
-    return parseStructured(raw, GlooAnalysisSchema, 'analysis', this.provider)
   }
 
   async rewrite({ draft, goal, principle, modes, locale }: RewriteInput): Promise<GlooRewrites> {
