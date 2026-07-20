@@ -15,7 +15,7 @@
 import { GlooModel } from './gloo'
 import { FakeModel } from './fake'
 import { ModelError, type ReflectionModel } from './model'
-import { WorkersAiModel, type WorkersAiBinding } from './workers-ai'
+import { RestWorkersAiBinding, WorkersAiModel, type WorkersAiBinding } from './workers-ai'
 
 export interface ProviderEnv {
   LLM_PROVIDER?: string
@@ -26,6 +26,12 @@ export interface ProviderEnv {
   GLOO_MODEL?: string
   WORKERS_AI_MODEL?: string
   AI?: WorkersAiBinding
+  /**
+   * A Cloudflare account to run Workers AI on over REST, when it should not be
+   * the account hosting this Worker. Both must be set to take effect.
+   */
+  CF_ACCOUNT_ID?: string
+  CF_WORKERS_AI_TOKEN?: string
 }
 
 export function createReflectionModel(env: ProviderEnv): ReflectionModel {
@@ -34,9 +40,18 @@ export function createReflectionModel(env: ProviderEnv): ReflectionModel {
   if (provider === 'fake') return new FakeModel()
 
   if (provider === 'workers-ai') {
+    // Prefer a named account over REST when configured, so the neurons bill to
+    // it rather than to whatever account happens to host this Worker.
+    if (env.CF_ACCOUNT_ID && env.CF_WORKERS_AI_TOKEN) {
+      return new WorkersAiModel(
+        new RestWorkersAiBinding(env.CF_ACCOUNT_ID, env.CF_WORKERS_AI_TOKEN),
+        env.WORKERS_AI_MODEL,
+      )
+    }
     if (!env.AI) {
       throw new ModelError(
-        'Workers AI binding is missing. Add [ai] binding = "AI" to wrangler.toml.',
+        'Workers AI is not configured. Set CF_ACCOUNT_ID and CF_WORKERS_AI_TOKEN, ' +
+          'or add [ai] binding = "AI" to wrangler.toml.',
         'workers-ai',
       )
     }

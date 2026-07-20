@@ -166,25 +166,48 @@
   .send:hover { background: #000; }
   .send:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
 
-  /* The invitation. Kept for the moments no classifier can see. */
-  .invite {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 6px 12px;
-    border: 1px solid var(--line);
-    border-radius: 2px;
-    background: #fff;
+  /*
+   * The invitation, now a quiet fallback rather than the main event.
+   *
+   * It used to be a button beside Send, which made this demo read as a thing
+   * you trigger, exactly the opposite of the pitch. The star is the mark that
+   * appears on its own. This is here only for moments no classifier can see.
+   */
+  .linkish {
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
     color: var(--ink-soft);
-    font-family: var(--ui);
-    font-size: 12.5px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
     cursor: pointer;
   }
+  .linkish:hover { color: var(--clay); }
+  .linkish:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
 
-  .invite:hover { border-color: var(--clay); color: var(--ink); }
-  .invite:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+  .invite__dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--clay);
+    margin-right: 5px;
+    vertical-align: middle;
+  }
 
-  .invite__dot { width: 5px; height: 5px; border-radius: 50%; background: var(--clay); flex: none; }
+  /*
+   * Shown only when a live reading fails, never on silence. It proves the app
+   * acted on its own even when the model cannot answer, so a rate-limited demo
+   * still demonstrates the one thing that matters instead of looking dead.
+   */
+  .status {
+    font-family: var(--ui);
+    font-size: 12px;
+    color: var(--ink-faint);
+    display: none;
+  }
+  .status--on { display: inline-flex; align-items: center; gap: 6px; }
+  .status__dot { width: 5px; height: 5px; border-radius: 50%; background: var(--clay); flex: none; }
 
   .draft-hint {
     margin-top: 10px;
@@ -257,9 +280,7 @@
         <textarea id="draft"></textarea>
 
         <div class="composer__foot">
-          <button class="invite" id="invite" type="button">
-            <span class="invite__dot"></span>Second Word
-          </button>
+          <div id="status-slot" class="status" aria-live="polite"></div>
           <div id="chip-slot"></div>
           <div class="composer__spacer"></div>
           <button class="send" id="send" type="button">Send</button>
@@ -268,7 +289,12 @@
         <div id="panel-slot"></div>
 
         <p class="draft-hint">
-          Not sure what you would write? <button type="button" id="fill">Use a draft someone might really send</button>
+          Second Word watches as you type. A mark appears in the corner of the box only when
+          something is genuinely at stake, and the passage waits until you click it.
+          <br />
+          <button type="button" id="invite" class="linkish"><span class="invite__dot"></span>Reflect on this now</button>
+          &nbsp;&middot;&nbsp;
+          <button type="button" id="fill" class="linkish">Use a draft someone might really send</button>
         </p>
       </div>
     </section>

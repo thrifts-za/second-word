@@ -34,6 +34,25 @@ const tabsNav = el('tabs')
 const inviteButton = el<HTMLButtonElement>('invite')
 const sendButton = el<HTMLButtonElement>('send')
 const fillButton = el<HTMLButtonElement>('fill')
+const statusSlot = el('status-slot')
+
+/**
+ * "It looked, on its own, and could not reach the reading service." Shown only
+ * when a live call fails, so a rate-limited demo still shows the automatic
+ * behaviour rather than looking dead. Cleared the moment typing resumes.
+ */
+function showChecked(): void {
+  statusSlot.replaceChildren()
+  const dot = document.createElement('span')
+  dot.className = 'status__dot'
+  statusSlot.append(dot, document.createTextNode('Second Word checked this on its own — the reading service is busy right now.'))
+  statusSlot.classList.add('status--on')
+}
+
+function clearChecked(): void {
+  statusSlot.classList.remove('status--on')
+  statusSlot.replaceChildren()
+}
 
 let scenario: Scenario = SCENARIOS[0]!
 let panel: SecondWordPanel | null = null
@@ -53,6 +72,7 @@ function renderScenario(next: Scenario): void {
   scenario = next
   closePanel()
   chipSlot.replaceChildren()
+  clearChecked()
   lastEvaluated = ''
 
   el('location').textContent = next.location
@@ -146,7 +166,12 @@ async function evaluateDraft(): Promise<void> {
   try {
     result = await scheduler.submit(`${draft}\u0000${received}`, () => analyze(draft, { received }))
   } catch {
-    return // A failed reading is silence, never an error in someone's way.
+    // The one place a live failure is worth surfacing. It fired on its own and
+    // the reading service could not answer, so say exactly that rather than go
+    // blank, which would make an automatic product look like it did nothing.
+    // Never shown for silence: silence is a 200 and does not throw.
+    showChecked()
+    return
   }
 
   if (result === null) return // Superseded: the draft it describes is gone.
@@ -176,6 +201,7 @@ function showBadge(result: AnalyzeResponse): void {
 }
 
 draftField.addEventListener('input', () => {
+  clearChecked()
   window.clearTimeout(debounceTimer)
   debounceTimer = window.setTimeout(() => void evaluateDraft(), DEBOUNCE_MS)
 })

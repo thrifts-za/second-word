@@ -24,6 +24,9 @@ export interface Env {
   LLM_PROVIDER?: string
   WORKERS_AI_MODEL?: string
   AI?: WorkersAiBinding
+  /** Run Workers AI on a named account over REST, off this Worker's host account. */
+  CF_ACCOUNT_ID?: string
+  CF_WORKERS_AI_TOKEN?: string
   GLOO_CLIENT_ID?: string
   GLOO_CLIENT_SECRET?: string
   GLOO_TOKEN_URL?: string
@@ -64,7 +67,7 @@ app.get('/health', (c) =>
     ok: true,
     llm_provider: c.env.LLM_PROVIDER ?? 'gloo',
     gloo_configured: Boolean(c.env.GLOO_CLIENT_ID && c.env.GLOO_CLIENT_SECRET),
-    workers_ai_available: Boolean(c.env.AI),
+    workers_ai_available: Boolean(c.env.AI || (c.env.CF_ACCOUNT_ID && c.env.CF_WORKERS_AI_TOKEN)),
     signing_key_configured: Boolean(c.env.TOKEN_SIGNING_KEY),
     default_bible_id: c.env.DEFAULT_BIBLE_ID,
     max_draft_length: MAX_DRAFT_LENGTH,

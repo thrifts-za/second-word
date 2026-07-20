@@ -37,6 +37,61 @@ export interface WorkersAiBinding {
   ): Promise<unknown>
 }
 
+/**
+ * Runs Workers AI on a specific Cloudflare account over the REST API, instead
+ * of the platform `[ai]` binding, which always uses the account hosting the
+ * Worker.
+ *
+ * This decouples the two. The Worker can stay on one account, at its existing
+ * URL and with its existing secrets, while the model runs on another account
+ * with its own neuron allocation. It exists because the host account's free
+ * allocation was exhausted; a second account carries the load without moving
+ * anything else.
+ *
+ * It implements the same `run()` shape the platform binding exposes, and
+ * returns the inner `result` object, so `WorkersAiModel` cannot tell which one
+ * it was handed.
+ */
+export class RestWorkersAiBinding implements WorkersAiBinding {
+  private readonly fetchImpl: typeof fetch
+
+  constructor(
+    private readonly accountId: string,
+    private readonly apiToken: string,
+    fetchImpl?: typeof fetch,
+  ) {
+    // See the note in youversion.ts: a bare `fetch` default throws
+    // "Illegal invocation" in Workers when called as a method.
+    this.fetchImpl = fetchImpl ?? ((input, init) => fetch(input, init))
+  }
+
+  async run(model: string, input: unknown): Promise<unknown> {
+    const response = await this.fetchImpl(
+      `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/ai/run/${model}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.apiToken}`,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(input),
+      },
+    )
+
+    const body = (await response.json()) as {
+      result?: unknown
+      success?: boolean
+      errors?: Array<{ message?: string }>
+    }
+
+    if (!response.ok || body.success === false) {
+      const detail = body.errors?.map((e) => e.message).filter(Boolean).join('; ') || `http ${response.status}`
+      throw new Error(detail)
+    }
+    return body.result
+  }
+}
+
 export class WorkersAiModel implements ReflectionModel {
   readonly provider = 'workers-ai' as const
 

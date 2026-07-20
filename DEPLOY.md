@@ -17,10 +17,20 @@ openssl rand -base64 32 | npx wrangler secret put TOKEN_SIGNING_KEY
 npx wrangler secret put GLOO_CLIENT_ID
 npx wrangler secret put GLOO_CLIENT_SECRET
 
+# Optional. Run Workers AI on a DIFFERENT Cloudflare account than the one
+# hosting this Worker, over the REST API. Set both to bill the neurons to that
+# account instead of the host's free allocation. When set, they take priority
+# over the [ai] binding. Used because the host account's daily free allocation
+# runs out; a second account carries the load with no URL or host change.
+npx wrangler secret put CF_ACCOUNT_ID
+npx wrangler secret put CF_WORKERS_AI_TOKEN
+
 npm run deploy:worker
 ```
 
-Workers AI needs no key. The `[ai]` binding in `wrangler.toml` is the credential.
+Workers AI needs no key when it runs on the host account: the `[ai]` binding in
+`wrangler.toml` is the credential. To run it on another account instead, set the
+two `CF_*` secrets above; the token needs the **Workers AI** permission.
 
 Check it came up, including upstream:
 
