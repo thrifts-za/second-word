@@ -23,13 +23,14 @@ without contempt, and gratitude in moments of victory.
 | Request/privacy boundary | Green | No request-body logging; schema is strict; real byte limit rejects streamed requests without `content-length`; `test/request-boundary.test.ts`. |
 | In-context extension artifact | Green, package-level | `npm run preflight:extension` checks the built MV3 artifact, production endpoint, consent copy, and Living Margin bundle. |
 | Living Margin safety | Green, automated | CSS Custom Highlights only; it inserts no nodes or text, clears on the next edit, and falls back silently; `test/moment-marker.test.ts` and `test/content-ambient.test.ts`. |
-| Sandbox and deployed Worker | Green | `npm run verify:all`, then `npm run preflight`; deployed Worker version `3bca5bb2-ea0c-43ae-aa85-3cf6c59d19be` at the time of audit. |
+| Sandbox and deployed Worker | Green | `npm run verify:all`, then `npm run preflight`; deployed Worker version `e52cbc58-c572-403c-bc4a-b6eaf8b2175b` at the time of audit. |
+| Gloo adapter protocol | Green, mocked | `test/gloo.test.ts` verifies OAuth client credentials, token caching, documented `/ai/v2/chat/completions`, and strict structured output. |
 
 ## Competition gates still open
 
 | Requirement | Status | Exact completion evidence needed |
 | --- | --- | --- |
-| **Live Gloo AI Studio** | **Red: credentials pending** | Set the Gloo secrets and provider configuration; `REQUIRE_GLOO=1 npm run preflight` must pass against production. Do not claim live Gloo until then. |
+| **Live Gloo AI Studio** | **Red: credentials pending** | Set the Gloo secrets and provider configuration; `REQUIRE_GLOO=1 npm run preflight` must pass against production. Do not claim live Gloo until then. The adapter defaults now match current official docs, but a mock cannot prove organisation entitlement or a live model response. |
 | YouVersion Highlights data exchange | Yellow | Implement the browser-approved data-exchange callback and create/read a user highlight; film it appearing in the user's real YouVersion account. This is the strongest durable YouVersion loop, but must not be mocked. |
 | One real extension surface | Yellow | Load `extension/dist` in Chrome, open a real Gmail compose, exercise manual reflection, ambient consent, dismiss/reopen, rewrite, and an unsupported-field fallback. Capture the exact browser/version/date. The DOM harness proves logic, not Gmail's live selectors. |
 | Public repo contains current code | Yellow | Push `f301fd2`, `d9080b4`, and `17d0a67` (and later commits) to the public `origin/main`; verify the public commit URL. At audit time `origin/main` still resolved to `7686fb2`. |
