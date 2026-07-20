@@ -10,6 +10,15 @@ const env: Env = {
 }
 
 describe('Worker request boundary', () => {
+  it('marks private-draft API responses as non-cacheable and browser-safe', async () => {
+    const response = await app.fetch(new Request('https://worker.invalid/health'), env)
+
+    expect(response.headers.get('cache-control')).toBe('no-store')
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff')
+    expect(response.headers.get('referrer-policy')).toBe('no-referrer')
+    expect(response.headers.get('x-frame-options')).toBe('DENY')
+  })
+
   it('rejects an oversized chunked-style JSON body even with no content-length header', async () => {
     const request = new Request('https://worker.invalid/v1/analyze', {
       method: 'POST',

@@ -39,6 +39,19 @@ const MAX_BODY_BYTES = 8 * 1024
 const app = new Hono<{ Bindings: Env }>()
 
 /**
+ * This is a private-draft API, not a cacheable content API. Apply privacy and
+ * browser-safety headers before every route, including error responses.
+ */
+app.use('*', async (c, next) => {
+  c.header('Cache-Control', 'no-store')
+  c.header('X-Content-Type-Options', 'nosniff')
+  c.header('Referrer-Policy', 'no-referrer')
+  c.header('X-Frame-Options', 'DENY')
+  c.header('Permissions-Policy', 'interest-cohort=()')
+  await next()
+})
+
+/**
  * CORS covers the health routes too, not just /v1/*. The sandbox reads
  * /health to state which model actually ran, and scoping the middleware to
  * /v1 blocked that with no error anywhere except the browser console.
@@ -93,7 +106,9 @@ app.get('/health/upstream', async (c) => {
     return c.json(
       {
         ok: false,
-        error: error instanceof Error ? `${error.name}: ${error.message}` : String(error),
+        // This route is public and operational errors can contain upstream
+        // detail. Clients need the state, not an implementation trace.
+        error: 'scripture_unavailable',
         latency_ms: Date.now() - started,
       },
       502,
@@ -197,10 +212,10 @@ app.post('/v1/rewrite', async (c) => {
 
 /** Error text is user-facing and must never leak a draft or a credential. */
 function errorResponse(c: { json: (body: unknown, status: 502 | 503) => Response }, error: unknown): Response {
-  // Name and message only. Never the draft, never a stack containing one.
+  // Never log model/upstream messages: an unexpected provider error could
+  // include input text. Cloudflare retains Worker logs beyond this request.
   const name = error instanceof Error ? error.name : 'UnknownError'
-  const message = error instanceof Error ? error.message : String(error)
-  console.error(`[second-word] ${name}: ${message}`)
+  console.error(`[second-word] ${name}`)
 
   if (error instanceof YouVersionError) {
     return c.json(
