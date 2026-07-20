@@ -42,10 +42,12 @@ describe('Gloo provider protocol', () => {
       'content-type': 'application/x-www-form-urlencoded',
     })
     expect(token.init?.body).toBe('grant_type=client_credentials&scope=api/access')
+    expect(token.init?.signal).toBeTruthy()
 
     for (const completion of calls.slice(1)) {
       expect(completion.url).toBe('https://platform.ai.gloo.com/ai/v2/chat/completions')
       expect(completion.init?.headers).toMatchObject({ authorization: 'Bearer short-lived-token' })
+      expect(completion.init?.signal).toBeTruthy()
       expect(JSON.parse(String(completion.init?.body))).toMatchObject({
         model: 'gloo-openai-gpt-5-mini',
         tool_choice: 'required',
@@ -72,5 +74,16 @@ describe('Gloo provider protocol', () => {
     await expect(model.analyze({ draft: 'This matters.', locale: 'en' })).rejects.toThrow(
       'analysis response did not call the required tool',
     )
+  })
+
+  it('turns a provider timeout into a credential-safe model error', async () => {
+    const model = new GlooModel(
+      { clientId: 'id', clientSecret: 'secret' },
+      async () => {
+        throw new DOMException('timed out', 'TimeoutError')
+      },
+    )
+
+    await expect(model.analyze({ draft: 'This matters.', locale: 'en' })).rejects.toThrow('token request timed out')
   })
 })
