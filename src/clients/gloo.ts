@@ -44,6 +44,7 @@ const ANALYSIS_TOOL = {
       type: 'object',
       properties: {
         needs_reflection: { type: 'boolean' },
+        draft_needs_care: { type: 'boolean' },
         goal: { type: 'string' },
         principle: { type: 'string' },
         candidate_reference_ids: { type: 'array', items: { type: 'string' } },

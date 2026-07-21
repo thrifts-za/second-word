@@ -82,6 +82,7 @@ describe('analyze', () => {
       async analyze() {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: false,
           goal: 'meet a decision that went against you',
           principle: 'meet_disappointment',
           candidate_reference_ids: ['PRO.16.9'],
@@ -110,12 +111,45 @@ describe('analyze', () => {
     expect(outcome.body).not.toHaveProperty('analysis_token')
   })
 
+  it('licenses a rewrite when a barbed reply under the same decline letter needs care', async () => {
+    const disappointed: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          draft_needs_care: true,
+          goal: 'meet a decision that went against you',
+          principle: 'meet_disappointment',
+          candidate_reference_ids: ['PRO.16.9'],
+          why: 'w',
+          question: 'q',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('not used') },
+    }
+    const barbed = {
+      draft: 'Thank you for finally letting me know. I am sure the six weeks of waiting were necessary.',
+      surface: 'sandbox' as const,
+      received_message: 'We have decided to move forward with another candidate.',
+    }
+
+    const outcome = await runAnalyze(
+      barbed,
+      deps({ model: disappointed, youversion: youVersionStub({ resolves: ['PRO.16.9'] }) }),
+    )
+    if (outcome.kind !== 'ok') throw new Error('expected ok')
+    expect(outcome.body.experience).toBe('guard')
+    expect(outcome.body.analysis_token).toContain('.')
+  })
+
   it('never exposes provider commentary as user-facing copy', async () => {
     const narrating: ReflectionModel = {
       provider: 'fake',
       async analyze() {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: true,
           goal: 'dismiss the request',
           principle: 'refuse_contempt',
           candidate_reference_ids: ['EPH.4.29'],
@@ -144,6 +178,7 @@ describe('analyze', () => {
       async analyze() {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: true,
           goal: 'answer a rejection steadily',
           principle: 'meet_disappointment',
           candidate_reference_ids: ['PRO.16.9', 'PSA.27.14', 'LAM.3.26'],
@@ -182,6 +217,7 @@ describe('analyze', () => {
       async analyze(): Promise<GlooAnalysis> {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: true,
           goal: 'g',
           principle: 'gentle_answer',
           // Not in the reviewed library for any principle.
@@ -218,6 +254,7 @@ describe('analyze', () => {
       async analyze(): Promise<GlooAnalysis> {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: true,
           goal: 'g',
           principle: 'seek_peace',
           candidate_reference_ids: ['ROM.12.18'],
@@ -256,6 +293,7 @@ describe('analyze', () => {
       async analyze() {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: true,
           goal: 'stay with the person',
           principle: 'seek_peace',
           candidate_reference_ids: ['ROM.12.18'],
@@ -282,7 +320,7 @@ describe('analyze', () => {
       provider: 'fake',
       async analyze() {
         return GlooAnalysisSchema.parse({
-          needs_reflection: true, goal: 'care', principle: 'seek_peace',
+          needs_reflection: true, draft_needs_care: true, goal: 'care', principle: 'seek_peace',
           candidate_reference_ids: ['ROM.12.18'], why: 'w', question: 'q', safety_flags: ['crisis'],
         })
       },
@@ -300,6 +338,7 @@ describe('analyze', () => {
       async analyze() {
         return GlooAnalysisSchema.parse({
           needs_reflection: true,
+          draft_needs_care: false,
           goal: 'offer support freely',
           principle: 'offer_support',
           candidate_reference_ids: ['GAL.5.13'],

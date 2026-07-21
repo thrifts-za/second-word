@@ -63,6 +63,7 @@ describe('RestWorkersAiBinding', () => {
         result: {
           response: JSON.stringify({
             needs_reflection: true,
+            draft_needs_care: true,
             goal: 'answer without heat',
             principle: 'gentle_answer',
             candidate_reference_ids: ['PRO.15.1'],

@@ -106,6 +106,12 @@ export const GlooAnalysisSchema = z
      * answer or the product is a slot machine with better manners.
      */
     needs_reflection: z.boolean(),
+    /**
+     * Whether the writer's own words need care, rather than merely answering
+     * a hard thing that happened to them. Optional for provider compatibility:
+     * an omitted judgement falls back to the local detector.
+     */
+    draft_needs_care: z.boolean().optional(),
     goal: z.string().min(1).max(200),
     principle: PrincipleSchema,
     candidate_reference_ids: z.array(ReferenceIdSchema).min(1).max(5),

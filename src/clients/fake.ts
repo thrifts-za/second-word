@@ -7,6 +7,7 @@
  */
 
 import { GlooAnalysisSchema, GlooRewritesSchema, type GlooAnalysis, type GlooRewrites, type Principle } from '../lib/contracts'
+import { carriesOwnSignal } from '../lib/detector'
 import { PRINCIPLE_LIBRARY } from '../lib/scripture-library'
 import type { AnalyzeInput, ReflectionModel, RewriteInput } from './model'
 
@@ -32,6 +33,7 @@ export class FakeModel implements ReflectionModel {
     const entry = PRINCIPLE_LIBRARY[principle]
     return GlooAnalysisSchema.parse({
       needs_reflection: true,
+      draft_needs_care: carriesOwnSignal(draft),
       goal: 'Make a point without being dismissed',
       principle,
       candidate_reference_ids: entry.candidates,

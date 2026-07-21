@@ -4,6 +4,7 @@ import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, SAFETY_CANDIDATE_LIBRARY, exp
 
 const valid = {
   needs_reflection: true,
+  draft_needs_care: true,
   goal: 'Correct a claim without being dismissed',
   principle: 'gentle_answer',
   candidate_reference_ids: ['PRO.15.1'],
@@ -15,6 +16,13 @@ const valid = {
 describe('Gloo output contract', () => {
   it('accepts a well-formed analysis', () => {
     expect(GlooAnalysisSchema.safeParse(valid).success).toBe(true)
+  })
+
+  it('accepts an older provider response that omits the optional care judgement', () => {
+    const { draft_needs_care: _omitted, ...withoutCare } = valid
+    const parsed = GlooAnalysisSchema.safeParse(withoutCare)
+    expect(parsed.success).toBe(true)
+    if (parsed.success) expect(parsed.data.draft_needs_care).toBeUndefined()
   })
 
   it('gives the model no way to hand us Scripture', () => {

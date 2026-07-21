@@ -137,6 +137,7 @@ describe('received message: reaches the model provider', () => {
                   name: 'select_reviewed_scripture',
                   arguments: JSON.stringify({
                   needs_reflection: true,
+                  draft_needs_care: false,
                   goal: 'reply well',
                   principle: 'meet_disappointment',
                   candidate_reference_ids: ['PSA.27.14'],

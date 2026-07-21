@@ -68,6 +68,8 @@ When it is true, choose ONE principle from this reviewed library, and rank
 candidate references from that principle's list only. You may not invent a
 reference.
 
+Set draft_needs_care to true when there is something in the writer's own words they might want to change, not merely because a hard thing happened to them.
+
 ${principleLines}
 
 You must NEVER write out Scripture text. Return reference IDs only. The
@@ -87,7 +89,7 @@ ${output === 'tool'
   ? `Call the select_reviewed_scripture tool exactly once. Put every required
 field in its arguments. Do not write prose or Scripture.`
   : `Reply with JSON only, matching exactly:
-{"needs_reflection": boolean, "goal": string, "principle": string,
+{"needs_reflection": boolean, "draft_needs_care": boolean, "goal": string, "principle": string,
  "candidate_reference_ids": string[], "why": string, "question": string,
  "safety_flags": string[]}`}
 

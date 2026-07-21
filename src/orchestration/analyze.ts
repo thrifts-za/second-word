@@ -120,7 +120,11 @@ export async function runAnalyze(
    * So the passage still appears, since the moment is real and a steady verse
    * belongs there. The credential that unlocks rewriting does not.
    */
-  const earned = carriesOwnSignal(request.draft)
+  // The local half catches visible contempt for free. The model half catches
+  // contextual signals such as sarcasm and barbed courtesy that regex cannot.
+  // Optional provider output can only add care; omission safely preserves the
+  // established local decision.
+  const earned = carriesOwnSignal(request.draft) || analysis.draft_needs_care === true
 
   // Guide is a blessing, not an edit. Do not mint a rewrite credential the
   // server will refuse and the UI will never offer.

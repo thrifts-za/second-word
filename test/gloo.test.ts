@@ -3,6 +3,7 @@ import { GlooModel } from '../src/clients/gloo'
 
 const analysis = {
   needs_reflection: true,
+  draft_needs_care: true,
   goal: 'answer without returning the blow',
   principle: 'gentle_answer',
   candidate_reference_ids: ['PRO.15.1'],
@@ -48,11 +49,15 @@ describe('Gloo provider protocol', () => {
       expect(completion.url).toBe('https://platform.ai.gloo.com/ai/v2/chat/completions')
       expect(completion.init?.headers).toMatchObject({ authorization: 'Bearer short-lived-token' })
       expect(completion.init?.signal).toBeTruthy()
-      expect(JSON.parse(String(completion.init?.body))).toMatchObject({
+      const payload = JSON.parse(String(completion.init?.body))
+      expect(payload).toMatchObject({
         model: 'gloo-openai-gpt-5-mini',
         tool_choice: 'required',
         tools: [{ function: { name: 'select_reviewed_scripture' } }],
       })
+      const parameters = payload.tools[0].function.parameters
+      expect(parameters.properties.draft_needs_care).toEqual({ type: 'boolean' })
+      expect(parameters.required).not.toContain('draft_needs_care')
     }
   })
 
