@@ -35,7 +35,7 @@ import { SecondWordBadge } from './badge'
 import { SecondWordOverlay } from './overlay'
 import { markMoments, type MomentMarker } from './moment-marker'
 import { createScheduler } from './scheduler'
-import { apiBase, isAmbient, isEnabledFor, rememberReference, settings } from './config'
+import { apiBase, isAmbient, isEnabledFor, migrateAutomaticAmbient, rememberReference, settings } from './config'
 
 /**
  * Gmail is the generic adapter plus the one thing only Gmail can do. D14.
@@ -89,6 +89,7 @@ const verseOfTheDayCache = new Map<string, Promise<VerseOfTheDayResponse | null>
 
 async function boot(): Promise<void> {
   if (!(await isEnabledFor(location.host))) return
+  await migrateAutomaticAmbient()
   ambient = await isAmbient()
   presenceEnabled = (await settings()).presence
 
@@ -252,10 +253,19 @@ function mountInvitation(attachment: Attachment): void {
   button.append(dot, document.createTextNode('Reflect on this now'))
 
   button.addEventListener('click', () => {
-    if (!adapter.getDraft(attachment.composer).trim()) return
-    openConsent(attachment)
+    if (!adapter.getDraft(attachment.composer).trim()) {
+      void openDailyVerseFromInvitation(attachment)
+      return
+    }
+    openInvitedReflection(attachment)
   })
   anchor.append(button)
+}
+
+/** An empty composer opens Presence rather than behaving like a dead control. */
+async function openDailyVerseFromInvitation(attachment: Attachment): Promise<void> {
+  await mountPresence(attachment)
+  if (attachment.dailyVerse) openVerseOfTheDay(attachment)
 }
 
 /**
@@ -387,8 +397,12 @@ function openPassage(attachment: Attachment, result: AnalyzeResponse | SafetyRes
   else panel.presentSafety(result)
 }
 
-/** The invited path, where the draft has not left the browser yet. */
-function openConsent(attachment: Attachment): void {
+/**
+ * The invited path. Clicking the invitation is the explicit consent boundary,
+ * so Gmail can immediately read the real moment instead of asking the writer
+ * to classify it with a generic questionnaire.
+ */
+function openInvitedReflection(attachment: Attachment): void {
   closePanel(attachment)
   const panel = buildPanel(attachment)
   attachment.panel = panel
@@ -398,7 +412,7 @@ function openConsent(attachment: Attachment): void {
     content: panel.host,
     onDismiss: () => closePanel(attachment),
   })
-  panel.renderConsent(true)
+  void panel.analyzeNow()
 }
 
 /** Tear down the card and the box it sits in together, or one outlives the other. */
@@ -411,7 +425,10 @@ function closePanel(attachment: Attachment): void {
 
 function buildPanel(attachment: Attachment): SecondWordPanel {
   return new SecondWordPanel({
-    onAnalyze: (options) => analyze(adapter.getDraft(attachment.composer), options),
+    onAnalyze: (options) => analyze(adapter.getDraft(attachment.composer), {
+      ...options,
+      received: adapter.getReceivedMessage(attachment.composer) ?? undefined,
+    }),
     onRewrite: (token, modes) => rewrite(adapter.getDraft(attachment.composer), token, modes, attachment),
     onReplace: (text) => {
       const previous = adapter.getDraft(attachment.composer)
@@ -433,11 +450,7 @@ async function analyze(
   const base = await apiBase()
   const currentSettings = await settings()
   const translationId = currentSettings.translationId
-  const response = await fetch(`${base}/v1/analyze`, {
-    method: 'POST',
-    signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
+  const request = {
       draft,
       surface: adapter.id === 'gmail' ? 'gmail' : 'social',
       ...(options.principle ? { principle_hint: options.principle } : {}),
@@ -445,13 +458,42 @@ async function analyze(
       ...(options.received ? { received_message: options.received } : {}),
       ...(translationId ? { translation_id: translationId } : {}),
       ...(currentSettings.recentReferenceIds.length > 0 ? { recent_reference_ids: currentSettings.recentReferenceIds } : {}),
-    }),
-  })
+    }
+
+  let response = await requestAnalysis(base, request)
+  let usedReceivedMessage = Boolean(options.received)
+
+  // Gmail's DOM changes frequently. If its extracted thread context is ever
+  // rejected upstream, preserve the person's explicit reflection request by
+  // retrying once with only the draft. Never change their configured backend.
+  if (!response.ok && options.received && adapter.id === 'gmail') {
+    const { received_message: _receivedMessage, ...draftOnlyRequest } = request
+    response = await requestAnalysis(base, draftOnlyRequest)
+    usedReceivedMessage = false
+  }
+
   if (!response.ok) throw new Error(`analyze failed: ${response.status}`)
-  const result = (await response.json()) as AnalyzeResponse | SafetyResponse
+  let result = (await response.json()) as AnalyzeResponse | SafetyResponse
+
+  // A rewrite token is bound to the exact draft plus received message. A
+  // draft-only retry cannot safely offer a rewrite that the normal Gmail
+  // rewrite path would later submit with thread context.
+  if (!usedReceivedMessage && options.received && 'verified_reference_id' in result && result.analysis_token) {
+    const { analysis_token: _analysisToken, ...withoutRewrite } = result
+    result = withoutRewrite as AnalyzeResponse
+  }
   const referenceId = 'verified_reference_id' in result ? result.verified_reference_id : result.comfort_reference_id
   if (referenceId) await rememberReference(referenceId)
   return result
+}
+
+function requestAnalysis(base: string, body: Record<string, unknown>): Promise<Response> {
+  return fetch(`${base}/v1/analyze`, {
+    method: 'POST',
+    signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  })
 }
 
 async function rewrite(

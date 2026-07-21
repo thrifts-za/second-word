@@ -128,6 +128,19 @@ export class SecondWordPanel {
     body.append(actions)
   }
 
+  /**
+   * Run a reflection after an explicit invitation click.
+   *
+   * The click itself is consent. Gmail already gives the content script the
+   * reply and the message being answered, so asking the writer to classify the
+   * moment again is both redundant and less contextual than the sandbox.
+   */
+  async analyzeNow(): Promise<void> {
+    const body = this.panel()
+    body.append(el('p', 'status', 'Reading this moment…'))
+    await this.runAnalysis()
+  }
+
   /** The moments a person recognises without being told they are angry. */
   private momentPicker(): HTMLElement {
     const list = el('div', 'moments')
@@ -159,9 +172,11 @@ export class SecondWordPanel {
     return wrapper
   }
 
-  private async runAnalysis(trigger: HTMLButtonElement): Promise<void> {
-    trigger.disabled = true
-    trigger.textContent = 'Reading'
+  private async runAnalysis(trigger?: HTMLButtonElement): Promise<void> {
+    if (trigger) {
+      trigger.disabled = true
+      trigger.textContent = 'Reading'
+    }
 
     try {
       const result = await this.callbacks.onAnalyze({

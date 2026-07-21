@@ -124,7 +124,12 @@ function mountHarness(options: { thread?: string; quoted?: string } = {}): Harne
 }
 
 function stubChrome(ambient: boolean, initial: Record<string, unknown> = {}): Record<string, unknown> {
-  const stored: Record<string, unknown> = { ambient, apiBase: 'https://stub.invalid', ...initial }
+  const stored: Record<string, unknown> = {
+    ambient,
+    automaticAmbientV2: true,
+    apiBase: 'https://stub.invalid',
+    ...initial,
+  }
   ;(globalThis as unknown as { chrome: unknown }).chrome = {
     storage: {
       local: {
@@ -260,6 +265,81 @@ describe('ambient path', () => {
     harness.body.dispatchEvent(new InputEvent('input', { bubbles: true }))
     expect(badges()).toBe(1)
     expect(document.querySelector('second-word-badge')?.shadowRoot?.querySelector('.presence')).not.toBeNull()
+  })
+
+  it('opens the Verse of the Day when the invitation is clicked in an empty composer', async () => {
+    const harness = mountHarness()
+    stubChrome(false, { presence: true })
+    vi.stubGlobal('fetch', async () => Response.json({
+      day: 203,
+      verified_reference_id: 'MAT.6.25',
+      display_reference: 'Matthew 6:25',
+      verse_text: 'Therefore I tell you, do not worry about your life.',
+      bible_id: '111',
+      translation: 'NIV',
+      attribution: 'The Holy Bible, New International Version. Copyright Biblica.',
+      attribution_url: 'https://www.bible.com/versions/111',
+      source: 'youversion_verse_of_the_day',
+    }))
+    await load()
+
+    harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    document.querySelector<HTMLButtonElement>('[aria-label="Reflect on this draft with Second Word"]')!.click()
+    await vi.advanceTimersByTimeAsync(0)
+
+    const panelText = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!.textContent
+    expect(panelText).toContain('Verse of the Day')
+    expect(panelText).toContain('Matthew 6:25')
+  })
+
+  it('uses the Gmail message and draft immediately after an explicit invitation click', async () => {
+    const harness = mountHarness({
+      thread: 'This is a reminder to submit proof of payment for your arrears.',
+    })
+    stubChrome(false, { presence: false })
+    stubFetch(harness, PASSAGE)
+    await load()
+
+    harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    harness.body.textContent = 'I do not have the money at the moment. Things are tight. Could I have two months?'
+    document.querySelector<HTMLButtonElement>('[aria-label="Reflect on this draft with Second Word"]')!.click()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(harness.requests).toHaveLength(1)
+    expect(harness.requests[0]?.received_message).toContain('proof of payment')
+    const panelText = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!.textContent
+    expect(panelText).toContain('Psalm 37:6')
+    expect(panelText).not.toContain('What are you writing into?')
+  })
+
+  it('retries Gmail analysis without extracted thread context when that context is rejected', async () => {
+    const harness = mountHarness({ thread: 'Please confirm whether you can attend.' })
+    stubChrome(false, { presence: false })
+    vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => {
+      const request = JSON.parse(String(init.body)) as Record<string, unknown>
+      harness.requests.push(request)
+      if (harness.requests.length === 1) return new Response('unavailable', { status: 503 })
+      return Response.json(PASSAGE)
+    })
+    await load()
+
+    harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    harness.body.textContent = 'I do not like this, but I am not sure I can make it.'
+    document.querySelector<HTMLButtonElement>('[aria-label="Reflect on this draft with Second Word"]')!.click()
+    await vi.advanceTimersByTimeAsync(0)
+
+    expect(harness.requests).toHaveLength(2)
+    expect(harness.requests[0]).toHaveProperty('received_message')
+    expect(harness.requests[1]).not.toHaveProperty('received_message')
+    const panelText = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!.textContent
+    expect(panelText).toContain('Psalm 37:6')
+    expect(panelText).not.toContain('Show alternatives')
   })
 
   it('sends nothing and shows nothing for logistics', async () => {
@@ -415,6 +495,24 @@ describe('ambient path', () => {
 
     expect(harness.requests).toHaveLength(0)
     expect(badges()).toBe(0)
+  })
+
+  it('migrates an older manual-first demo profile to automatic noticing and Presence', async () => {
+    const harness = mountHarness({ thread: 'We have decided to move forward with another candidate.' })
+    const stored = stubChrome(false, {
+      automaticAmbientV2: false,
+      presence: false,
+    })
+    stubFetch(harness, PASSAGE)
+    await load()
+
+    await type(harness, 'Thank you for letting me know. I am disappointed, but I appreciate the update.')
+
+    expect(stored.ambient).toBe(true)
+    expect(stored.presence).toBe(true)
+    expect(stored.automaticAmbientV2).toBe(true)
+    expect(harness.requests).toHaveLength(1)
+    expect(badges()).toBe(1)
   })
 
   it('never sends the same settled draft twice', async () => {

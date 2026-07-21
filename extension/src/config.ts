@@ -12,6 +12,7 @@ const KEYS = {
   globalOff: 'globalOff',
   disabledSites: 'disabledSites',
   ambient: 'ambient',
+  automaticAmbientV2: 'automaticAmbientV2',
   presence: 'presence',
   translationId: 'translationId',
   recentReferenceIds: 'recentReferenceIds',
@@ -43,6 +44,8 @@ interface Stored {
    * default has to go back to false with it.
    */
   [KEYS.ambient]?: boolean
+  /** One-time migration from the original manual-first demo build. */
+  [KEYS.automaticAmbientV2]?: boolean
   /** Show a quiet composer mark that opens YouVersion's Verse of the Day. No draft is sent. */
   [KEYS.presence]?: boolean
   /** A YouVersion version ID selected from the Worker-provided entitlement list. */
@@ -58,7 +61,7 @@ function storage(): chrome.storage.LocalStorageArea | null {
 async function read(): Promise<Stored> {
   const area = storage()
   if (!area) return {}
-  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.presence, KEYS.translationId, KEYS.recentReferenceIds])) as Stored
+  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.automaticAmbientV2, KEYS.presence, KEYS.translationId, KEYS.recentReferenceIds])) as Stored
 }
 
 export async function apiBase(): Promise<string> {
@@ -74,6 +77,23 @@ export async function isEnabledFor(host: string): Promise<boolean> {
 /** Whether Second Word may look without being asked. See the note on Stored. */
 export async function isAmbient(): Promise<boolean> {
   return (await read())[KEYS.ambient] ?? true
+}
+
+/**
+ * Existing demo profiles can still carry the old manual-first `false` value.
+ * Move them once to the current automatic product; the options switch remains
+ * authoritative after this marker is written.
+ */
+export async function migrateAutomaticAmbient(): Promise<void> {
+  const area = storage()
+  if (!area) return
+  const stored = await read()
+  if (stored[KEYS.automaticAmbientV2]) return
+  await area.set({
+    [KEYS.ambient]: true,
+    [KEYS.presence]: true,
+    [KEYS.automaticAmbientV2]: true,
+  })
 }
 
 export async function setAmbient(on: boolean): Promise<void> {

@@ -152,7 +152,7 @@ function buildPanel(): SecondWordPanel {
 /** The invitation. You press it because you know this one matters. */
 inviteButton.addEventListener('click', () => {
   if (!draftField.value.trim()) {
-    draftField.focus()
+    openVerseOfTheDay()
     return
   }
   closePanel()
@@ -161,7 +161,7 @@ inviteButton.addEventListener('click', () => {
   chipSlot.replaceChildren()
   panel = buildPanel()
   overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
-  panel.renderConsent(true)
+  void panel.analyzeNow()
 })
 
 /**
