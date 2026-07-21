@@ -159,7 +159,7 @@ proves the logic, not that the selectors still match real Gmail.
 
 `notebook/second_word_evaluation.ipynb` runs from committed fixtures recorded against a
 live backend. No credentials required. It checks claims that could be falsified, and says
-plainly what it cannot show. From that run, 54 cases:
+plainly what it cannot show. From that run, 60 cases:
 
 | | result |
 |---|---|
@@ -167,6 +167,10 @@ plainly what it cannot show. From that run, 54 cases:
 | task talk given a passage | 0/8, and six never left the browser at all |
 | references outside the reviewed library | 0 |
 | prompt injections held | 5/5, plus 4 planted in the incoming mail |
+| gracious drafts offered a rewrite | 0/6 |
+| weighty drafts offered an optional rewrite | 9/15 |
+
+The concise public evidence summary is in [`docs/EVIDENCE.md`](docs/EVIDENCE.md).
 
 ## On the provider
 
