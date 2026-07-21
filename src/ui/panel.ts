@@ -266,6 +266,13 @@ export class SecondWordPanel {
     if (result.experience === 'guide') {
       keepOriginal.textContent = 'Return to my message'
       actions.append(keepOriginal)
+    } else if (!result.analysis_token) {
+      // Guard without a credential: the moment is real, the draft carries no
+      // signal of its own, and the server declined to license a rewrite. Do
+      // not offer one anyway. A button that implies these words need work is
+      // the product telling someone who answered well that they did not.
+      keepOriginal.textContent = 'Return to my message'
+      actions.append(keepOriginal)
     } else {
       const alternatives = button('Show alternatives', 'action action--primary')
       alternatives.addEventListener('click', () => void this.runRewrites(alternatives))

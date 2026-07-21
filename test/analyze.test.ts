@@ -3,6 +3,7 @@ import { FakeModel } from '../src/clients/fake'
 import type { ReflectionModel } from '../src/clients/model'
 import { YouVersionClient } from '../src/clients/youversion'
 import { GlooAnalysisSchema, type GlooAnalysis, type GlooRewrites } from '../src/lib/contracts'
+import { PRINCIPLE_LIBRARY } from '../src/lib/scripture-library'
 import { runAnalyze } from '../src/orchestration/analyze'
 import { runRewrite } from '../src/orchestration/rewrite'
 import { digestDraft, signAnalysisToken } from '../src/security/token'
@@ -69,6 +70,46 @@ describe('analyze', () => {
     expect(outcome.body.experience).toBe('guard')
   })
 
+  it('will not license a rewrite of a draft that carries no signal', async () => {
+    /*
+     * A gracious reply under a decline letter. The moment is real and comes
+     * entirely from what arrived, so the passage belongs. The rewrite does
+     * not: offering to redraft this tells someone who answered well that they
+     * did not.
+     */
+    const disappointed: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          goal: 'meet a decision that went against you',
+          principle: 'meet_disappointment',
+          candidate_reference_ids: ['PRO.16.9'],
+          why: 'w',
+          question: 'q',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('must not rewrite an unearned guard') },
+    }
+    const gracious = {
+      draft: 'Thank you for the time your team gave me. I wish you everything of the best.',
+      surface: 'sandbox' as const,
+      received_message: 'We have decided to move forward with another candidate.',
+    }
+
+    const outcome = await runAnalyze(
+      gracious,
+      deps({ model: disappointed, youversion: youVersionStub({ resolves: ['PRO.16.9'] }) }),
+    )
+    expect(outcome.kind).toBe('ok')
+    if (outcome.kind !== 'ok') return
+
+    expect(outcome.body.verse_text).toBe(VERSE_TEXT)
+    expect(outcome.body.experience).toBe('guard')
+    expect(outcome.body).not.toHaveProperty('analysis_token')
+  })
+
   it('never exposes provider commentary as user-facing copy', async () => {
     const narrating: ReflectionModel = {
       provider: 'fake',
@@ -120,6 +161,10 @@ describe('analyze', () => {
     if (outcome.kind !== 'ok') throw new Error('expected ok')
     expect(outcome.body.verified_reference_id).toBe('PSA.27.14')
     expect(outcome.body.question).toBe('What would patience look like in the reply you send now?')
+    // The gloss belongs to the passage too. One sentence per principle made
+    // the same moment twice produce the same words under a different verse.
+    expect(outcome.body.why).toBe('Nothing here has to be settled in the next five minutes.')
+    expect(outcome.body.why).not.toBe(PRINCIPLE_LIBRARY.meet_disappointment.explanation)
   })
 
   it('carries translation and attribution, which the passage endpoint omits', async () => {

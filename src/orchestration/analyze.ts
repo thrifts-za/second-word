@@ -10,7 +10,8 @@
 import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
-import { PRINCIPLE_LIBRARY, experienceForPrinciple, isAllowedReference, orderedCandidates, orderedSafetyCandidates, questionForReference } from '../lib/scripture-library'
+import { carriesOwnSignal } from '../lib/detector'
+import { experienceForPrinciple, explanationForReference, isAllowedReference, orderedCandidates, orderedSafetyCandidates, questionForReference } from '../lib/scripture-library'
 import { detectExplicitSafety } from '../lib/safety'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
@@ -104,13 +105,27 @@ export async function runAnalyze(
   // Publisher attribution is part of the provenance contract. An unavailable
   // metadata record is not an excuse to render unlabeled Scripture.
   if (!bible) return { kind: 'unverifiable', attemptedCount }
-  const entry = PRINCIPLE_LIBRARY[analysis.principle]
   const experience = experienceForPrinciple(analysis.principle)
+
+  /*
+   * A rewrite has to be earned by the draft, not by the letter it answers.
+   *
+   * Reading the incoming message is what makes this product work, and it is
+   * also how it goes wrong: a gracious two-line thank-you under a rejection
+   * was offered "Show alternatives", because the whole verdict came from the
+   * letter and none of it from the words in the box. Offering to rewrite a
+   * reply that carries no signal tells someone who answered well that they
+   * did not.
+   *
+   * So the passage still appears, since the moment is real and a steady verse
+   * belongs there. The credential that unlocks rewriting does not.
+   */
+  const earned = carriesOwnSignal(request.draft)
 
   // Guide is a blessing, not an edit. Do not mint a rewrite credential the
   // server will refuse and the UI will never offer.
   let analysisToken: string | undefined
-  if (experience === 'guard') {
+  if (experience === 'guard' && earned) {
     const draftDigest = await digestDraft(request.draft, deps.signingKey)
     analysisToken = await signAnalysisToken(
       {
@@ -146,7 +161,7 @@ export async function runAnalyze(
       // Provider prose is analysis, not product copy. The person sees only
       // reviewed language written for this principle; model commentary such
       // as "the user is..." can never leak into the card.
-      why: entry.explanation,
+      why: explanationForReference(analysis.principle, passage.referenceId),
       ...(experience === 'guard' ? { question: questionForReference(analysis.principle, passage.referenceId) } : {}),
       ...(analysisToken ? { analysis_token: analysisToken } : {}),
       experience,

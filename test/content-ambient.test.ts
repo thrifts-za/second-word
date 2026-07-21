@@ -45,6 +45,12 @@ const GUIDE_PASSAGE = {
   experience: 'guide',
 }
 
+/** Guard with no credential: the moment is real, the draft is not the problem. */
+const UNEARNED_PASSAGE = (() => {
+  const { analysis_token: _token, ...rest } = PASSAGE
+  return { ...rest, principle: 'meet_disappointment', why: 'The plan was yours. The decision was not.' }
+})()
+
 const SILENCE = {
   request_id: 'req_test',
   needs_reflection: false,
@@ -294,6 +300,27 @@ describe('ambient path', () => {
 
     expect(badges()).toBe(1)
     expect(document.querySelector('[data-second-word-panel]')).toBeNull()
+  })
+
+  it('offers no rewrite for a guard passage the server did not license', async () => {
+    // The gracious reply under a decline letter. A passage, and no suggestion
+    // that the words in the box are the thing that needs fixing.
+    const harness = mountHarness({ thread: 'We have decided to move forward with another candidate.' })
+    stubChrome(true)
+    stubFetch(harness, UNEARNED_PASSAGE)
+    await load()
+
+    await type(harness, 'Thank you for the time your team gave me. I wish you everything of the best.')
+
+    const badge = document.querySelector<HTMLElement>('second-word-badge')!
+    badge.shadowRoot!.querySelector<HTMLElement>('.badge')!.click()
+
+    const cardText = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!.textContent
+    expect(cardText).toContain('Psalm 37:6')
+    expect(cardText).not.toContain('Show alternatives')
+    expect(cardText).toContain('Return to my message')
   })
 
   it('renders a positive moment as gold Guide with no rewrite action', async () => {

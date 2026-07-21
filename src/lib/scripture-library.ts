@@ -24,8 +24,18 @@ export interface PrincipleEntry {
   candidates: string[]
   /** Behavioural constraint applied to any rewrite. Original prose. */
   constraint: string
-  /** Shown in the UI under the passage. Written to be the sentence someone remembers. */
+  /**
+   * Shown in the UI under the passage. Written to be the sentence someone
+   * remembers.
+   *
+   * Must read true whether the box is empty or already holds a finished
+   * reply. "You still have to write back" fails that: it is stale the moment
+   * somebody has written back, and it made the card look canned when the same
+   * moment came round twice.
+   */
   explanation: string
+  /** Optional reviewed gloss matched to the passage actually shown. */
+  explanationsByReference?: Partial<Record<string, string>>
   /** Default reflection question when the model does not supply a better one. */
   question: string
   /** Optional reviewed question matched to the passage actually shown. */
@@ -111,7 +121,12 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
     candidates: ['PRO.16.9', 'PSA.27.14', 'LAM.3.26'],
     constraint:
       'Keep the reply short and steady. No bitterness, no false brightness, and no pleading for a decision that has been made.',
-    explanation: 'The answer was no, and you still have to write back.',
+    explanation: 'The answer was no, and the reply is yours either way.',
+    explanationsByReference: {
+      'PRO.16.9': 'The plan was yours. The decision was not.',
+      'PSA.27.14': 'Nothing here has to be settled in the next five minutes.',
+      'LAM.3.26': 'This one is allowed to just be disappointing.',
+    },
     question: 'Who do you want to be to these people a year from now?',
     questionsByReference: {
       'PRO.16.9': 'What response would let you leave this decision without giving it the final word?',
@@ -314,6 +329,18 @@ export function orderedCandidates(principle: Principle, modelRanked: string[], r
 export function questionForReference(principle: Principle, referenceId: string): string {
   const entry = PRINCIPLE_LIBRARY[principle]
   return entry.questionsByReference?.[referenceId] ?? entry.question
+}
+
+/**
+ * The gloss for the passage actually shown.
+ *
+ * One sentence per principle made the card look hardcoded, because it was:
+ * the same moment twice produced the same words under a different verse. The
+ * gloss belongs to the passage, the way a study Bible's margin note does.
+ */
+export function explanationForReference(principle: Principle, referenceId: string): string {
+  const entry = PRINCIPLE_LIBRARY[principle]
+  return entry.explanationsByReference?.[referenceId] ?? entry.explanation
 }
 
 export const GUIDE_PRINCIPLES: ReadonlySet<Principle> = new Set([
