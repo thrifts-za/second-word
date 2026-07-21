@@ -38,6 +38,17 @@ describe('gate', () => {
     expect(result.evidence.length).toBeGreaterThan(0)
   })
 
+  it('refuses three words no matter what sits above them', () => {
+    /*
+     * The length floor used to sit below the context check, and on a real
+     * thread there is always something above the box. That made the local
+     * gate a pass-through and left the model as the only judge, which is not
+     * the two-key design the product claims.
+     */
+    expect(gate('Ok.', 'We have decided to move forward with another candidate.').pass).toBe(false)
+    expect(gate('Will do.', 'My father passed away on Saturday.').pass).toBe(false)
+  })
+
   it('passes a bland draft once the message being answered is supplied', () => {
     // Nothing in the draft. The weight is entirely in what arrived.
     const draft = 'Thanks for letting me know.'

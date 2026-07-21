@@ -204,14 +204,38 @@ export function gate(draft: string, received?: string): GateResult {
     .map((signal) => signal.evidence)
     .filter((item) => item.length > 0)
 
-  // The weight can live entirely in what arrived. A reply to a decline letter
-  // is calm, and nothing in the draft will ever say otherwise.
-  if (received && received.trim().length > 0) {
-    return { pass: true, reason: 'correspondence', evidence }
-  }
-
+  /*
+   * The length floor comes first, and an incoming message does not excuse it.
+   *
+   * It used to sit below an early return that passed anything with context
+   * attached, on the reasoning that the weight can live entirely in what
+   * arrived. The reasoning is right and the placement was not: on a real
+   * thread there is always something above the box, so "Ok." and "Will do."
+   * reached the model, and the two keys the product claims to need became one.
+   *
+   * Proverbs 16:2 says you cannot weigh yourself. It does not say the draft
+   * knows nothing. Context changes what a draft means; it cannot make three
+   * words into a moment.
+   */
   if (text.length < GATE_MIN_LENGTH) {
     return { pass: false, reason: 'too_short', evidence }
+  }
+
+  /*
+   * Past the length floor, what arrived can carry the decision. A reply to a
+   * decline letter is calm on its face and the weight sits in the letter, so
+   * "Thanks for letting me know" is a moment when a rejection sits above it
+   * and nothing at all when it does not.
+   *
+   * The task-talk markers stay below this line on purpose. They are a blunt
+   * pre-network filter, and blunt is safe for a draft standing alone but not
+   * for one inside a thread: "Be with your family, Priya. I can carry
+   * Thursday for you" is vetoed by the weekday in it. A wasted call on task
+   * talk costs a few neurons. A missed moment costs the thing the product is
+   * for, and the model is silent on task talk anyway.
+   */
+  if (received && received.trim().length > 0) {
+    return { pass: true, reason: 'correspondence', evidence }
   }
 
   if (SHORT_ACKNOWLEDGEMENT.test(text) || LOGISTICS_MARKERS.some((pattern) => pattern.test(text))) {
@@ -219,6 +243,19 @@ export function gate(draft: string, received?: string): GateResult {
   }
 
   return { pass: true, reason: 'correspondence', evidence }
+}
+
+/**
+ * Does the draft carry anything of its own?
+ *
+ * Distinct from `gate`, which asks whether a call is worth making. This asks
+ * whether the words in the box show any signal at all, and it is the
+ * difference between a moment that needs guarding and a moment that has
+ * already been met. Offering to rewrite a gracious reply tells someone who
+ * behaved well that they did not.
+ */
+export function carriesOwnSignal(draft: string): boolean {
+  return detect(draft).signals.some((signal) => signal.weight > 0)
 }
 
 /**
