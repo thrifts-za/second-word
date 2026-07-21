@@ -162,7 +162,24 @@ export class WorkersAiModel implements ReflectionModel {
         user,
         300,
       )
-      return parseStructured(retried, GlooAnalysisSchema, 'analysis retry', this.provider)
+      try {
+        return parseStructured(retried, GlooAnalysisSchema, 'analysis retry', this.provider)
+      } catch {
+        // Two textual responses arrived, but neither crossed the contract.
+        // Fail closed to an application-authored silent result: no model prose,
+        // Scripture, or rewrite credential can escape. Transport and provider
+        // errors still throw before this point and remain observable failures.
+        return GlooAnalysisSchema.parse({
+          needs_reflection: false,
+          draft_needs_care: false,
+          goal: 'No validated reflection',
+          principle: 'listen_first',
+          candidate_reference_ids: ['JAS.1.19'],
+          why: 'Nothing here needs a second thought.',
+          question: 'What matters here?',
+          safety_flags: [],
+        })
+      }
     }
   }
 
