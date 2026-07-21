@@ -41,19 +41,18 @@ const sendButton = el<HTMLButtonElement>('send')
 const fillButton = el<HTMLButtonElement>('fill')
 const statusSlot = el('status-slot')
 
-/**
- * "It looked, on its own, and could not reach the reading service." Shown only
- * when a live call fails, so a rate-limited demo still shows the automatic
- * behaviour rather than looking dead. Cleared the moment typing resumes.
+/*
+ * Nothing writes into this slot on the ambient path any more.
+ *
+ * It used to carry "the reading service is busy right now" when a live call
+ * failed, so a rate-limited demo would not look dead. The trade was wrong: it
+ * turns our daily neuron allocation into an interruption in someone's compose
+ * window, in a product that promises to be quiet unless something is at stake.
+ * The mark returning to rest says everything that needed saying.
+ *
+ * Kept, and still cleared on input, because the invited path renders its
+ * answer inside the panel, where a person who asked is owed one.
  */
-function showChecked(): void {
-  statusSlot.replaceChildren()
-  const dot = document.createElement('span')
-  dot.className = 'status__dot'
-  statusSlot.append(dot, document.createTextNode('Second Word checked this on its own — the reading service is busy right now.'))
-  statusSlot.classList.add('status--on')
-}
-
 function clearChecked(): void {
   statusSlot.classList.remove('status--on')
   statusSlot.replaceChildren()
@@ -68,6 +67,8 @@ let lastEvaluated = ''
 let debounceTimer: number | undefined
 let dailyVerse: VerseOfTheDayResponse | null = null
 let recentReferenceIds: string[] = []
+/** Increments per ambient run, so a stale one cannot touch a newer badge. */
+let evaluationRun = 0
 
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
@@ -174,6 +175,17 @@ inviteButton.addEventListener('click', () => {
 async function evaluateDraft(): Promise<void> {
   if (panel) return
 
+  /*
+   * Only the newest run may touch the badge.
+   *
+   * Without this, a call that fails after the person has typed again tears
+   * down a badge it never created. Typing and deleting left the mark gone for
+   * good, because the stale run's failure path removed the Presence mark the
+   * input handler had just put back.
+   */
+  const run = (evaluationRun += 1)
+  const current = (): boolean => run === evaluationRun
+
   const draft = draftField.value
   if (lastEvaluated !== '' && !isMateriallyChanged(lastEvaluated, draft)) return
 
@@ -193,22 +205,36 @@ async function evaluateDraft(): Promise<void> {
   try {
     result = await scheduler.submit(`${draft}\u0000${received}`, () => analyze(draft, { received }))
   } catch {
-    // The one place a live failure is worth surfacing. It fired on its own and
-    // the reading service could not answer, so say exactly that rather than go
-    // blank, which would make an automatic product look like it did nothing.
-    // Never shown for silence: silence is a 200 and does not throw.
-    badge?.destroy()
-    badge = null
-    showChecked()
+    /*
+     * A failure is our problem, not theirs.
+     *
+     * This used to print that the reading service was busy. That is our daily
+     * neuron allocation showing up as an interruption in someone's compose
+     * window, in a product whose whole claim is that it is quiet unless
+     * something is at stake. Nothing is at stake in a quota.
+     *
+     * Silence, and the mark goes back to resting. Grammarly's icon does not
+     * leave when its backend has a bad minute, and neither does ours.
+     */
+    if (current()) {
+      badge?.destroy()
+      badge = null
+      restoreBadge()
+    }
     return
   }
+
+  if (!current()) return
 
   // Clear the thinking dot before deciding what, if anything, to show.
   badge?.destroy()
   badge = null
 
-  if (result === null) return // Superseded: the draft it describes is gone.
-  if (panel || draftField.value !== draft) return
+  // Superseded, or the person moved on. Either way the mark still belongs here.
+  if (result === null || panel || draftField.value !== draft) {
+    restoreBadge()
+    return
+  }
 
   if ('verified_reference_id' in result) {
     showBadge(result)
@@ -216,8 +242,11 @@ async function evaluateDraft(): Promise<void> {
     // A self-harm, abuse, threat or crisis signal. Not a passage, but never
     // silence either: this is the moment showing up gently matters most.
     showBadge(result)
+  } else {
+    // The model said nothing is at stake. No passage, and no absence either:
+    // the day's verse is the resting state, not a prize for being troubled.
+    restoreBadge()
   }
-  // Otherwise the model said nothing is at stake. Nothing renders. Correct.
 }
 
 /** Automatic detection is not automatic interruption. The badge waits. */
