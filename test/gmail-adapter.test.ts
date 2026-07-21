@@ -82,13 +82,47 @@ describe('gmail adapter', () => {
     expect(anchor?.parentElement).toBe(dialog)
   })
 
-  it('returns no anchor when there is no compose window around the field', () => {
+  it('mounts beside an inline reply, which is not a dialog', () => {
+    /*
+     * Measured on live Gmail, 2026-07-21. Replying inside a thread gives a
+     * composer nested in a <table> layout with no dialog ancestor at all, and
+     * Send first shares an ancestor thirteen levels up.
+     *
+     * The old anchor required `div[role="dialog"]` before it would look for
+     * anything, so on a real inbox it returned null and the entire product
+     * mounted nothing: no button, no mark, no error. The previous fixture
+     * agreed with the selector because both were written from the same guess.
+     */
+    const thread = document.createElement('div')
+    thread.setAttribute('role', 'main')
+    thread.innerHTML = `
+      <div class="qz aiL"><div class="et"><div class="ZyRVue"><div>
+        <table class="cf An"><tbody><tr>
+          <td class="Ap"><div class="Ar Au"><div class="aO7">
+            <div class="Am aiL aO9 Al editable" contenteditable="true" role="textbox" aria-label="Message Body"></div>
+          </div></div></td>
+        </tr></tbody></table>
+        <div><div role="button" aria-label="Send ‪(⌘Enter)‬" class="T-I J-J5-Ji aoO v7">Send</div></div>
+      </div></div></div></div>`
+    document.body.append(thread)
+
+    const body = thread.querySelector<HTMLElement>('div[role="textbox"]')!
+    const send = thread.querySelector<HTMLElement>('div[role="button"]')!
+    const anchor = gmailAdapter.attachAnchor(body)
+
+    expect(anchor).not.toBeNull()
+    expect(anchor?.parentElement).toBe(send.parentElement)
+    expect(thread.querySelector('div[role="dialog"]')).toBeNull()
+  })
+
+  it('still mounts something when it recognises nothing around the field', () => {
+    // Never null. One missed selector must not remove the product from the page.
     const orphan = document.createElement('div')
     orphan.setAttribute('contenteditable', 'true')
     orphan.setAttribute('role', 'textbox')
     orphan.setAttribute('aria-label', 'Message Body')
     document.body.append(orphan)
-    expect(gmailAdapter.attachAnchor(orphan)).toBeNull()
+    expect(gmailAdapter.attachAnchor(orphan)?.parentElement).toBe(document.body)
   })
 
   it('gives the panel its own block below the controls, not the button row', () => {

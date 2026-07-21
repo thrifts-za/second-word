@@ -64,6 +64,33 @@ function firstMatch(root: ParentNode, selectors: readonly string[]): HTMLElement
   return null
 }
 
+/**
+ * How far up to look for the Send button that belongs to this composer.
+ *
+ * Measured on live Gmail 2026-07-21: in an inline reply the composer and Send
+ * first share an ancestor 13 levels up, past a `<table>` layout. A pop-out
+ * compose is shallower. Twenty is clear of both and still bounded.
+ */
+const SEND_ANCESTOR_LIMIT = 20
+
+/**
+ * The Send button for this composer, found by structure rather than by class.
+ *
+ * The old code required a `div[role="dialog"]` ancestor first. An inline reply
+ * has none, so on a real thread the whole product mounted nothing. Gmail's
+ * class names are obfuscated and rotate; "the nearest ancestor that contains a
+ * Send button" is a fact about the page that survives a rename.
+ */
+function sendButtonFor(element: HTMLElement): HTMLElement | null {
+  let node: HTMLElement | null = element
+  for (let depth = 0; node && depth < SEND_ANCESTOR_LIMIT; depth += 1) {
+    const send = firstMatch(node, SEND_SELECTORS)
+    if (send) return send
+    node = node.parentElement
+  }
+  return null
+}
+
 function closestMatch(element: HTMLElement, selectors: readonly string[]): HTMLElement | null {
   for (const selector of selectors) {
     const found = element.closest<HTMLElement>(selector)
@@ -126,22 +153,35 @@ export const gmailAdapter: ComposerAdapter = {
   },
 
   attachAnchor(element) {
-    const dialog = closestMatch(element, DIALOG_SELECTORS)
-    if (!dialog) return null
-
-    // Sit beside Send, never over it.
-    const send = firstMatch(dialog, SEND_SELECTORS)
     const host = document.createElement('div')
     host.style.display = 'inline-flex'
     host.style.margin = '0 0 0 10px'
     host.style.verticalAlign = 'middle'
 
+    // Sit beside Send, never over it.
+    const send = sendButtonFor(element)
     if (send?.parentElement) {
       send.parentElement.append(host)
       return host
     }
 
-    dialog.append(host)
+    const dialog = closestMatch(element, DIALOG_SELECTORS)
+    if (dialog) {
+      dialog.append(host)
+      return host
+    }
+
+    /*
+     * Last resort: beside the composer itself.
+     *
+     * Never null. Returning null here removed the entire product from the
+     * page, and that is exactly what happened on the first real Gmail: one
+     * selector missed and Second Word was simply not there, with no error
+     * and nothing to see. A surface we have never met still gets something.
+     */
+    const parent = element.parentElement
+    if (!parent) return null
+    parent.append(host)
     return host
   },
 
