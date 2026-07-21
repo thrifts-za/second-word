@@ -1,4 +1,5 @@
 import type { VerseOfTheDayResponse } from '../../src/lib/contracts'
+import { balanceQuotes } from '../../src/lib/verse-of-the-day'
 
 const GAP = 10
 const RECONCILE_MS = 1000
@@ -80,7 +81,7 @@ export class SecondWordPresence {
     label.textContent = 'Verse of the Day'
     const text = document.createElement('p')
     text.className = 'verse'
-    text.textContent = verse.verse_text
+    text.textContent = balanceQuotes(verse.verse_text)
     const meta = document.createElement('div')
     meta.className = 'meta'
     meta.textContent = `${verse.display_reference} · ${verse.translation} · ${verse.attribution}`

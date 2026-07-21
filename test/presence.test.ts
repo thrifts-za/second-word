@@ -40,6 +40,21 @@ describe('Verse of the Day Presence', () => {
     presence.destroy()
   })
 
+  it('drops a quotation mark the verse has no partner for', () => {
+    const field = document.createElement('textarea')
+    field.getBoundingClientRect = () =>
+      ({ left: 100, top: 300, right: 600, bottom: 420, width: 500, height: 120 }) as DOMRect
+    document.body.append(field)
+
+    const presence = new SecondWordPresence(
+      field,
+      { ...verse, verse_text: 'I will refresh the weary and satisfy the faint.”' },
+    )
+    const rendered = presence.host.shadowRoot?.querySelector('.verse')?.textContent
+    expect(rendered).toBe('I will refresh the weary and satisfy the faint.')
+    presence.destroy()
+  })
+
   it('does not cover a composer too small to hold the passage', () => {
     const field = document.createElement('textarea')
     field.getBoundingClientRect = () =>
