@@ -16,6 +16,12 @@
  *   D35  bottom right of the field, clamped to the viewport
  */
 
+import { markElement } from './mark'
+
+/** Clay, the accent the passage card rules its Scripture with, and paper. */
+const MARK_CLAY = '#c4705a'
+const MARK_PAPER = '#fdfbf7'
+
 /** Diameter, and the inset used to place it inside the field's corner. */
 export const BADGE_SIZE = 34
 
@@ -53,8 +59,12 @@ const RECONCILE_MS = 1000
 
 export interface BadgeOptions {
   field: HTMLElement
-  /** What the badge shows. One glyph or a small number. */
-  label: string
+  /**
+   * Retired. The badge draws the product's mark in every state now, so a
+   * caller cannot choose the shape. Kept as an accepted field so the sandbox,
+   * the extension and the tests do not all have to change in one commit.
+   */
+  label?: string
   /** Why it appeared. D10: something uninvited owes an answer. */
   title: string
   onOpen: () => void
@@ -132,20 +142,27 @@ const SHADOW_STYLE = `
     box-shadow: 0 1px 4px rgba(73, 45, 8, 0.25);
   }
   .badge.guide:focus-visible { outline-color: #9a6a17; }
+  /*
+   * Presence, at rest. Paper and clay, the two colours the card already uses.
+   *
+   * The first version invented three values that exist nowhere else in the
+   * product: a near-black fill, a second gold, and a grey border, inside a
+   * lopsided radius. A mark that shares nothing with the thing it opens
+   * cannot become the thing anyone remembers.
+   */
   .badge.presence {
     min-width: 30px;
     width: 30px;
     height: 30px;
     padding: 0;
-    background: #16181d;
-    color: #d29a35;
-    border: 1px solid #c8cbd3;
-    border-radius: 50% 50% 50% 8px;
-    box-shadow: 0 1px 4px rgba(20, 22, 27, 0.24);
+    background: #fffdf9;
+    border: 1px solid #e0d9cc;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(38, 22, 16, 0.18);
   }
   .badge.presence .copy { display: none; }
-  .badge.presence .mark { transform: none; }
-  .badge.presence:focus-visible { outline-color: #9a6a17; }
+  .badge.presence .mark { transform: none; display: grid; place-items: center; }
+  .badge.presence:focus-visible { outline-color: #c4705a; }
   .badge .mark {
     font: 600 19px/.8 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
     transform: translateY(-1px);
@@ -233,9 +250,18 @@ export class SecondWordBadge {
       this.element.className = `badge ${options.tone ?? 'guard'}`
       this.element.setAttribute('role', 'button')
       this.element.setAttribute('tabindex', '0')
+      /*
+       * One drawing in every state. Guard, Guide and Presence differ by
+       * colour and by fill, never by shape, because a mark that changes shape
+       * is three marks and none of them is remembered.
+       *
+       * Guide used to wear the same four-pointed sparkle as Presence, which
+       * is the sign every generative product flies and the one claim this
+       * product does not make.
+       */
       const mark = document.createElement('span')
       mark.className = 'mark'
-      mark.textContent = options.label
+      mark.append(markElement(options.tone === 'presence' ? MARK_CLAY : MARK_PAPER, 15))
       const copy = document.createElement('span')
       copy.className = 'copy'
       copy.textContent = options.tone === 'guide' ? 'A word for this good moment' : options.tone === 'presence' ? '' : 'A word for this'
@@ -391,8 +417,20 @@ export class SecondWordBadge {
     if (this.element.classList.contains('thinking')) return false
     const box = this.field.clientHeight
     if (!box) return false
-    const line = Number.parseFloat(getComputedStyle(this.field).lineHeight)
-    return this.field.scrollHeight > box - (Number.isFinite(line) ? line : 20)
+
+    /*
+     * Overflow, not fullness.
+     *
+     * The first rule asked whether the content came within a line of filling
+     * the box, which is never false for a textarea: scrollHeight is clamped
+     * to clientHeight, so two lines in a half-empty composer read as crowded
+     * and the badge collapsed the moment anyone typed.
+     *
+     * A field that has more text than it can show is a field whose words run
+     * under the corner. That is the case worth yielding to, and it is the
+     * same one Grammarly collapses for.
+     */
+    return this.field.scrollHeight > box + 2
   }
 
   destroy(): void {
