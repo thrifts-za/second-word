@@ -210,7 +210,8 @@ export interface AnalyzeResponse {
   /** Version page on bible.com. The licence requires visible attribution. */
   attribution_url: string | null
   why: string
-  question: string
+  /** Guard only. Guide affirms the good moment without interrogating it. */
+  question?: string
   /** Guard only. Guide is never issued a credential the rewrite route can use. */
   analysis_token?: string
   /** Guide affirms an existing good moment; Guard supports a consequential one. */

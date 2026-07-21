@@ -64,7 +64,7 @@ describe('analyze', () => {
     expect(outcome.body.verified_reference_id).toBe('PRO.15.1')
     expect(outcome.body.display_reference).toBe('Proverbs 15:1')
     expect(outcome.body.why.length).toBeGreaterThan(0)
-    expect(outcome.body.question.length).toBeGreaterThan(0)
+    expect(outcome.body.question?.length).toBeGreaterThan(0)
     expect(outcome.body.analysis_token).toContain('.')
     expect(outcome.body.experience).toBe('guard')
   })
@@ -248,6 +248,7 @@ describe('analyze', () => {
     if (analyzed.kind !== 'ok') throw new Error('expected ok')
     expect(analyzed.body.experience).toBe('guide')
     expect(analyzed.body).not.toHaveProperty('analysis_token')
+    expect(analyzed.body).not.toHaveProperty('question')
 
     // A token from an older deployment remains harmless after this change.
     const staleGuideToken = await signAnalysisToken(

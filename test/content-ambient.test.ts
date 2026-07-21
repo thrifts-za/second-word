@@ -301,6 +301,7 @@ describe('ambient path', () => {
       .shadowRoot!.textContent
     expect(panelText).toContain('A word for this good moment')
     expect(panelText).not.toContain('Show alternatives')
+    expect(panelText).not.toContain('What makes this help an act of love rather than obligation?')
   })
 
   it('marks an exact local phrase without changing the draft, then clears it on the next edit', async () => {

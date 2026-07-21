@@ -229,7 +229,11 @@ export class SecondWordPanel {
 
     if (result.why) body.append(el('p', 'gloss', result.why))
 
-    body.append(el('hr', 'rule'), el('p', 'question', result.question))
+    // Guide recognises something already good. Asking the person to examine
+    // their motive turns affirmation back into suspicion, so only Guard asks.
+    if (result.experience === 'guard' && result.question) {
+      body.append(el('hr', 'rule'), el('p', 'question', result.question))
+    }
 
     const actions = el('div', 'actions')
     const keepEditing = button('Keep editing', 'action')

@@ -27,7 +27,7 @@ editor or sending text merely to draw the mark. The person chooses whether to
 open it. The card then offers a verified passage, publisher attribution, and
 one specific relational question. Guard can offer optional alternatives. A
 gold Guide affirms gratitude, good news, or freely offered help without
-correcting the person or offering a rewrite. It never posts, blocks Send, or
+questioning the person's motive, correcting them, or offering a rewrite. It never posts, blocks Send, or
 replaces the original without a click.
 
 This is deliberately not a Bible app painted onto email. Scripture changes the

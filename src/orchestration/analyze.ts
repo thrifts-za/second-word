@@ -147,7 +147,7 @@ export async function runAnalyze(
       // reviewed language written for this principle; model commentary such
       // as "the user is..." can never leak into the card.
       why: entry.explanation,
-      question: entry.question,
+      ...(experience === 'guard' ? { question: entry.question } : {}),
       ...(analysisToken ? { analysis_token: analysisToken } : {}),
       experience,
       safety_flags: [],

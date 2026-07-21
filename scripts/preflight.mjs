@@ -100,6 +100,8 @@ try {
   } else console.log(`ok   Guide -> ${guided.display_reference}, no corrective UI path`)
   if (guided.analysis_token) fail('Guide must not receive a rewrite token')
   else console.log('ok   Guide receives no rewrite credential')
+  if (guided.question) fail('Guide must not interrogate a good moment')
+  else console.log('ok   Guide affirms without a reflective question')
 
   const silentResponse = await post('/v1/analyze', silenceFixture)
   if (!silentResponse.ok) throw new Error(`/v1/analyze Silence fixture returned HTTP ${silentResponse.status}`)

@@ -97,7 +97,7 @@ These are not stylistic. They are the product.
    passages rotate without storing a draft or safety label. Safety moments never offer a rewrite.
 10. **Guide is not correction in a warmer colour.** Gratitude, good news, and freely
     offered support receive a distinct gold invitation and verified Scripture, with no
-    alternatives action or rewrite credential. Neutral logistics receive nothing.
+    reflective question, alternatives action, or rewrite credential. Neutral logistics receive nothing.
 11. **Provider analysis is not product copy.** The model classifies the moment and ranks
     references, but the explanation and question a person sees come only from the reviewed
     principle library. Internal commentary such as "the user is..." never renders.
