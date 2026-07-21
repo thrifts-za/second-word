@@ -26,6 +26,16 @@ const impactFixtures = [
     surface: 'sandbox',
   },
 ]
+const guideFixture = {
+  draft: 'Be with your family, Priya. I can carry Thursday for you, and I will send you a short update when it is done.',
+  surface: 'sandbox',
+  received_message: 'My son is unwell and I need to take him to the clinic. Could you carry the Thursday handover?',
+}
+const silenceFixture = {
+  draft: 'Received. Thursday at 10 works. I will join from the usual link.',
+  surface: 'sandbox',
+  received_message: 'The Thursday project meeting is confirmed for 10:00. Use the usual video link.',
+}
 
 function fail(message) {
   console.error(`FAIL ${message}`)
@@ -65,6 +75,7 @@ try {
   if (!analyzed.ok) throw new Error(`/v1/analyze returned HTTP ${analyzed.status}`)
   const analysis = await analyzed.json()
   if (!analysis.analysis_token || !analysis.verse_text || !analysis.verified_reference_id) fail('Analysis did not return a signed, verified Scripture result')
+  if (analysis.experience !== 'guard') fail(`Angry fixture should be Guard, received ${analysis.experience}`)
   else console.log(`ok   Analyze -> verified ${analysis.display_reference} (${analysis.latency_ms}ms)`)
 
   for (const impactFixture of impactFixtures.slice(1)) {
@@ -74,6 +85,28 @@ try {
     if (!result.verse_text || !result.verified_reference_id) fail('Impact fixture did not return verified Scripture')
   }
   console.log('ok   Impact breadth -> gratitude and disappointment both receive verified Scripture')
+
+  const guidedResponse = await post('/v1/analyze', guideFixture)
+  if (!guidedResponse.ok) throw new Error(`/v1/analyze Guide fixture returned HTTP ${guidedResponse.status}`)
+  const guided = await guidedResponse.json()
+  if (guided.experience !== 'guide' || !guided.verse_text || !guided.verified_reference_id) {
+    fail('Meaningful support did not return verified Guide Scripture')
+  } else console.log(`ok   Guide -> ${guided.display_reference}, no corrective UI path`)
+
+  const guideRewrite = await post('/v1/rewrite', {
+    draft: guideFixture.draft,
+    received_message: guideFixture.received_message,
+    analysis_token: guided.analysis_token,
+    modes: ['clearer'],
+  })
+  if (guideRewrite.status !== 401) fail(`Guide rewrite should be rejected, received ${guideRewrite.status}`)
+  else console.log('ok   Guide rewrite rejected by policy')
+
+  const silentResponse = await post('/v1/analyze', silenceFixture)
+  if (!silentResponse.ok) throw new Error(`/v1/analyze Silence fixture returned HTTP ${silentResponse.status}`)
+  const silent = await silentResponse.json()
+  if (silent.needs_reflection !== false) fail('Neutral scheduling fixture should remain silent')
+  else console.log('ok   Silence -> neutral scheduling receives no passage')
 
   const rewritten = await post('/v1/rewrite', {
     draft: fixture.draft,

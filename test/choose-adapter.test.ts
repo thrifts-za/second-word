@@ -13,8 +13,18 @@ describe('chooseAdapter', () => {
   })
 
   it('uses the generic adapter everywhere else', () => {
-    expect(chooseAdapter('app.slack.com', document).id).toBe('generic')
-    expect(chooseAdapter('claude.ai', document).id).toBe('generic')
+    for (const host of [
+      'app.slack.com',
+      'teams.microsoft.com',
+      'web.whatsapp.com',
+      'x.com',
+      'www.linkedin.com',
+      'www.reddit.com',
+      'chatgpt.com',
+      'claude.ai',
+    ]) {
+      expect(chooseAdapter(host, document).id, host).toBe('generic')
+    }
   })
 
   it('recognises Gmail by its own markup, not only by hostname', () => {

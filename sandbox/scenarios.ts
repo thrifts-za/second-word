@@ -5,9 +5,9 @@
  * you write back matters: you were turned down, you were blamed for something
  * you did not do, someone you work with is grieving.
  *
- * Each scenario ships with the message received, so the person can feel the
- * weight of it. That message is never sent anywhere. Second Word only ever
- * sees what you type.
+ * Each scenario ships with the single message received, so the person can feel
+ * the weight of it. The demo sends that one message with the draft for context,
+ * never the thread, identity, recipients, or history.
  */
 
 export interface Scenario {
@@ -89,52 +89,36 @@ export const SCENARIOS: Scenario[] = [
       'We actually did it! This is huge. I am so proud of all of us and grateful for every person who kept showing up when this looked impossible.',
   },
   {
-    id: 'apology',
-    tab: 'I need to make it right',
-    surface: 'email',
-    location: 'Inbox - Re: Yesterday',
-    received: {
-      from: 'Lebo',
-      meta: 'to me, 09:12',
-      body:
-        'I left that conversation feeling dismissed. I know you were under pressure, but the way you spoke to me in front of everyone stayed with me.',
-    },
-    composerLabel: 'Your reply to Lebo',
-    placeholder: 'Write the apology you mean.',
-    suggestedDraft:
-      'You are right. I spoke to you in a way that was dismissive and unfair, especially in front of the team. I am sorry. You did not deserve that from me.',
-  },
-  {
-    id: 'ordinary',
-    tab: 'An ordinary message',
+    id: 'support',
+    tab: 'A willing yes',
     surface: 'email',
     location: 'Inbox - Re: Thursday handover',
     received: {
       from: 'Priya',
       meta: 'to me, 11:20',
       body:
-        'Morning. Are you still able to take the Thursday handover, or should I ask Sipho? No pressure either way, I just need to know before I send the invite.',
+        'My son is unwell and I need to take him to the clinic tomorrow. Would you be able to carry the Thursday handover? Please say no if it puts you under pressure.',
     },
-    composerLabel: 'Your reply',
-    placeholder: 'Write what you would actually send back.',
-    // Nothing is at stake here. Press Second Word anyway: it should decline.
+    composerLabel: 'Your reply to Priya',
+    placeholder: 'Write the help you freely want to offer.',
     suggestedDraft:
-      'Sounds good, I will pick this up in the morning and send the draft across before lunch.',
+      'Be with your family, Priya. I can carry Thursday for you, and I will send you a short update when it is done.',
   },
   {
-    id: 'social',
-    tab: 'A public argument',
-    surface: 'social',
-    location: 'r/homelab - 214 comments',
+    id: 'ordinary',
+    tab: 'Knows when to stay quiet',
+    surface: 'email',
+    location: 'Inbox - Thursday meeting confirmed',
     received: {
-      from: 'u/thr0ughput',
-      meta: '2h',
+      from: 'Calendar',
+      meta: 'to me, 11:24',
       body:
-        'Three weekends for that? You could have just read the documentation. Some people really should not be doing this stuff.',
+        'The Thursday project meeting is confirmed for 10:00. Use the usual video link in the calendar invitation.',
     },
     composerLabel: 'Your reply',
-    placeholder: 'Write what you would actually send back.',
+    placeholder: 'Write a routine acknowledgement.',
+    // Deliberate silence: the demo proves it can speak and chooses not to.
     suggestedDraft:
-      'You clearly have no idea what you are talking about. Did you even read it? This is idiotic.',
+      'Received. Thursday at 10 works. I will join from the usual link.',
   },
 ]

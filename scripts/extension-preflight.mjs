@@ -12,6 +12,17 @@ import { resolve } from 'node:path'
 
 const dist = resolve('extension/dist')
 const requiredFiles = ['content.js', 'options.js', 'options.html', 'manifest.json', 'icons/icon-16.png', 'icons/icon-128.png']
+const requiredMatches = [
+  'https://mail.google.com/*',
+  'https://app.slack.com/*',
+  'https://teams.microsoft.com/*',
+  'https://web.whatsapp.com/*',
+  'https://chatgpt.com/*',
+  'https://claude.ai/*',
+  'https://www.linkedin.com/*',
+  'https://x.com/*',
+  'https://www.reddit.com/*',
+]
 const failures = []
 
 for (const file of requiredFiles) {
@@ -34,6 +45,10 @@ if (failures.length === 0) {
   if (!Array.isArray(manifest.content_scripts) || manifest.content_scripts.length !== 1) {
     failures.push('manifest does not have exactly one content script declaration')
   }
+  const declaredMatches = manifest.content_scripts?.[0]?.matches ?? []
+  for (const match of requiredMatches) {
+    if (!declaredMatches.includes(match)) failures.push(`manifest does not inject on ${match}`)
+  }
   if (!content.includes('A word for this')) failures.push('content bundle lacks the reflection invitation')
   if (!content.includes('second-word-moment')) failures.push('content bundle lacks Living Margin')
   if (content.includes('localhost')) failures.push('content bundle points at localhost')
@@ -49,5 +64,5 @@ if (failures.length > 0) {
   for (const failure of failures) console.error(`FAIL ${failure}`)
   process.exitCode = 1
 } else {
-  console.log('PASS extension artifact is complete, MV3-scoped, and points at production.')
+  console.log('PASS extension artifact is complete, MV3-scoped, covers nine surfaces, and points at production.')
 }

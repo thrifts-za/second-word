@@ -2,6 +2,8 @@
 
 > Scripture where you already are, which is a text box.
 
+**Other writing tools ask whether your sentence is correct. Second Word asks what kind of human moment this is.**
+
 > *All the ways of a man are clean in his own eyes, but the LORD weigheth the spirits.*
 > Proverbs 16:2
 
@@ -88,12 +90,15 @@ These are not stylistic. They are the product.
 9. **Care is contextual, not canned.** Safety flags map to small curated reference
    sets; the extension remembers only the last five reference IDs so YouVersion-verified
    passages rotate without storing a draft or safety label. Safety moments never offer a rewrite.
+10. **Guide is not correction in a warmer colour.** Gratitude, good news, and freely
+    offered support receive a distinct gold invitation and verified Scripture, with no
+    alternatives action. Neutral logistics receive nothing.
 
 ## Layout
 
 ```
 src/                       the Worker: the decision layer behind everything
-  lib/contracts.ts           wire and model schemas (zod), and the 17 principles
+  lib/contracts.ts           wire and model schemas (zod), and the 18 principles
   lib/scripture-library.ts   the reviewed principle and reference library
   lib/detector.ts            the local gate, which runs in the browser
   clients/youversion.ts      the only source of verse text in the system
@@ -118,7 +123,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 174 tests, no credentials needed
+npm test              # 181 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion

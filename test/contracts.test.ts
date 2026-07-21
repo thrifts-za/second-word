@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AnalyzeRequestSchema, GlooAnalysisSchema, MAX_DRAFT_LENGTH } from '../src/lib/contracts'
-import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, SAFETY_CANDIDATE_LIBRARY, orderedCandidates, orderedSafetyCandidates } from '../src/lib/scripture-library'
+import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, SAFETY_CANDIDATE_LIBRARY, experienceForPrinciple, orderedCandidates, orderedSafetyCandidates } from '../src/lib/scripture-library'
 
 const valid = {
   needs_reflection: true,
@@ -92,6 +92,14 @@ describe('scripture library', () => {
       expect(PRINCIPLE_LIBRARY[principle].candidates.length).toBeGreaterThanOrEqual(2)
       expect(PRINCIPLE_LIBRARY[principle].moment.length).toBeGreaterThan(10)
     }
+  })
+
+  it('derives Guide from affirming principles and Guard from consequential ones', () => {
+    for (const principle of ['give_thanks', 'receive_good_news', 'offer_support'] as const) {
+      expect(experienceForPrinciple(principle)).toBe('guide')
+    }
+    expect(experienceForPrinciple('gentle_answer')).toBe('guard')
+    expect(experienceForPrinciple('comfort_the_grieving')).toBe('guard')
   })
 
   it('behavioural constraints are original prose, not verse text', () => {
