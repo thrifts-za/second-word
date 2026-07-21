@@ -97,6 +97,31 @@ describe('analyze', () => {
     expect(outcome.body.question).not.toContain('the user')
   })
 
+  it('rotates a repeated disappointment to an unseen reviewed passage and its matching question', async () => {
+    const disappointed: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          goal: 'answer a rejection steadily',
+          principle: 'meet_disappointment',
+          candidate_reference_ids: ['PRO.16.9', 'PSA.27.14', 'LAM.3.26'],
+          why: 'provider prose is not displayed',
+          question: 'provider question is not displayed',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('not used') },
+    }
+    const outcome = await runAnalyze(
+      { ...request, recent_reference_ids: ['PRO.16.9'] },
+      deps({ model: disappointed, youversion: youVersionStub({ resolves: ['PSA.27.14'] }) }),
+    )
+    if (outcome.kind !== 'ok') throw new Error('expected ok')
+    expect(outcome.body.verified_reference_id).toBe('PSA.27.14')
+    expect(outcome.body.question).toBe('What would patience look like in the reply you send now?')
+  })
+
   it('carries translation and attribution, which the passage endpoint omits', async () => {
     const outcome = await runAnalyze(request, deps())
     if (outcome.kind !== 'ok') throw new Error('expected ok')

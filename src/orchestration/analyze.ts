@@ -10,7 +10,7 @@
 import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
-import { PRINCIPLE_LIBRARY, experienceForPrinciple, isAllowedReference, orderedCandidates, orderedSafetyCandidates } from '../lib/scripture-library'
+import { PRINCIPLE_LIBRARY, experienceForPrinciple, isAllowedReference, orderedCandidates, orderedSafetyCandidates, questionForReference } from '../lib/scripture-library'
 import { detectExplicitSafety } from '../lib/safety'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
@@ -92,7 +92,7 @@ export async function runAnalyze(
   // The model ranks. It never introduces. Anything outside the reviewed
   // library for this principle is dropped here, before it can reach a fetch.
   const ranked = analysis.candidate_reference_ids.filter(isAllowedReference)
-  const candidates = orderedCandidates(analysis.principle, ranked)
+  const candidates = orderedCandidates(analysis.principle, ranked, request.recent_reference_ids)
 
   const resolved = await deps.youversion.resolveFirst(bibleId, candidates)
   if (!resolved) {
@@ -147,7 +147,7 @@ export async function runAnalyze(
       // reviewed language written for this principle; model commentary such
       // as "the user is..." can never leak into the card.
       why: entry.explanation,
-      ...(experience === 'guard' ? { question: entry.question } : {}),
+      ...(experience === 'guard' ? { question: questionForReference(analysis.principle, passage.referenceId) } : {}),
       ...(analysisToken ? { analysis_token: analysisToken } : {}),
       experience,
       safety_flags: [],

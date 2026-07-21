@@ -28,6 +28,8 @@ export interface PrincipleEntry {
   explanation: string
   /** Default reflection question when the model does not supply a better one. */
   question: string
+  /** Optional reviewed question matched to the passage actually shown. */
+  questionsByReference?: Partial<Record<string, string>>
   /** Plain-language moment, shown when a person is choosing a situation themselves. */
   moment: string
 }
@@ -111,6 +113,11 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
       'Keep the reply short and steady. No bitterness, no false brightness, and no pleading for a decision that has been made.',
     explanation: 'The answer was no, and you still have to write back.',
     question: 'Who do you want to be to these people a year from now?',
+    questionsByReference: {
+      'PRO.16.9': 'What response would let you leave this decision without giving it the final word?',
+      'PSA.27.14': 'What would patience look like in the reply you send now?',
+      'LAM.3.26': 'What can remain unsaid while you let this disappointment settle?',
+    },
     moment: 'I have been turned down or rejected',
   },
 
@@ -295,11 +302,18 @@ export function isAllowedReference(referenceId: string): boolean {
  * Candidates to try, in order: the model's ranking filtered to this
  * principle's reviewed set, then the remaining reviewed candidates as backup.
  */
-export function orderedCandidates(principle: Principle, modelRanked: string[]): string[] {
+export function orderedCandidates(principle: Principle, modelRanked: string[], recent: string[] = []): string[] {
   const reviewed = PRINCIPLE_LIBRARY[principle].candidates
-  const ranked = modelRanked.filter((id) => reviewed.includes(id))
-  const rest = reviewed.filter((id) => !ranked.includes(id))
+  const unseen = reviewed.filter((id) => !recent.includes(id))
+  const available = unseen.length > 0 ? unseen : reviewed
+  const ranked = modelRanked.filter((id) => available.includes(id))
+  const rest = available.filter((id) => !ranked.includes(id))
   return [...ranked, ...rest]
+}
+
+export function questionForReference(principle: Principle, referenceId: string): string {
+  const entry = PRINCIPLE_LIBRARY[principle]
+  return entry.questionsByReference?.[referenceId] ?? entry.question
 }
 
 export const GUIDE_PRINCIPLES: ReadonlySet<Principle> = new Set([

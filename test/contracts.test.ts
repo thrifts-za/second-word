@@ -124,6 +124,12 @@ describe('scripture library', () => {
     expect(orderedCandidates('gentle_answer', ['JAS.1.19'])).toEqual(['PRO.15.1', 'PRO.25.15', 'COL.4.6'])
   })
 
+  it('rotates ordinary passages away from recently shown references and resets only when exhausted', () => {
+    const candidates = PRINCIPLE_LIBRARY.meet_disappointment.candidates
+    expect(orderedCandidates('meet_disappointment', candidates, [candidates[0]!])).toEqual(candidates.slice(1))
+    expect(orderedCandidates('meet_disappointment', candidates, candidates)).toEqual(candidates)
+  })
+
   it('keeps safety selection inside the curated context', () => {
     expect(orderedSafetyCandidates(['abuse_disclosure'])).toEqual(SAFETY_CANDIDATE_LIBRARY.abuse_disclosure.candidates)
   })
