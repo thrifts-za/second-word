@@ -174,10 +174,11 @@ The concise public evidence summary is in [`docs/EVIDENCE.md`](docs/EVIDENCE.md)
 
 ## On the provider
 
-Built for Gloo AI Studio and one environment variable away from it. Gloo's free tier
-requires payment details and every card tried was declined, so the demo runs on Cloudflare
-Workers AI behind the same interface, prompts and allow-lists. Every response names the
-provider that actually ran, and the sandbox says so on the page.
+Built for Gloo AI Studio and one environment variable away from it. Gloo support confirmed
+on 2026-07-21 that it is investigating a similar access issue affecting another participant,
+so the demo currently runs on Cloudflare Workers AI behind the same interface, prompts and
+allow-lists. The cause is not yet established. Every response names the provider that
+actually ran, and the sandbox says so on the page.
 
 ## Licence
 
