@@ -51,6 +51,7 @@ if (failures.length === 0) {
   }
   if (!content.includes('A word for this')) failures.push('content bundle lacks the reflection invitation')
   if (!content.includes('/v1/verse-of-the-day')) failures.push('content bundle lacks Verse of the Day Presence')
+  if (!content.includes('References')) failures.push('content bundle lacks the collapsed attribution disclosure')
   if (!content.includes('second-word-moment')) failures.push('content bundle lacks Living Margin')
   if (content.includes('localhost')) failures.push('content bundle points at localhost')
   if (!content.includes('https://second-word.nkosithrifts.workers.dev')) {
@@ -59,7 +60,7 @@ if (failures.length === 0) {
   if (!options.includes('Gmail has reply-aware context')) {
     failures.push('options artifact lacks the current consent explanation')
   }
-  if (!options.includes('Verse of the Day in empty text boxes')) {
+  if (!options.includes('Verse of the Day in text boxes')) {
     failures.push('options artifact lacks the Presence setting')
   }
 }

@@ -19,7 +19,7 @@ without contempt, and gratitude in moments of victory.
 | --- | --- | --- |
 | Scripture comes from YouVersion, not a model | Green | `YouVersionClient` is the only text source; strict `GlooAnalysisSchema` rejects `verse_text`; `test/contracts.test.ts`. |
 | Passage and publisher attribution are verified | Green | `runAnalyze` and `/v1/verse-of-the-day` fail closed when Bible metadata is unavailable; `test/analyze.test.ts`, `test/votd-route.test.ts`; deployed `npm run preflight`. |
-| YouVersion Verse of the Day Presence | Green, automated | `/v1/verse-of-the-day` resolves YouVersion's daily selection through the configured translation and full attribution. Presence is opt-in in the extension, draft-blind, outside the editor DOM, and disappears on first input; `test/youversion.test.ts`, `test/votd-route.test.ts`, `test/presence.test.ts`, and `test/content-ambient.test.ts`. |
+| YouVersion Verse of the Day Presence | Green, automated | `/v1/verse-of-the-day` resolves YouVersion's daily selection through the configured translation and full attribution. Presence is an opt-in, draft-blind composer mark; clicking opens the verse and keeps the full notice under collapsed References; `test/youversion.test.ts`, `test/votd-route.test.ts`, `test/presence.test.ts`, and `test/content-ambient.test.ts`. |
 | Translation setting is licence-safe | Green | `/v1/bibles` serves only the app's YouVersion entitlement; when collection discovery is unavailable it exposes the independently verified configured version rather than inventing choices. Live endpoint returns NIV (111). |
 | Draft/rewrite integrity | Green | Signed analysis token binds the draft and optional received message; tampered rewrite is rejected by `npm run preflight`. |
 | Request/privacy boundary | Green | No request-body logging; schema is strict; real byte limit rejects streamed requests without `content-length`; `test/request-boundary.test.ts`. |
@@ -53,10 +53,10 @@ REQUIRE_GLOO=1 npm run preflight  # only after real Gloo configuration
 
 ## Filmable proof sequence
 
-1. Open an empty composer with Presence enabled. Show the verified Verse of the Day, then type one character and show it disappearing without an analysis request.
+1. Open a composer with Presence enabled. Click the quiet mark to reveal the verified Verse of the Day, then open and close References.
 2. Write a consequential sentence. Living Margin marks the exact local phrase,
    then the invitation appears without opening a card or blocking Send.
-3. Open the card: show the verified reference, full attribution, relational
+3. Open the card: show the verified reference, collapsed References, relational
    question, and optional rewrite. Show that the original is preserved.
 4. Change the draft: the marker and invitation disappear immediately.
 5. Show the sandbox's gratitude and apology cases to prove the product is not

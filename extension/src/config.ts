@@ -33,7 +33,7 @@ interface Stored {
    * Off by default. Until it is on, Second Word only speaks when pressed.
    */
   [KEYS.ambient]?: boolean
-  /** Show YouVersion's Verse of the Day on an empty composer. No draft is sent. */
+  /** Show a quiet composer mark that opens YouVersion's Verse of the Day. No draft is sent. */
   [KEYS.presence]?: boolean
   /** A YouVersion version ID selected from the Worker-provided entitlement list. */
   [KEYS.translationId]?: string

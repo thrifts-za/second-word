@@ -11,8 +11,8 @@ Nobody carries a Bible to work, and nobody stops mid-email to search for a verse
 most of the working week happens in a text box: Slack, Teams, WhatsApp, email, a prompt
 box at one in the morning. Second Word puts Scripture there.
 
-With optional Presence, YouVersion's Verse of the Day rests over an empty composer and
-leaves with the first keystroke without reading the draft. Once a person explicitly enables automatic noticing, it watches for the moments that
+With optional Presence, a quiet mark in the composer opens YouVersion's Verse of the Day
+without reading the draft. Once a person explicitly enables automatic noticing, it watches for the moments that
 will still matter in a year and stays quiet the rest of the time. Until then it only
 reads a draft they choose to reflect on. It never posts, never blocks Send, never edits
 without a click, and never writes into the box they are typing in.
@@ -29,7 +29,7 @@ challenge, on the YouVersion Platform API and Gloo AI Studio. MIT licensed.
 
 **The Word can be present before there is a problem.** Presence uses YouVersion's real
 daily selection, the chosen translation, and full publisher attribution. It is off by
-default, makes no analysis request, reads no draft, and disappears as soon as writing begins.
+default, makes no analysis request, reads no draft, and opens only when clicked.
 
 **It should not have to wait to be asked—but that is the person's choice.** The moment
 you most need a pause is the moment you are least willing to reach for one, and nobody
@@ -102,8 +102,8 @@ These are not stylistic. They are the product.
     references, but the explanation and question a person sees come only from the reviewed
     principle library. Internal commentary such as "the user is..." never renders.
 12. **Presence is opt-in and draft-blind.** It fetches YouVersion's daily reference once per
-    local day and translation, displays full attribution outside the editor DOM, and is
-    destroyed on the first input.
+    local day and translation. Its quiet composer mark opens the verse on demand, while
+    the full publisher notice stays available under a collapsed References disclosure.
 
 ## Layout
 
@@ -123,7 +123,6 @@ extension/                 Chrome MV3, nine surfaces
   src/adapters/              generic, plus Gmail which can read a thread
   src/badge.ts               the mark in the corner
   src/overlay.ts             positions the card without resizing the host page
-  src/presence.ts            Verse of the Day over an empty composer
   src/scheduler.ts           single flight, cache, stale answers dropped
 
 sandbox/                   the public demo, same gate and same backend
@@ -135,7 +134,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 191 tests, no credentials needed
+npm test              # 198 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion

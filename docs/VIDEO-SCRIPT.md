@@ -6,9 +6,9 @@ of it.
 
 ## 0:00–0:18 — the human problem
 
-**Visual:** An empty composer carries YouVersion's Verse of the Day. Type the
-first character; it disappears. Cut to Dave wrongly blaming the writer for a
-missed handover.
+**Visual:** An empty composer carries a quiet Second Word mark. Click it to
+reveal YouVersion's Verse of the Day, then collapse References. Cut to Dave
+wrongly blaming the writer for a missed handover.
 
 **Voice:** “Other writing tools ask whether your sentence is correct. Second
 Word asks what kind of human moment this is. Most words we regret are written
@@ -26,7 +26,7 @@ voice. It notices one live moment, locally, and asks permission to enter it.”
 ## 0:42–1:12 — the Word meets the actual situation
 
 **Visual:** Open the card. Show the verified YouVersion reference, the passage,
-translation, copyright, reviewed why line, and question. Keep the original draft visible
+translation, collapsed References, reviewed why line, and question. Keep the original draft visible
 behind the card.
 
 **Voice:** “Gloo identifies the human moment; YouVersion supplies the words.

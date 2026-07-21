@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { SecondWordPresence } from '../extension/src/presence'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { VerseOfTheDayResponse } from '../src/lib/contracts'
+import { SecondWordPanel } from '../src/ui/panel'
 
 const verse: VerseOfTheDayResponse = {
   day: 203,
   verified_reference_id: 'PSA.23.4',
   display_reference: 'Psalm 23:4',
-  verse_text: 'Even though I walk through the darkest valley, I will fear no evil.',
+  verse_text: 'Even though I walk through the darkest valley, I will fear no evil.”',
   bible_id: '111',
   translation: 'NIV',
   attribution: 'The Holy Bible, New International Version. Copyright Biblica.',
@@ -16,82 +16,42 @@ const verse: VerseOfTheDayResponse = {
   source: 'youversion_verse_of_the_day',
 }
 
-beforeEach(() => {
-  vi.useFakeTimers()
-  document.body.replaceChildren()
-  Object.defineProperty(window, 'innerHeight', { value: 800, configurable: true })
-  Object.defineProperty(window, 'innerWidth', { value: 1200, configurable: true })
-})
+function panel(onClose = vi.fn()): SecondWordPanel {
+  return new SecondWordPanel({
+    onAnalyze: async () => { throw new Error('not used') },
+    onRewrite: async () => { throw new Error('not used') },
+    onReplace: () => '',
+    onClose,
+  })
+}
 
-afterEach(() => vi.useRealTimers())
+beforeEach(() => document.body.replaceChildren())
 
 describe('Verse of the Day Presence', () => {
-  it('renders outside the editor with visible provenance', () => {
-    const field = document.createElement('textarea')
-    field.getBoundingClientRect = () =>
-      ({ left: 100, top: 100, right: 600, bottom: 220, width: 500, height: 120 }) as DOMRect
-    document.body.append(field)
-
-    const presence = new SecondWordPresence(field, verse)
-    expect(field.contains(presence.host)).toBe(false)
-    expect(presence.host.shadowRoot?.textContent).toContain('Verse of the Day')
-    expect(presence.host.shadowRoot?.textContent).toContain('Psalm 23:4')
-    expect(presence.host.shadowRoot?.textContent).toContain('Copyright Biblica')
-    presence.destroy()
+  it('renders only after the quiet composer mark is opened', () => {
+    const subject = panel()
+    subject.presentVerseOfTheDay(verse)
+    expect(subject.host.shadowRoot?.textContent).toContain('Verse of the Day')
+    expect(subject.host.shadowRoot?.textContent).toContain('Psalm 23:4')
+    expect(subject.host.shadowRoot?.textContent).toContain('I will fear no evil.')
+    expect(subject.host.shadowRoot?.textContent).not.toContain('evil.”')
   })
 
-  it('never overlaps the composer, so the verse cannot read as typed text', () => {
-    const field = document.createElement('textarea')
-    field.getBoundingClientRect = () =>
-      ({ left: 100, top: 300, right: 600, bottom: 420, width: 500, height: 120 }) as DOMRect
-    document.body.append(field)
-
-    const presence = new SecondWordPresence(field, verse)
-    presence.element.getBoundingClientRect = () => ({ height: 70 }) as DOMRect
-    presence.reposition()
-
-    const top = Number.parseFloat(presence.element.style.top)
-    expect(top + 70).toBeLessThanOrEqual(300)
-    presence.destroy()
+  it('collapses the full publisher notice under References by default', () => {
+    const subject = panel()
+    subject.presentVerseOfTheDay(verse)
+    const disclosure = subject.host.shadowRoot?.querySelector('details')
+    expect(disclosure?.open).toBe(false)
+    expect(disclosure?.querySelector('summary')?.textContent).toBe('References')
+    expect(disclosure?.textContent).toContain('Copyright Biblica')
+    expect(disclosure?.querySelector('a')?.href).toBe('https://www.bible.com/versions/111')
   })
 
-  it('drops below the composer when there is no headroom above it', () => {
-    const field = document.createElement('textarea')
-    field.getBoundingClientRect = () =>
-      ({ left: 100, top: 20, right: 600, bottom: 140, width: 500, height: 120 }) as DOMRect
-    document.body.append(field)
-
-    const presence = new SecondWordPresence(field, verse)
-    presence.element.getBoundingClientRect = () => ({ height: 70 }) as DOMRect
-    presence.reposition()
-
-    expect(Number.parseFloat(presence.element.style.top)).toBeGreaterThanOrEqual(140)
-    presence.destroy()
-  })
-
-  it('drops a quotation mark the verse has no partner for', () => {
-    const field = document.createElement('textarea')
-    field.getBoundingClientRect = () =>
-      ({ left: 100, top: 300, right: 600, bottom: 420, width: 500, height: 120 }) as DOMRect
-    document.body.append(field)
-
-    const presence = new SecondWordPresence(
-      field,
-      { ...verse, verse_text: 'I will refresh the weary and satisfy the faint.”' },
-    )
-    const rendered = presence.host.shadowRoot?.querySelector('.verse')?.textContent
-    expect(rendered).toBe('I will refresh the weary and satisfy the faint.')
-    presence.destroy()
-  })
-
-  it('does not cover a composer too small to hold the passage', () => {
-    const field = document.createElement('textarea')
-    field.getBoundingClientRect = () =>
-      ({ left: 100, top: 100, right: 340, bottom: 150, width: 240, height: 50 }) as DOMRect
-    document.body.append(field)
-
-    const presence = new SecondWordPresence(field, verse)
-    expect(presence.element.style.display).toBe('none')
-    presence.destroy()
+  it('returns to the message without editing it', () => {
+    const onClose = vi.fn()
+    const subject = panel(onClose)
+    subject.presentVerseOfTheDay(verse)
+    subject.host.shadowRoot?.querySelector<HTMLButtonElement>('.action')?.click()
+    expect(onClose).toHaveBeenCalledOnce()
   })
 })

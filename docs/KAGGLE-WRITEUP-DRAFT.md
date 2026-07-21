@@ -17,14 +17,14 @@ The problem is common and relational, not merely grammatical: a YouGov omnibus
 survey found that 57% of U.S. social-media users had posted or texted something
 they later regretted. [Source](IMPACT-EVIDENCE.md)
 
-Second Word is a Chrome extension and public sandbox. Optional Presence places
-YouVersion's real Verse of the Day over an empty composer, then leaves at the
-first keystroke without reading the draft. Automatic noticing waits until
+Second Word is a Chrome extension and public sandbox. Optional Presence adds a
+quiet composer mark that opens YouVersion's real Verse of the Day on click
+without reading the draft. Automatic noticing waits until
 typing settles, while a local gate keeps
 ordinary logistics in the browser. For a consequential draft, **Living Margin**
 softly marks the exact local phrase that prompted a pause—without changing the
 editor or sending text merely to draw the mark. The person chooses whether to
-open it. The card then offers a verified passage, publisher attribution, and
+open it. The card then offers a verified passage, collapsible publisher attribution, and
 one specific relational question. Guard can offer optional alternatives. A
 gold Guide affirms gratitude, good news, or freely offered help without
 questioning the person's motive, correcting them, or offering a rewrite. It never posts, blocks Send, or
