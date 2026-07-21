@@ -382,6 +382,30 @@ describe('ambient path', () => {
     expect(document.querySelector('[data-second-word-panel]')).toBeNull()
   })
 
+  it('floats a breathing mark while Gmail is being read automatically', async () => {
+    const harness = mountHarness({ thread: 'We have decided to move forward with another candidate.' })
+    stubChrome(true, { presence: false })
+    let resolveAnalysis!: (response: Response) => void
+    vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => {
+      harness.requests.push(JSON.parse(String(init.body)))
+      return new Promise<Response>((resolve) => { resolveAnalysis = resolve })
+    })
+    await load()
+
+    harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    harness.body.textContent = 'Thank you for letting me know. I am disappointed, but I appreciate the update.'
+    harness.body.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(800)
+
+    const readingBadge = document.querySelector<HTMLElement>('second-word-badge')
+    expect(readingBadge?.shadowRoot?.querySelector('.thinking')).not.toBeNull()
+    expect(readingBadge?.shadowRoot?.textContent).not.toContain('A word for this')
+
+    resolveAnalysis(Response.json(PASSAGE))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(document.querySelector<HTMLElement>('second-word-badge')?.shadowRoot?.querySelector('.thinking')).toBeNull()
+  })
+
   it('offers no rewrite for a guard passage the server did not license', async () => {
     // The gracious reply under a decline letter. A passage, and no suggestion
     // that the words in the box are the thing that needs fixing.

@@ -303,22 +303,46 @@ async function evaluate(attachment: Attachment): Promise<void> {
 
   attachment.lastEvaluated = draft
 
+  // Match the sandbox: once the local gate opens, the floating mark breathes
+  // while the contextual reading is in flight. The manual invitation remains
+  // a fallback, never the only visible sign that Second Word is working.
+  attachment.badge?.destroy()
+  attachment.badge = new SecondWordBadge({
+    field: attachment.composer,
+    title: 'Second Word is reading this',
+    thinking: true,
+    onOpen: () => {},
+  })
+
   const key = `${draft}\u0000${received ?? ''}`
   let outcome: AnalyzeOutcome | null
   try {
     outcome = await scheduler.submit(key, () => analyze(draft, { received }))
   } catch {
     // A failed analysis is silence, never an error in someone's compose window.
+    attachment.badge?.destroy()
+    attachment.badge = null
     attachment.marker?.destroy()
     attachment.marker = null
+    showPresenceBadge(attachment)
     return
   }
 
   // Superseded while in flight. The draft it describes no longer exists.
-  if (outcome === null) return
+  if (outcome === null) {
+    attachment.badge?.destroy()
+    attachment.badge = null
+    showPresenceBadge(attachment)
+    return
+  }
 
   // The person moved on while we were waiting.
-  if (attachment.panel || adapter.getDraft(attachment.composer) !== draft) return
+  if (attachment.panel || adapter.getDraft(attachment.composer) !== draft) {
+    attachment.badge?.destroy()
+    attachment.badge = null
+    showPresenceBadge(attachment)
+    return
+  }
 
   // Gate two. A passage, or a safety response, is worth a badge. Anything else
   // is silence, and silence renders nothing: no badge, no placeholder, no trace.
@@ -333,6 +357,9 @@ async function evaluate(attachment: Attachment): Promise<void> {
     // final word, so remove its marker and leave the person's draft alone.
     attachment.marker?.destroy()
     attachment.marker = null
+    attachment.badge?.destroy()
+    attachment.badge = null
+    showPresenceBadge(attachment)
   }
 }
 
