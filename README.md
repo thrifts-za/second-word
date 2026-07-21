@@ -85,6 +85,9 @@ These are not stylistic. They are the product.
    hosts on `document.body`. Nothing is written into the field you are typing in except on
    an explicit Replace click.
 8. **Drafts are not ours to keep.** No body logging, no persistence, no draft cache.
+9. **Care is contextual, not canned.** Safety flags map to small curated reference
+   sets; the extension remembers only the last five reference IDs so YouVersion-verified
+   passages rotate without storing a draft or safety label. Safety moments never offer a rewrite.
 
 ## Layout
 
@@ -115,7 +118,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 164 tests, no credentials needed
+npm test              # 170 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion
