@@ -70,6 +70,42 @@ describe('analyze', () => {
     expect(outcome.body.experience).toBe('guard')
   })
 
+  it('meets financial pressure with the reviewed provision passage and direct encouragement', async () => {
+    const provisionModel: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          draft_needs_care: false,
+          goal: 'ask for time while facing a real financial need',
+          principle: 'trust_in_provision',
+          candidate_reference_ids: ['MAT.6.25-26', 'PHP.4.19'],
+          why: 'provider prose must not reach the card',
+          question: 'provider question must not reach the card',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('must not rewrite this gracious request') },
+    }
+    const financialRequest = {
+      draft: 'I do not have the money at the moment. Things are tight. Could I please have two months?',
+      surface: 'gmail' as const,
+      received_message: 'Please submit proof of payment for your arrears of 1,183.45.',
+    }
+
+    const outcome = await runAnalyze(financialRequest, deps({
+      model: provisionModel,
+      youversion: youVersionStub({ resolves: ['MAT.6.25-26'] }),
+    }))
+    expect(outcome.kind).toBe('ok')
+    if (outcome.kind !== 'ok') return
+
+    expect(outcome.body.verified_reference_id).toBe('MAT.6.25-26')
+    expect(outcome.body.why).toContain('Jesus speaks directly')
+    expect(outcome.body.question).toContain('time you need')
+    expect(outcome.body).not.toHaveProperty('analysis_token')
+  })
+
   it('will not license a rewrite of a draft that carries no signal', async () => {
     /*
      * A gracious reply under a decline letter. The moment is real and comes

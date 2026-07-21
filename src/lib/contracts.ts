@@ -22,6 +22,7 @@ export const PRINCIPLES = [
   'meet_disappointment',
   // when you are the one asking, owning, or thanking
   'ask_with_humility',
+  'trust_in_provision',
   'make_amends',
   'give_thanks',
   // when something good has happened

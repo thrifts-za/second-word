@@ -102,6 +102,14 @@ describe('scripture library', () => {
     }
   })
 
+  it('has a distinct reviewed provision path for material pressure', () => {
+    const provision = PRINCIPLE_LIBRARY.trust_in_provision
+    expect(provision.candidates).toEqual(['MAT.6.25-26', 'PHP.4.19', 'PSA.23.1'])
+    expect(provision.explanationsByReference?.['MAT.6.25-26']).toContain('fear that there will not be enough')
+    expect(provision.questionsByReference?.['MAT.6.25-26']).toContain('time you need')
+    expect(experienceForPrinciple('trust_in_provision')).toBe('guard')
+  })
+
   it('derives Guide from affirming principles and Guard from consequential ones', () => {
     for (const principle of ['give_thanks', 'receive_good_news', 'offer_support'] as const) {
       expect(experienceForPrinciple(principle)).toBe('guide')

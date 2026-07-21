@@ -70,6 +70,11 @@ reference.
 
 Set draft_needs_care to true when there is something in the writer's own words they might want to change, not merely because a hard thing happened to them.
 
+When the writer names financial strain, debt, rent, lack of money, food, or
+another real material need, choose trust_in_provision rather than the generic
+ask_with_humility. The practical request still matters, but the human moment is
+the pressure of not having enough.
+
 ${principleLines}
 
 You must NEVER write out Scripture text. Return reference IDs only. The
