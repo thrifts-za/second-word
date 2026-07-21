@@ -154,6 +154,8 @@ export const AnalyzeRequestSchema = z
     principle_hint: PrincipleSchema.optional(),
     locale: z.string().min(2).max(12).optional(),
     translation_id: z.string().regex(/^\d{1,6}$/).optional(),
+    /** Local-only history supplied by the client to avoid canned repetition. */
+    recent_reference_ids: z.array(ReferenceIdSchema).max(5).optional(),
   })
   .strict()
 
@@ -225,6 +227,10 @@ export interface SafetyResponse {
   verse_text?: string
   display_reference?: string
   translation?: string
+  comfort_reference_id?: string
+  bible_id?: string
+  attribution?: string
+  attribution_url?: string | null
   provider: 'gloo' | 'workers-ai' | 'fake'
   latency_ms: number
 }

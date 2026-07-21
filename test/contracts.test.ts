@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AnalyzeRequestSchema, GlooAnalysisSchema, MAX_DRAFT_LENGTH } from '../src/lib/contracts'
-import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, orderedCandidates } from '../src/lib/scripture-library'
+import { ALLOWED_REFERENCE_IDS, PRINCIPLE_LIBRARY, SAFETY_CANDIDATE_LIBRARY, orderedCandidates, orderedSafetyCandidates } from '../src/lib/scripture-library'
 
 const valid = {
   needs_reflection: true,
@@ -107,5 +107,23 @@ describe('scripture library', () => {
 
   it('drops references the model proposed from another principle', () => {
     expect(orderedCandidates('gentle_answer', ['JAS.1.19'])).toEqual(['PRO.15.1', 'PRO.25.15', 'COL.4.6'])
+  })
+
+  it('keeps safety selection inside the curated context', () => {
+    expect(orderedSafetyCandidates(['abuse_disclosure'])).toEqual(SAFETY_CANDIDATE_LIBRARY.abuse_disclosure.candidates)
+  })
+
+  it('avoids recently shown safety passages and resets after the set is exhausted', () => {
+    const candidates = SAFETY_CANDIDATE_LIBRARY.self_harm.candidates
+    expect(orderedSafetyCandidates(['self_harm'], [candidates[0]!])).toEqual(candidates.slice(1))
+    expect(orderedSafetyCandidates(['self_harm'], candidates)).toEqual(candidates)
+  })
+
+  it('gives every safety flag multiple curated candidates', () => {
+    for (const entry of Object.values(SAFETY_CANDIDATE_LIBRARY)) {
+      expect(entry.candidates.length).toBeGreaterThanOrEqual(3)
+      expect(entry.intendedContext.length).toBeGreaterThan(20)
+      expect(entry.caution.length).toBeGreaterThan(20)
+    }
   })
 })

@@ -1,4 +1,4 @@
-import type { Principle } from './contracts'
+import type { Principle, SafetyFlag } from './contracts'
 
 /**
  * The reviewed library.
@@ -219,25 +219,63 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
 export const EPIGRAPH_REFERENCE = 'PRO.16.2'
 
 /**
- * The one fixed passage shown on a safety moment: self-harm, abuse, a threat,
- * a crisis. Psalm 34:18, "the LORD is close to the brokenhearted."
- *
- * Never chosen by the model. It is here, in the reviewed set, so it is audited
- * like every other reference and `verify:refs` confirms it still resolves. A
- * comfort verse shown to someone in their hardest moment must not be the one
- * reference nobody checks.
+ * Safety passages are never chosen by the model. These candidates are audited
+ * by `verify:refs`; the model cannot add to or alter this set.
  */
-export const SAFETY_REFERENCE = 'PSA.34.18'
+export interface SafetyCandidateEntry {
+  /** Curated candidate references; never verse text. */
+  candidates: string[]
+  /** Review note explaining intended use and the boundary of the passage. */
+  intendedContext: string
+  caution: string
+}
+
+/**
+ * Competition-demo candidates, not an emergency service. The model supplies
+ * only a validated flag; selection stays here.
+ */
+export const SAFETY_CANDIDATE_LIBRARY: Record<SafetyFlag, SafetyCandidateEntry> = {
+  self_harm: {
+    candidates: ['PSA.34.18', 'PSA.42.11', 'ISA.41.10'],
+    intendedContext: 'Despair, hopelessness, or language indicating self-harm.',
+    caution: 'God’s nearness is not presented as a substitute for immediate human or professional support.',
+  },
+  abuse_disclosure: {
+    candidates: ['PSA.9.9', 'PSA.46.1', 'PSA.34.18'],
+    intendedContext: 'A disclosure of abuse, coercion, or danger from another person.',
+    caution: 'Refuge language must never imply that the person should remain in danger.',
+  },
+  threat: {
+    candidates: ['PSA.56.3-4', 'PSA.46.1', 'ISA.41.10'],
+    intendedContext: 'Fear or immediate concern caused by a threat.',
+    caution: 'Comfort must not minimise a credible threat or replace practical safety action.',
+  },
+  crisis: {
+    candidates: ['PSA.46.1', 'PSA.121.1-2', 'PSA.34.18'],
+    intendedContext: 'An acute crisis that does not fit a narrower safety flag.',
+    caution: 'This is spiritual accompaniment, not diagnosis or crisis intervention.',
+  },
+}
+
+const SAFETY_FLAG_PRIORITY: SafetyFlag[] = ['self_harm', 'abuse_disclosure', 'threat', 'crisis']
+
+export function orderedSafetyCandidates(flags: SafetyFlag[], recent: string[] = []): string[] {
+  const flag = SAFETY_FLAG_PRIORITY.find((candidate) => flags.includes(candidate)) ?? 'crisis'
+  const candidates = SAFETY_CANDIDATE_LIBRARY[flag].candidates
+  if (candidates.length <= 1) return [...candidates]
+  const unseen = candidates.filter((referenceId) => !recent.includes(referenceId))
+  return unseen.length > 0 ? unseen : [...candidates]
+}
 
 /**
  * Every reference the system is permitted to display: the principle
- * candidates, the epigraph, and the safety passage. `verify:refs` fetches
+ * candidates, the epigraph, and the safety candidates. `verify:refs` fetches
  * each one so none can silently stop resolving.
  */
 export const ALLOWED_REFERENCE_IDS: ReadonlySet<string> = new Set([
   ...Object.values(PRINCIPLE_LIBRARY).flatMap((entry) => entry.candidates),
   EPIGRAPH_REFERENCE,
-  SAFETY_REFERENCE,
+  ...Object.values(SAFETY_CANDIDATE_LIBRARY).flatMap((entry) => entry.candidates),
 ])
 
 export function isAllowedReference(referenceId: string): boolean {

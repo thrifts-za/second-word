@@ -134,6 +134,50 @@ describe('analyze', () => {
     const outcome = await runAnalyze(request, deps({ model: flagging }))
     expect(outcome.kind).toBe('safety')
   })
+
+  it('rotates to a verified safety passage and carries its attribution', async () => {
+    const flagging: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          goal: 'stay with the person',
+          principle: 'seek_peace',
+          candidate_reference_ids: ['ROM.12.18'],
+          why: 'w',
+          question: 'q',
+          safety_flags: ['self_harm'],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('must not rewrite') },
+    }
+    const outcome = await runAnalyze(
+      { ...request, recent_reference_ids: ['PSA.34.18'] },
+      deps({ model: flagging, youversion: youVersionStub({ resolves: ['PSA.42.11'] }) }),
+    )
+    if (outcome.kind !== 'safety') throw new Error('expected safety')
+    expect(outcome.body.comfort_reference_id).toBe('PSA.42.11')
+    expect(outcome.body.verse_text).toBe(VERSE_TEXT)
+    expect(outcome.body.attribution).toContain('Biblica')
+    expect(outcome.body).not.toHaveProperty('analysis_token')
+  })
+
+  it('still provides care but no substitute Scripture when YouVersion cannot verify one', async () => {
+    const flagging: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true, goal: 'care', principle: 'seek_peace',
+          candidate_reference_ids: ['ROM.12.18'], why: 'w', question: 'q', safety_flags: ['crisis'],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('must not rewrite') },
+    }
+    const outcome = await runAnalyze(request, deps({ model: flagging, youversion: youVersionStub({ resolves: [] }) }))
+    if (outcome.kind !== 'safety') throw new Error('expected safety')
+    expect(outcome.body.verse_text).toBeUndefined()
+    expect(outcome.body.message).toContain('you are not alone')
+  })
 })
 
 describe('rewrite', () => {

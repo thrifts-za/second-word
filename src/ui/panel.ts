@@ -334,6 +334,18 @@ export class SecondWordPanel {
     body.append(heading('You are not alone'), el('p', 'safety__lead', 'This message can wait. You matter more than it.'), el('p', 'status', result.message))
     if (result.verse_text && result.display_reference) {
       body.append(el('p', 'verse__text', result.verse_text), el('p', 'eyebrow', `${result.display_reference}${result.translation ? ` · ${result.translation}` : ''}`))
+      if (result.attribution) {
+        const attribution = el('p', 'attribution', result.attribution)
+        if (result.attribution_url) {
+          const link = document.createElement('a')
+          link.href = result.attribution_url
+          link.target = '_blank'
+          link.rel = 'noopener noreferrer'
+          link.textContent = ' View on YouVersion'
+          attribution.append(link)
+        }
+        body.append(attribution)
+      }
     }
 
     const actions = el('div', 'actions')

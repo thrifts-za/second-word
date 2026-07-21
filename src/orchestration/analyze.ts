@@ -10,7 +10,7 @@
 import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
-import { PRINCIPLE_LIBRARY, SAFETY_REFERENCE, isAllowedReference, orderedCandidates } from '../lib/scripture-library'
+import { PRINCIPLE_LIBRARY, isAllowedReference, orderedCandidates, orderedSafetyCandidates } from '../lib/scripture-library'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
 export type AnalyzeOutcome =
@@ -42,7 +42,8 @@ export interface AnalyzeDeps {
  */
 const SAFETY_MESSAGE =
   'Before we do anything with these words: you are not alone, and your life is more precious than this conversation. ' +
-  'Second Word will not turn this into a rewrite. Please step toward someone you trust, or a crisis line where you are, and let them be with you now.'
+  'Second Word will not turn this into a rewrite. Please step toward someone you trust or local emergency or crisis support, and let them be with you now. ' +
+  'Second Word is a reflection aid, not professional or emergency help.'
 
 export async function runAnalyze(
   request: AnalyzeRequest,
@@ -82,7 +83,8 @@ export async function runAnalyze(
     // The model only identifies danger. This fixed reference is fetched and
     // attributed through YouVersion like every other passage, never written by
     // a model. A safety response remains available if the upstream is down.
-    const comfort = await deps.youversion.resolveFirst(bibleId, [SAFETY_REFERENCE]).catch(() => null)
+    const safetyCandidates = orderedSafetyCandidates(analysis.safety_flags, request.recent_reference_ids)
+    const comfort = await deps.youversion.resolveFirst(bibleId, safetyCandidates).catch(() => null)
     const comfortBible = comfort ? await deps.youversion.getBible(bibleId).catch(() => null) : null
     return {
       kind: 'safety',
@@ -94,6 +96,10 @@ export async function runAnalyze(
           verse_text: comfort.passage.content,
           display_reference: comfort.passage.displayReference,
           translation: comfortBible.localizedAbbreviation,
+          comfort_reference_id: comfort.passage.referenceId,
+          bible_id: bibleId,
+          attribution: buildAttribution(comfortBible),
+          attribution_url: comfortBible.deepLink,
         } : {}),
         provider: deps.model.provider,
         latency_ms: now() - startedAt,

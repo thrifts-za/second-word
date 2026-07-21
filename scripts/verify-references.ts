@@ -8,7 +8,7 @@
  *   YOUVERSION_APP_KEY=... npm run verify:refs
  */
 
-import { PRINCIPLE_LIBRARY } from '../src/lib/scripture-library.ts'
+import { PRINCIPLE_LIBRARY, SAFETY_CANDIDATE_LIBRARY } from '../src/lib/scripture-library.ts'
 
 const APP_KEY = process.env.YOUVERSION_APP_KEY
 const BIBLE_ID = process.env.DEFAULT_BIBLE_ID ?? '111'
@@ -47,6 +47,21 @@ for (const [principle, entry] of Object.entries(PRINCIPLE_LIBRARY)) {
     } catch (error) {
       console.log(`  ERROR ${referenceId.padEnd(12)} ${(error as Error).message}`)
       failures += 1
+    }
+  }
+}
+
+for (const [flag, entry] of Object.entries(SAFETY_CANDIDATE_LIBRARY)) {
+  console.log(`\nsafety:${flag}`)
+  for (const referenceId of entry.candidates) {
+    const url = `https://api.youversion.com/v1/bibles/${BIBLE_ID}/passages/${referenceId}`
+    const response = await fetch(url, { headers: { 'x-yvp-app-key': APP_KEY, accept: 'application/json' } })
+    const body = response.ok ? (await response.json()) as { content?: string; reference?: string } : {}
+    if (!response.ok || !body.content) {
+      console.log(`  FAIL  ${referenceId.padEnd(12)} HTTP ${response.status}`)
+      failures += 1
+    } else {
+      console.log(`  ok    ${referenceId.padEnd(12)} ${(body.reference ?? '').padEnd(18)}`)
     }
   }
 }
