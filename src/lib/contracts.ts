@@ -162,6 +162,25 @@ export const AnalyzeRequestSchema = z
 
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>
 
+export const VerseOfTheDayQuerySchema = z
+  .object({
+    day: z.coerce.number().int().min(1).max(366),
+    translation_id: z.string().regex(/^\d{1,6}$/).optional(),
+  })
+  .strict()
+
+export interface VerseOfTheDayResponse {
+  day: number
+  verified_reference_id: string
+  display_reference: string
+  verse_text: string
+  bible_id: string
+  translation: string
+  attribution: string
+  attribution_url: string | null
+  source: 'youversion_verse_of_the_day'
+}
+
 export const RewriteRequestSchema = z
   .object({
     draft: z.string().min(1).max(MAX_DRAFT_LENGTH),
@@ -192,7 +211,8 @@ export interface AnalyzeResponse {
   attribution_url: string | null
   why: string
   question: string
-  analysis_token: string
+  /** Guard only. Guide is never issued a credential the rewrite route can use. */
+  analysis_token?: string
   /** Guide affirms an existing good moment; Guard supports a consequential one. */
   experience: 'guide' | 'guard'
   safety_flags: SafetyFlag[]

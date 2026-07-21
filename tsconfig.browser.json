@@ -23,6 +23,7 @@
     "test/choose-adapter.test.ts",
     "test/content-ambient.test.ts",
     "test/moment-marker.test.ts",
-    "test/overlay.test.ts"
+    "test/overlay.test.ts",
+    "test/presence.test.ts"
   ]
 }

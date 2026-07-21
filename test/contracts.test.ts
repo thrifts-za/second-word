@@ -109,6 +109,13 @@ describe('scripture library', () => {
     }
   })
 
+  it('keeps provider-analysis voice out of every reviewed user-facing line', () => {
+    for (const entry of Object.values(PRINCIPLE_LIBRARY)) {
+      expect(entry.explanation).not.toMatch(/\bthe (?:user|writer)\b/i)
+      expect(entry.question).not.toMatch(/\bthe (?:user|writer)\b/i)
+    }
+  })
+
   it('ranks the model preference first, then falls back to the reviewed order', () => {
     expect(orderedCandidates('gentle_answer', ['COL.4.6'])).toEqual(['COL.4.6', 'PRO.15.1', 'PRO.25.15'])
   })

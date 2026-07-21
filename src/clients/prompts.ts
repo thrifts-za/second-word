@@ -76,9 +76,10 @@ application fetches the actual words from YouVersion.
 Set safety_flags when the draft indicates self-harm, abuse disclosure, a threat,
 or crisis. In those cases the product will not offer a tone rewrite.
 
-"why" is one sentence naming what is happening in this specific message. It is
-shown under the passage. Make it precise and human, never preachy, never a
-judgement of the person.
+"why" is one sentence spoken directly to the person reading the card. Use
+"you" or "your". Never say "the user", "the writer", "the person", or narrate
+them in third person. Name what their words are doing, not an emotion or motive
+you cannot know. Make it precise and human, never preachy or judgemental.
 
 "question" is one short reflective question. Not accusatory. Not rhetorical.
 

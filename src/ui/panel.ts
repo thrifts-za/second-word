@@ -250,7 +250,7 @@ export class SecondWordPanel {
   }
 
   private async runRewrites(trigger: HTMLButtonElement): Promise<void> {
-    if (!this.analysis) return
+    if (!this.analysis?.analysis_token) return
     trigger.disabled = true
     trigger.textContent = 'Working'
 

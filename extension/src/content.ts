@@ -17,19 +17,23 @@
  */
 
 import { detect, gate, isMateriallyChanged } from '../../src/lib/detector'
+import { localDayOfYear } from '../../src/lib/calendar'
 import type {
   AnalyzeResponse,
   NoMomentResponse,
   RewriteMode,
   RewriteResponse,
   SafetyResponse,
+  VerseOfTheDayResponse,
 } from '../../src/lib/contracts'
+import { isVerseOfTheDayResponse } from '../../src/lib/verse-of-the-day'
 import { SecondWordPanel, type AnalyzeOptions } from '../../src/ui/panel'
 import { chooseAdapter } from './adapters/choose'
 import { findEditable, isEligibleField } from './adapters/generic'
 import { isMounted, markMounted, type ComposerAdapter } from './adapters/types'
 import { SecondWordBadge } from './badge'
 import { SecondWordOverlay } from './overlay'
+import { SecondWordPresence } from './presence'
 import { markMoments, type MomentMarker } from './moment-marker'
 import { createScheduler } from './scheduler'
 import { apiBase, isAmbient, isEnabledFor, rememberReference, settings } from './config'
@@ -76,14 +80,19 @@ interface Attachment {
   offer: { result: AnalyzeResponse | SafetyResponse; evidence: string[] } | null
   lastEvaluated: string
   timer: number | undefined
+  presence: SecondWordPresence | null
+  presenceDismissed: boolean
 }
 
 const attachments = new WeakMap<HTMLElement, Attachment>()
 let ambient = false
+let presenceEnabled = false
+const verseOfTheDayCache = new Map<string, Promise<VerseOfTheDayResponse | null>>()
 
 async function boot(): Promise<void> {
   if (!(await isEnabledFor(location.host))) return
   ambient = await isAmbient()
+  presenceEnabled = (await settings()).presence
 
   /**
    * D13. Focus, not a MutationObserver over the whole body. Gmail rebuilds its
@@ -117,10 +126,13 @@ function attach(target: EventTarget | null): void {
     offer: null,
     lastEvaluated: '',
     timer: undefined,
+    presence: null,
+    presenceDismissed: false,
   }
   attachments.set(composer, attachment)
 
   mountInvitation(attachment)
+  if (presenceEnabled && !adapter.getDraft(composer).trim()) void mountPresence(attachment)
 
   composer.addEventListener('input', () => {
     // An offer belongs to one settled draft. Once the person changes the
@@ -130,10 +142,45 @@ function attach(target: EventTarget | null): void {
     attachment.marker = null
     attachment.badge?.destroy()
     attachment.badge = null
+    attachment.presence?.destroy()
+    attachment.presence = null
+    attachment.presenceDismissed = true
     window.clearTimeout(attachment.timer)
     attachment.timer = window.setTimeout(() => void evaluate(attachment), DEBOUNCE_MS)
   })
 }
+
+async function mountPresence(attachment: Attachment): Promise<void> {
+  const currentSettings = await settings()
+  const day = localDayOfYear(new Date())
+  const base = currentSettings.apiBase.replace(/\/$/, '')
+  const key = `${base}\u0000${day}\u0000${currentSettings.translationId}`
+  let pending = verseOfTheDayCache.get(key)
+  if (!pending) {
+    const query = new URLSearchParams({ day: String(day) })
+    if (currentSettings.translationId) query.set('translation_id', currentSettings.translationId)
+    pending = fetch(`${base}/v1/verse-of-the-day?${query}`, {
+      signal: AbortSignal.timeout(5_000),
+    })
+      .then(async (response) => {
+        if (!response.ok) return null
+        const body: unknown = await response.json()
+        return isVerseOfTheDayResponse(body) ? body : null
+      })
+      .catch(() => null)
+    verseOfTheDayCache.set(key, pending)
+  }
+
+  const verse = await pending
+  if (
+    !verse ||
+    attachment.presenceDismissed ||
+    !attachment.composer.isConnected ||
+    adapter.getDraft(attachment.composer).trim()
+  ) return
+  attachment.presence = new SecondWordPresence(attachment.composer, verse)
+}
+
 
 /**
  * The invitation, kept deliberately. D3.

@@ -5,12 +5,13 @@
  * and nothing that could be read as a nudge to keep it on.
  */
 
-import { setApiBase, setAmbient, setGlobalOff, setSiteEnabled, setTranslationId, settings } from './config'
+import { setApiBase, setAmbient, setGlobalOff, setPresence, setSiteEnabled, setTranslationId, settings } from './config'
 
 const GMAIL_HOST = 'mail.google.com'
 
 const globalOff = document.querySelector<HTMLInputElement>('#global-off')!
 const ambient = document.querySelector<HTMLInputElement>('#ambient')!
+const presence = document.querySelector<HTMLInputElement>('#presence')!
 const gmailOff = document.querySelector<HTMLInputElement>('#gmail-off')!
 const apiBaseField = document.querySelector<HTMLInputElement>('#api-base')!
 const saveButton = document.querySelector<HTMLButtonElement>('#save')!
@@ -21,6 +22,7 @@ async function load(): Promise<void> {
   const current = await settings()
   globalOff.checked = current.globalOff
   ambient.checked = current.ambient
+  presence.checked = current.presence
   gmailOff.checked = current.disabledSites.includes(GMAIL_HOST)
   apiBaseField.value = current.apiBase
   await loadTranslations(current.apiBase, current.translationId)
@@ -41,6 +43,7 @@ async function loadTranslations(base: string, selected: string): Promise<void> {
 
 globalOff.addEventListener('change', () => void setGlobalOff(globalOff.checked))
 ambient.addEventListener('change', () => void setAmbient(ambient.checked))
+presence.addEventListener('change', () => void setPresence(presence.checked))
 gmailOff.addEventListener('change', () => void setSiteEnabled(GMAIL_HOST, !gmailOff.checked))
 
 saveButton.addEventListener('click', () => {

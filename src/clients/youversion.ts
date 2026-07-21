@@ -22,11 +22,17 @@ const PASSAGE_TIMEOUT_MS = 4000
 /** Attribution is best-effort, so it gets a tighter leash. */
 const BIBLE_TIMEOUT_MS = 2500
 const BIBLE_LIST_TIMEOUT_MS = 4000
+const VOTD_TIMEOUT_MS = 2500
 
 export interface Passage {
   referenceId: string
   displayReference: string
   content: string
+}
+
+export interface VerseOfTheDaySelection {
+  day: number
+  passageId: string
 }
 
 export interface BibleRecord {
@@ -126,6 +132,40 @@ export class YouVersionClient {
       displayReference: body.reference,
       content: body.content,
     }
+  }
+
+  /**
+   * Fetch YouVersion's own selection for one calendar day.
+   *
+   * This returns only a reference ID. The caller must still resolve the text
+   * through getPassage and fetch Bible metadata before anything is displayed.
+   */
+  async getVerseOfTheDay(day: number): Promise<VerseOfTheDaySelection | null> {
+    if (!Number.isInteger(day) || day < 1 || day > 366) {
+      throw new YouVersionError('verse of the day must be between 1 and 366', 400)
+    }
+
+    let response: Response
+    try {
+      response = await this.fetchImpl(`${BASE_URL}/verse_of_the_days/${day}`, {
+        headers: this.headers(),
+        signal: AbortSignal.timeout(VOTD_TIMEOUT_MS),
+      })
+    } catch (error) {
+      if ((error as Error).name === 'TimeoutError' || (error as Error).name === 'AbortError') {
+        throw new YouVersionError('verse of the day lookup timed out', 504)
+      }
+      throw error
+    }
+
+    if (response.status === 404 || response.status === 204) return null
+    if (!response.ok) {
+      throw new YouVersionError(`verse of the day lookup failed (${response.status})`, response.status)
+    }
+
+    const body = (await response.json()) as { day?: number; passage_id?: string }
+    if (!Number.isInteger(body.day) || body.day !== day || !body.passage_id) return null
+    return { day, passageId: body.passage_id }
   }
 
   /**

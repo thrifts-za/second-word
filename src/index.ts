@@ -10,7 +10,7 @@ import { createReflectionModel } from './clients/provider'
 import { ModelError } from './clients/model'
 import type { WorkersAiBinding } from './clients/workers-ai'
 import { YouVersionClient, YouVersionError } from './clients/youversion'
-import { AnalyzeRequestSchema, MAX_DRAFT_LENGTH, RewriteRequestSchema } from './lib/contracts'
+import { AnalyzeRequestSchema, MAX_DRAFT_LENGTH, RewriteRequestSchema, VerseOfTheDayQuerySchema } from './lib/contracts'
 import { EPIGRAPH_REFERENCE } from './lib/scripture-library'
 import { runAnalyze } from './orchestration/analyze'
 import { runRewrite } from './orchestration/rewrite'
@@ -142,7 +142,7 @@ app.get('/health/upstream', async (c) => {
 })
 
 /**
- * The product's own verse, Proverbs 4:20-21.
+ * The product's own verse, Proverbs 16:2.
  *
  * Served from YouVersion like everything else. Hardcoding it would make the
  * provenance rule a slogan rather than a rule.
@@ -163,6 +163,45 @@ app.get('/v1/epigraph', async (c) => {
       translation: bible.localizedAbbreviation,
       attribution: bible.copyright ?? bible.localizedTitle,
       attribution_url: bible.deepLink,
+    })
+  } catch (error) {
+    return errorResponse(c, error)
+  }
+})
+
+/**
+ * YouVersion's calendar selection, resolved through the same verified passage
+ * and attribution path as every other piece of Scripture in the product.
+ */
+app.get('/v1/verse-of-the-day', async (c) => {
+  const parsed = VerseOfTheDayQuerySchema.safeParse({
+    day: c.req.query('day'),
+    ...(c.req.query('translation_id') ? { translation_id: c.req.query('translation_id') } : {}),
+  })
+  if (!parsed.success) return c.json({ error: 'invalid_request', detail: parsed.error.flatten() }, 400)
+
+  const bibleId = parsed.data.translation_id ?? c.env.DEFAULT_BIBLE_ID
+  const client = new YouVersionClient(c.env.YOUVERSION_APP_KEY)
+  try {
+    const selection = await client.getVerseOfTheDay(parsed.data.day)
+    if (!selection) return c.json({ error: 'passage_unverifiable' }, 502)
+
+    const [passage, bible] = await Promise.all([
+      client.getPassage(bibleId, selection.passageId),
+      client.getBible(bibleId).catch(() => null),
+    ])
+    if (!passage || !bible) return c.json({ error: 'passage_unverifiable' }, 502)
+
+    return c.json({
+      day: selection.day,
+      verified_reference_id: passage.referenceId,
+      display_reference: passage.displayReference,
+      verse_text: passage.content,
+      bible_id: bibleId,
+      translation: bible.localizedAbbreviation,
+      attribution: bible.copyright ?? bible.localizedTitle,
+      attribution_url: bible.deepLink,
+      source: 'youversion_verse_of_the_day' as const,
     })
   } catch (error) {
     return errorResponse(c, error)

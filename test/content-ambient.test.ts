@@ -215,6 +215,34 @@ afterEach(() => {
 })
 
 describe('ambient path', () => {
+  it('shows verified daily Presence on an empty composer and removes it on first input', async () => {
+    const harness = mountHarness()
+    stubChrome(false, { presence: true })
+    vi.stubGlobal('fetch', async (input: string) => {
+      expect(String(input)).toContain('/v1/verse-of-the-day?')
+      return Response.json({
+        day: 203,
+        verified_reference_id: 'PSA.23.4',
+        display_reference: 'Psalm 23:4',
+        verse_text: 'Even though I walk through the darkest valley, I will fear no evil.',
+        bible_id: '111',
+        translation: 'NIV',
+        attribution: 'The Holy Bible, New International Version. Copyright Biblica.',
+        attribution_url: 'https://www.bible.com/versions/111',
+        source: 'youversion_verse_of_the_day',
+      })
+    })
+    await load()
+
+    harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    await vi.advanceTimersByTimeAsync(0)
+    expect(document.querySelectorAll('second-word-presence')).toHaveLength(1)
+
+    harness.body.textContent = 'I have started writing.'
+    harness.body.dispatchEvent(new InputEvent('input', { bubbles: true }))
+    expect(document.querySelectorAll('second-word-presence')).toHaveLength(0)
+  })
+
   it('sends nothing and shows nothing for logistics', async () => {
     // The local gate stops this before the network is ever touched.
     const harness = mountHarness()

@@ -67,9 +67,15 @@ try {
   if (!upstream.ok || !upstream.reference || !upstream.chars) fail('YouVersion upstream is not returning a verified passage')
   console.log(`ok   YouVersion upstream (${upstream.reference}, ${upstream.latency_ms}ms)`)
 
-  const epigraph = await get('/v1/epigraph')
-  if (!epigraph.verse_text || !epigraph.attribution) fail('Epigraph lacks verified text or attribution')
-  console.log(`ok   Scripture provenance (${epigraph.reference})`)
+  const now = new Date()
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+  const yearStart = Date.UTC(now.getFullYear(), 0, 0)
+  const day = Math.floor((today - yearStart) / 86_400_000)
+  const daily = await get(`/v1/verse-of-the-day?day=${day}`)
+  if (!daily.verse_text || !daily.attribution || daily.source !== 'youversion_verse_of_the_day') {
+    fail('Verse of the Day lacks verified text, attribution, or YouVersion provenance')
+  }
+  console.log(`ok   YouVersion Verse of the Day (${daily.display_reference})`)
 
   const analyzed = await post('/v1/analyze', fixture)
   if (!analyzed.ok) throw new Error(`/v1/analyze returned HTTP ${analyzed.status}`)
@@ -92,15 +98,8 @@ try {
   if (guided.experience !== 'guide' || !guided.verse_text || !guided.verified_reference_id) {
     fail('Meaningful support did not return verified Guide Scripture')
   } else console.log(`ok   Guide -> ${guided.display_reference}, no corrective UI path`)
-
-  const guideRewrite = await post('/v1/rewrite', {
-    draft: guideFixture.draft,
-    received_message: guideFixture.received_message,
-    analysis_token: guided.analysis_token,
-    modes: ['clearer'],
-  })
-  if (guideRewrite.status !== 401) fail(`Guide rewrite should be rejected, received ${guideRewrite.status}`)
-  else console.log('ok   Guide rewrite rejected by policy')
+  if (guided.analysis_token) fail('Guide must not receive a rewrite token')
+  else console.log('ok   Guide receives no rewrite credential')
 
   const silentResponse = await post('/v1/analyze', silenceFixture)
   if (!silentResponse.ok) throw new Error(`/v1/analyze Silence fixture returned HTTP ${silentResponse.status}`)

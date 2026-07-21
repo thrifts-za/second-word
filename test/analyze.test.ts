@@ -5,6 +5,7 @@ import { YouVersionClient } from '../src/clients/youversion'
 import { GlooAnalysisSchema, type GlooAnalysis, type GlooRewrites } from '../src/lib/contracts'
 import { runAnalyze } from '../src/orchestration/analyze'
 import { runRewrite } from '../src/orchestration/rewrite'
+import { digestDraft, signAnalysisToken } from '../src/security/token'
 
 const SIGNING_KEY = 'test-signing-key'
 const DRAFT = 'You clearly have no idea what you are talking about, this is idiotic.'
@@ -66,6 +67,34 @@ describe('analyze', () => {
     expect(outcome.body.question.length).toBeGreaterThan(0)
     expect(outcome.body.analysis_token).toContain('.')
     expect(outcome.body.experience).toBe('guard')
+  })
+
+  it('never exposes provider commentary as user-facing copy', async () => {
+    const narrating: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          goal: 'dismiss the request',
+          principle: 'refuse_contempt',
+          candidate_reference_ids: ['EPH.4.29'],
+          why: "The user is expressing dislike and disregard for the other person's message.",
+          question: 'Why is the user behaving this way?',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('not used') },
+    }
+    const outcome = await runAnalyze(
+      request,
+      deps({ model: narrating, youversion: youVersionStub({ resolves: ['EPH.4.29'] }) }),
+    )
+    if (outcome.kind !== 'ok') throw new Error('expected ok')
+
+    expect(outcome.body.why).toBe('Part of this is aimed at the argument. Part of it is aimed at them.')
+    expect(outcome.body.question).toBe('Which part of this is for the point, and which part is for the sting?')
+    expect(outcome.body.why).not.toContain('The user')
+    expect(outcome.body.question).not.toContain('the user')
   })
 
   it('carries translation and attribution, which the passage endpoint omits', async () => {
@@ -218,9 +247,22 @@ describe('analyze', () => {
     )
     if (analyzed.kind !== 'ok') throw new Error('expected ok')
     expect(analyzed.body.experience).toBe('guide')
+    expect(analyzed.body).not.toHaveProperty('analysis_token')
+
+    // A token from an older deployment remains harmless after this change.
+    const staleGuideToken = await signAnalysisToken(
+      {
+        goal: 'offer support freely',
+        principle: 'offer_support',
+        referenceId: 'GAL.5.13',
+        bibleId: '111',
+        draftDigest: await digestDraft(guideRequest.draft, SIGNING_KEY),
+      },
+      SIGNING_KEY,
+    )
 
     const rewritten = await runRewrite(
-      { draft: guideRequest.draft, analysis_token: analyzed.body.analysis_token, modes: ['clearer'] },
+      { draft: guideRequest.draft, analysis_token: staleGuideToken, modes: ['clearer'] },
       { model: guiding, signingKey: SIGNING_KEY, defaultLocale: 'en' },
     )
     expect(rewritten).toEqual({ kind: 'rejected', reason: 'guide_does_not_rewrite' })
@@ -231,6 +273,7 @@ describe('rewrite', () => {
   it('accepts a token issued for this draft', async () => {
     const analyzed = await runAnalyze(request, deps())
     if (analyzed.kind !== 'ok') throw new Error('expected ok')
+    if (!analyzed.body.analysis_token) throw new Error('Guard must issue a token')
 
     const outcome = await runRewrite(
       { draft: DRAFT, analysis_token: analyzed.body.analysis_token, modes: ['clearer', 'curious'] },
@@ -246,6 +289,7 @@ describe('rewrite', () => {
   it('refuses to rewrite a draft that was never analysed', async () => {
     const analyzed = await runAnalyze(request, deps())
     if (analyzed.kind !== 'ok') throw new Error('expected ok')
+    if (!analyzed.body.analysis_token) throw new Error('Guard must issue a token')
 
     const outcome = await runRewrite(
       { draft: 'A different message entirely.', analysis_token: analyzed.body.analysis_token, modes: ['clearer'] },

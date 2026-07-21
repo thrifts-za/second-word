@@ -12,6 +12,7 @@ const KEYS = {
   globalOff: 'globalOff',
   disabledSites: 'disabledSites',
   ambient: 'ambient',
+  presence: 'presence',
   translationId: 'translationId',
   recentReferenceIds: 'recentReferenceIds',
 } as const
@@ -32,6 +33,8 @@ interface Stored {
    * Off by default. Until it is on, Second Word only speaks when pressed.
    */
   [KEYS.ambient]?: boolean
+  /** Show YouVersion's Verse of the Day on an empty composer. No draft is sent. */
+  [KEYS.presence]?: boolean
   /** A YouVersion version ID selected from the Worker-provided entitlement list. */
   [KEYS.translationId]?: string
   [KEYS.recentReferenceIds]?: string[]
@@ -45,7 +48,7 @@ function storage(): chrome.storage.LocalStorageArea | null {
 async function read(): Promise<Stored> {
   const area = storage()
   if (!area) return {}
-  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.translationId, KEYS.recentReferenceIds])) as Stored
+  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.presence, KEYS.translationId, KEYS.recentReferenceIds])) as Stored
 }
 
 export async function apiBase(): Promise<string> {
@@ -65,6 +68,10 @@ export async function isAmbient(): Promise<boolean> {
 
 export async function setAmbient(on: boolean): Promise<void> {
   await storage()?.set({ [KEYS.ambient]: on })
+}
+
+export async function setPresence(on: boolean): Promise<void> {
+  await storage()?.set({ [KEYS.presence]: on })
 }
 
 export async function setGlobalOff(off: boolean): Promise<void> {
@@ -101,6 +108,7 @@ export async function settings(): Promise<Required<Stored>> {
     globalOff: stored[KEYS.globalOff] ?? false,
     disabledSites: stored[KEYS.disabledSites] ?? [],
     ambient: stored[KEYS.ambient] ?? false,
+    presence: stored[KEYS.presence] ?? false,
     translationId: stored[KEYS.translationId] ?? '',
     recentReferenceIds: stored[KEYS.recentReferenceIds] ?? [],
   }

@@ -12,15 +12,19 @@
  */
 
 import { gate, isMateriallyChanged } from '../src/lib/detector'
+import { localDayOfYear } from '../src/lib/calendar'
 import type {
   AnalyzeResponse,
   NoMomentResponse,
   RewriteMode,
   RewriteResponse,
   SafetyResponse,
+  VerseOfTheDayResponse,
 } from '../src/lib/contracts'
+import { isVerseOfTheDayResponse } from '../src/lib/verse-of-the-day'
 import { SecondWordBadge } from '../extension/src/badge'
 import { SecondWordOverlay } from '../extension/src/overlay'
+import { SecondWordPresence } from '../extension/src/presence'
 import { createScheduler } from '../extension/src/scheduler'
 import { SecondWordPanel, type AnalyzeOptions } from '../src/ui/panel'
 import { SCENARIOS, type Scenario } from './scenarios'
@@ -63,6 +67,8 @@ let badge: SecondWordBadge | null = null
 let offer: AnalyzeResponse | SafetyResponse | null = null
 let lastEvaluated = ''
 let debounceTimer: number | undefined
+let presence: SecondWordPresence | null = null
+let dailyVerse: VerseOfTheDayResponse | null = null
 
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
@@ -95,6 +101,7 @@ function renderScenario(next: Scenario): void {
 
   draftField.value = ''
   draftField.placeholder = next.placeholder
+  showPresenceIfEmpty()
 
   for (const tab of tabsNav.children) {
     tab.classList.toggle('tab--on', (tab as HTMLElement).dataset.id === next.id)
@@ -244,6 +251,8 @@ function restoreBadge(): void {
 }
 
 draftField.addEventListener('input', () => {
+  presence?.destroy()
+  presence = null
   clearChecked()
   offer = null
   badge?.destroy()
@@ -288,26 +297,35 @@ async function rewrite(draft: string, token: string, modes: RewriteMode[]): Prom
 }
 
 /**
- * The epigraph comes from YouVersion too. No verse text is ever hardcoded.
+ * YouVersion chooses the day's reference. We then resolve its text and full
+ * publisher attribution through the same Worker path as every other passage.
  *
  * Every failure path removes the element. Returning early on a bad response
  * left an empty quote block with a rule and no words in it, which looks like
  * the product broke rather than like nothing happened.
  */
-async function loadEpigraph(): Promise<void> {
+async function loadPresence(): Promise<void> {
   try {
-    const response = await fetch(`${API_BASE}/v1/epigraph`, { signal: AbortSignal.timeout(PASSAGE_TIMEOUT_MS) })
+    const day = localDayOfYear(new Date())
+    const response = await fetch(`${API_BASE}/v1/verse-of-the-day?day=${day}`, {
+      signal: AbortSignal.timeout(PASSAGE_TIMEOUT_MS),
+    })
     if (!response.ok) throw new Error(String(response.status))
 
-    const body = (await response.json()) as { verse_text?: string; reference?: string; translation?: string }
-    if (!body.verse_text) throw new Error('no verse text')
-
-    el('epigraph-text').textContent = body.verse_text
-    el('epigraph-ref').textContent = `${body.reference ?? ''} ${body.translation ?? ''}`.trim()
+    const body: unknown = await response.json()
+    if (!isVerseOfTheDayResponse(body)) throw new Error('unverifiable verse')
+    dailyVerse = body
+    showPresenceIfEmpty()
   } catch {
-    // The page reads fine without it. Never show placeholder Scripture.
-    el('epigraph').remove()
+    // The composer reads fine without it. Never show placeholder Scripture.
+    dailyVerse = null
   }
+}
+
+function showPresenceIfEmpty(): void {
+  presence?.destroy()
+  presence = null
+  if (dailyVerse && !draftField.value.trim()) presence = new SecondWordPresence(draftField, dailyVerse)
 }
 
 /**
@@ -336,6 +354,8 @@ async function loadProvider(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 fillButton.addEventListener('click', () => {
+  presence?.destroy()
+  presence = null
   closePanel()
   badge?.destroy()
   badge = null
@@ -366,5 +386,5 @@ sendButton.addEventListener('click', () => {
 })
 
 renderScenario(SCENARIOS[0]!)
-void loadEpigraph()
+void loadPresence()
 void loadProvider()

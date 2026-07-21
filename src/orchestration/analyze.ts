@@ -105,23 +105,29 @@ export async function runAnalyze(
   // metadata record is not an excuse to render unlabeled Scripture.
   if (!bible) return { kind: 'unverifiable', attemptedCount }
   const entry = PRINCIPLE_LIBRARY[analysis.principle]
+  const experience = experienceForPrinciple(analysis.principle)
 
-  const draftDigest = await digestDraft(request.draft, deps.signingKey)
-  const analysisToken = await signAnalysisToken(
-    {
-      goal: analysis.goal,
-      principle: analysis.principle,
-      referenceId: passage.referenceId,
-      bibleId,
-      draftDigest,
-      // Only bound when there was one, so the rewrite route stays reachable
-      // for drafts analysed on their own.
-      ...(request.received_message !== undefined
-        ? { contextDigest: await digestDraft(request.received_message, deps.signingKey) }
-        : {}),
-    },
-    deps.signingKey,
-  )
+  // Guide is a blessing, not an edit. Do not mint a rewrite credential the
+  // server will refuse and the UI will never offer.
+  let analysisToken: string | undefined
+  if (experience === 'guard') {
+    const draftDigest = await digestDraft(request.draft, deps.signingKey)
+    analysisToken = await signAnalysisToken(
+      {
+        goal: analysis.goal,
+        principle: analysis.principle,
+        referenceId: passage.referenceId,
+        bibleId,
+        draftDigest,
+        // Only bound when there was one, so the rewrite route stays reachable
+        // for drafts analysed on their own.
+        ...(request.received_message !== undefined
+          ? { contextDigest: await digestDraft(request.received_message, deps.signingKey) }
+          : {}),
+      },
+      deps.signingKey,
+    )
+  }
 
   return {
     kind: 'ok',
@@ -137,10 +143,13 @@ export async function runAnalyze(
       translation: bible.localizedAbbreviation,
       attribution: buildAttribution(bible),
       attribution_url: bible.deepLink,
-      why: analysis.why || entry.explanation,
-      question: analysis.question || entry.question,
-      analysis_token: analysisToken,
-      experience: experienceForPrinciple(analysis.principle),
+      // Provider prose is analysis, not product copy. The person sees only
+      // reviewed language written for this principle; model commentary such
+      // as "the user is..." can never leak into the card.
+      why: entry.explanation,
+      question: entry.question,
+      ...(analysisToken ? { analysis_token: analysisToken } : {}),
+      experience,
       safety_flags: [],
       source: attemptedCount === 1 ? 'model_ranked_reviewed_library' : 'fallback_secondary_candidate',
       provider: deps.model.provider,
