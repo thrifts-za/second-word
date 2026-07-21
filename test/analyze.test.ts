@@ -135,6 +135,21 @@ describe('analyze', () => {
     expect(outcome.kind).toBe('safety')
   })
 
+  it('routes explicit safety language even when the model is unavailable', async () => {
+    const unavailable: ReflectionModel = {
+      provider: 'fake',
+      async analyze(): Promise<GlooAnalysis> { throw new Error('model must not be called') },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('model must not be called') },
+    }
+    const outcome = await runAnalyze(
+      { draft: 'I am writing goodbye because I plan to hurt myself tonight.', surface: 'sandbox' },
+      deps({ model: unavailable, youversion: youVersionStub({ resolves: ['PSA.34.18'] }) }),
+    )
+    if (outcome.kind !== 'safety') throw new Error('expected safety')
+    expect(outcome.body.safety_flags).toEqual(['self_harm'])
+    expect(outcome.body.comfort_reference_id).toBe('PSA.34.18')
+  })
+
   it('rotates to a verified safety passage and carries its attribution', async () => {
     const flagging: ReflectionModel = {
       provider: 'fake',

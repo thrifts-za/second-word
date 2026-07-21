@@ -11,6 +11,7 @@ import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
 import { PRINCIPLE_LIBRARY, isAllowedReference, orderedCandidates, orderedSafetyCandidates } from '../lib/scripture-library'
+import { detectExplicitSafety } from '../lib/safety'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
 export type AnalyzeOutcome =
@@ -55,6 +56,11 @@ export async function runAnalyze(
   const bibleId = request.translation_id ?? deps.defaultBibleId
   const locale = request.locale ?? deps.defaultLocale
 
+  const explicitSafetyFlags = detectExplicitSafety(`${request.draft}\n${request.received_message ?? ''}`)
+  if (explicitSafetyFlags.length > 0) {
+    return safetyOutcome(explicitSafetyFlags, request, deps, bibleId, requestId, startedAt, now)
+  }
+
   const analysis = await deps.model.analyze({
     draft: request.draft,
     locale,
@@ -80,31 +86,7 @@ export async function runAnalyze(
 
   // A heavy moment gets care, not a tone rewrite. Spec section 16.3.
   if (analysis.safety_flags.length > 0) {
-    // The model only identifies danger. This fixed reference is fetched and
-    // attributed through YouVersion like every other passage, never written by
-    // a model. A safety response remains available if the upstream is down.
-    const safetyCandidates = orderedSafetyCandidates(analysis.safety_flags, request.recent_reference_ids)
-    const comfort = await deps.youversion.resolveFirst(bibleId, safetyCandidates).catch(() => null)
-    const comfortBible = comfort ? await deps.youversion.getBible(bibleId).catch(() => null) : null
-    return {
-      kind: 'safety',
-      body: {
-        request_id: requestId,
-        safety_flags: analysis.safety_flags,
-        message: SAFETY_MESSAGE,
-        ...(comfort && comfortBible ? {
-          verse_text: comfort.passage.content,
-          display_reference: comfort.passage.displayReference,
-          translation: comfortBible.localizedAbbreviation,
-          comfort_reference_id: comfort.passage.referenceId,
-          bible_id: bibleId,
-          attribution: buildAttribution(comfortBible),
-          attribution_url: comfortBible.deepLink,
-        } : {}),
-        provider: deps.model.provider,
-        latency_ms: now() - startedAt,
-      },
-    }
+    return safetyOutcome(analysis.safety_flags, request, deps, bibleId, requestId, startedAt, now)
   }
 
   // The model ranks. It never introduces. Anything outside the reviewed
@@ -160,6 +142,39 @@ export async function runAnalyze(
       analysis_token: analysisToken,
       safety_flags: [],
       source: attemptedCount === 1 ? 'model_ranked_reviewed_library' : 'fallback_secondary_candidate',
+      provider: deps.model.provider,
+      latency_ms: now() - startedAt,
+    },
+  }
+}
+
+async function safetyOutcome(
+  flags: SafetyResponse['safety_flags'],
+  request: AnalyzeRequest,
+  deps: AnalyzeDeps,
+  bibleId: string,
+  requestId: string,
+  startedAt: number,
+  now: () => number,
+): Promise<AnalyzeOutcome> {
+  const candidates = orderedSafetyCandidates(flags, request.recent_reference_ids)
+  const comfort = await deps.youversion.resolveFirst(bibleId, candidates).catch(() => null)
+  const bible = comfort ? await deps.youversion.getBible(bibleId).catch(() => null) : null
+  return {
+    kind: 'safety',
+    body: {
+      request_id: requestId,
+      safety_flags: flags,
+      message: SAFETY_MESSAGE,
+      ...(comfort && bible ? {
+        verse_text: comfort.passage.content,
+        display_reference: comfort.passage.displayReference,
+        translation: bible.localizedAbbreviation,
+        comfort_reference_id: comfort.passage.referenceId,
+        bible_id: bibleId,
+        attribution: buildAttribution(bible),
+        attribution_url: bible.deepLink,
+      } : {}),
       provider: deps.model.provider,
       latency_ms: now() - startedAt,
     },
