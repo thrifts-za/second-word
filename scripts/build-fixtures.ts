@@ -58,6 +58,18 @@ interface Fixture {
     translation?: string
     why?: string
     question?: string
+    /** Guard or Guide. Which shape of card the person is offered. */
+    experience?: string
+    /**
+     * Whether the server licensed a rewrite for this draft.
+     *
+     * The one field that makes restraint measurable. Without it a fixture
+     * records that a passage appeared and nothing about what the card
+     * proposed to do, so a gracious reply met with "Show alternatives"
+     * scores exactly the same as one met with a blessing. That is how the
+     * defect reached production with 54 green cases behind it.
+     */
+    offered_rewrite?: boolean
     safety_flags?: string[]
     source?: string
     latency_ms?: number
@@ -126,6 +138,8 @@ for (const testCase of suite.cases) {
           translation: body.translation as string,
           why: body.why as string,
           question: body.question as string,
+          experience: body.experience as string,
+          offered_rewrite: typeof body.analysis_token === 'string',
           safety_flags: (body.safety_flags as string[]) ?? [],
           source: body.source as string,
           latency_ms: elapsed,
