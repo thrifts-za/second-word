@@ -105,15 +105,17 @@ function mountHarness(options: { thread?: string; quoted?: string } = {}): Harne
   return { body, requests: [] }
 }
 
-function stubChrome(ambient: boolean): void {
+function stubChrome(ambient: boolean, initial: Record<string, unknown> = {}): Record<string, unknown> {
+  const stored: Record<string, unknown> = { ambient, apiBase: 'https://stub.invalid', ...initial }
   ;(globalThis as unknown as { chrome: unknown }).chrome = {
     storage: {
       local: {
-        get: async () => ({ ambient, apiBase: 'https://stub.invalid' }),
-        set: async () => {},
+        get: async () => stored,
+        set: async (values: Record<string, unknown>) => Object.assign(stored, values),
       },
     },
   }
+  return stored
 }
 
 function stubFetch(harness: Harness, response: unknown): void {
@@ -326,5 +328,19 @@ describe('ambient path', () => {
     await type(harness, draft)
 
     expect(harness.requests).toHaveLength(1)
+  })
+
+  it('sends only recent reference IDs for rotation and remembers the verified result locally', async () => {
+    const harness = mountHarness()
+    const stored = stubChrome(true, { recentReferenceIds: ['PSA.34.18'] })
+    stubFetch(harness, PASSAGE)
+    await load()
+
+    await type(harness, 'Dave, I sent the handover pack on the 14th and you were on the email. Please check first.')
+
+    expect(harness.requests[0]?.recent_reference_ids).toEqual(['PSA.34.18'])
+    expect(stored.recentReferenceIds).toEqual(['PSA.37.6', 'PSA.34.18'])
+    expect(stored).not.toHaveProperty('draft')
+    expect(stored).not.toHaveProperty('safety_flags')
   })
 })

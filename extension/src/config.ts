@@ -13,6 +13,7 @@ const KEYS = {
   disabledSites: 'disabledSites',
   ambient: 'ambient',
   translationId: 'translationId',
+  recentReferenceIds: 'recentReferenceIds',
 } as const
 
 interface Stored {
@@ -33,6 +34,7 @@ interface Stored {
   [KEYS.ambient]?: boolean
   /** A YouVersion version ID selected from the Worker-provided entitlement list. */
   [KEYS.translationId]?: string
+  [KEYS.recentReferenceIds]?: string[]
 }
 
 /** chrome.storage is absent in tests and in the sandbox build. */
@@ -43,7 +45,7 @@ function storage(): chrome.storage.LocalStorageArea | null {
 async function read(): Promise<Stored> {
   const area = storage()
   if (!area) return {}
-  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.translationId])) as Stored
+  return (await area.get([KEYS.apiBase, KEYS.globalOff, KEYS.disabledSites, KEYS.ambient, KEYS.translationId, KEYS.recentReferenceIds])) as Stored
 }
 
 export async function apiBase(): Promise<string> {
@@ -85,6 +87,13 @@ export async function setTranslationId(value: string): Promise<void> {
   await storage()?.set({ [KEYS.translationId]: value })
 }
 
+export async function rememberReference(referenceId: string): Promise<void> {
+  const area = storage()
+  if (!area) return
+  const recent = (await read())[KEYS.recentReferenceIds] ?? []
+  await area.set({ [KEYS.recentReferenceIds]: [referenceId, ...recent.filter((id) => id !== referenceId)].slice(0, 5) })
+}
+
 export async function settings(): Promise<Required<Stored>> {
   const stored = await read()
   return {
@@ -93,5 +102,6 @@ export async function settings(): Promise<Required<Stored>> {
     disabledSites: stored[KEYS.disabledSites] ?? [],
     ambient: stored[KEYS.ambient] ?? false,
     translationId: stored[KEYS.translationId] ?? '',
+    recentReferenceIds: stored[KEYS.recentReferenceIds] ?? [],
   }
 }

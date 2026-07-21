@@ -32,7 +32,7 @@ import { SecondWordBadge } from './badge'
 import { SecondWordOverlay } from './overlay'
 import { markMoments, type MomentMarker } from './moment-marker'
 import { createScheduler } from './scheduler'
-import { apiBase, isAmbient, isEnabledFor, settings } from './config'
+import { apiBase, isAmbient, isEnabledFor, rememberReference, settings } from './config'
 
 /**
  * Gmail is the generic adapter plus the one thing only Gmail can do. D14.
@@ -339,7 +339,8 @@ async function analyze(
   options: AnalyzeOptions & { received?: string },
 ): Promise<AnalyzeResponse | SafetyResponse> {
   const base = await apiBase()
-  const translationId = (await settings()).translationId
+  const currentSettings = await settings()
+  const translationId = currentSettings.translationId
   const response = await fetch(`${base}/v1/analyze`, {
     method: 'POST',
     signal: AbortSignal.timeout(ANALYZE_TIMEOUT_MS),
@@ -351,10 +352,14 @@ async function analyze(
       ...(options.context ? { context: options.context } : {}),
       ...(options.received ? { received_message: options.received } : {}),
       ...(translationId ? { translation_id: translationId } : {}),
+      ...(currentSettings.recentReferenceIds.length > 0 ? { recent_reference_ids: currentSettings.recentReferenceIds } : {}),
     }),
   })
   if (!response.ok) throw new Error(`analyze failed: ${response.status}`)
-  return (await response.json()) as AnalyzeResponse | SafetyResponse
+  const result = (await response.json()) as AnalyzeResponse | SafetyResponse
+  const referenceId = 'verified_reference_id' in result ? result.verified_reference_id : result.comfort_reference_id
+  if (referenceId) await rememberReference(referenceId)
+  return result
 }
 
 async function rewrite(
