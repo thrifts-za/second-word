@@ -18,7 +18,8 @@ without contempt, and gratitude in moments of victory.
 | Requirement | Status | Evidence |
 | --- | --- | --- |
 | Scripture comes from YouVersion, not a model | Green | `YouVersionClient` is the only text source; strict `GlooAnalysisSchema` rejects `verse_text`; `test/contracts.test.ts`. |
-| Passage and publisher attribution are verified | Green | `runAnalyze` and `/v1/epigraph` fail closed when Bible metadata is unavailable; `test/analyze.test.ts`; deployed `npm run preflight`. |
+| Passage and publisher attribution are verified | Green | `runAnalyze` and `/v1/verse-of-the-day` fail closed when Bible metadata is unavailable; `test/analyze.test.ts`, `test/votd-route.test.ts`; deployed `npm run preflight`. |
+| YouVersion Verse of the Day Presence | Green, automated | `/v1/verse-of-the-day` resolves YouVersion's daily selection through the configured translation and full attribution. Presence is opt-in in the extension, draft-blind, outside the editor DOM, and disappears on first input; `test/youversion.test.ts`, `test/votd-route.test.ts`, `test/presence.test.ts`, and `test/content-ambient.test.ts`. |
 | Translation setting is licence-safe | Green | `/v1/bibles` serves only the app's YouVersion entitlement; when collection discovery is unavailable it exposes the independently verified configured version rather than inventing choices. Live endpoint returns NIV (111). |
 | Draft/rewrite integrity | Green | Signed analysis token binds the draft and optional received message; tampered rewrite is rejected by `npm run preflight`. |
 | Request/privacy boundary | Green | No request-body logging; schema is strict; real byte limit rejects streamed requests without `content-length`; `test/request-boundary.test.ts`. |
@@ -28,6 +29,8 @@ without contempt, and gratitude in moments of victory.
 | Safety Scripture is contextual and non-repeating | Green, automated | Four existing safety flags map to curated multi-reference sets; a narrow explicit-language guard survives model refusal; recent reference IDs stay in local extension storage; YouVersion verifies text and attribution; failure renders no substitute Scripture; `test/safety.test.ts`, `test/contracts.test.ts`, `test/analyze.test.ts`, and `test/content-ambient.test.ts`. This is a competition reflection demo, not an emergency service. |
 | Sandbox and deployed Worker | Green | `npm run verify:all`, then `npm run preflight` against `https://second-word.nkosithrifts.workers.dev`; the live preflight is the authoritative deployment proof. |
 | Impact is broader than correction | Green | Deployed preflight verifies angry, grateful/victorious, and disappointed drafts each receive verified Scripture before its signed rewrite/tamper checks. |
+| User-facing language is reviewed | Green | Provider-generated `why` and `question` fields are never rendered. The selected principle's reviewed explanation and question are used instead; `test/analyze.test.ts`. |
+| Guide cannot become correction | Green | Guide receives no analysis token, the UI has no alternatives action, and the rewrite route still rejects stale signed Guide tokens; `test/analyze.test.ts` and deployed preflight. |
 | Gloo adapter protocol | Green, mocked | `test/gloo.test.ts` verifies OAuth client credentials, token caching, documented `/ai/v2/chat/completions`, and a required `select_reviewed_scripture` tool call with strict structured arguments. |
 
 ## Competition gates still open
@@ -50,7 +53,7 @@ REQUIRE_GLOO=1 npm run preflight  # only after real Gloo configuration
 
 ## Filmable proof sequence
 
-1. Open a real Gmail reply with automatic noticing off; the draft stays local.
+1. Open an empty composer with Presence enabled. Show the verified Verse of the Day, then type one character and show it disappearing without an analysis request.
 2. Write a consequential sentence. Living Margin marks the exact local phrase,
    then the invitation appears without opening a card or blocking Send.
 3. Open the card: show the verified reference, full attribution, relational

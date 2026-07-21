@@ -17,8 +17,10 @@ The problem is common and relational, not merely grammatical: a YouGov omnibus
 survey found that 57% of U.S. social-media users had posted or texted something
 they later regretted. [Source](IMPACT-EVIDENCE.md)
 
-Second Word is a Chrome extension and public sandbox. When a person explicitly
-enables automatic noticing, it waits until typing settles. A local gate keeps
+Second Word is a Chrome extension and public sandbox. Optional Presence places
+YouVersion's real Verse of the Day over an empty composer, then leaves at the
+first keystroke without reading the draft. Automatic noticing waits until
+typing settles, while a local gate keeps
 ordinary logistics in the browser. For a consequential draft, **Living Margin**
 softly marks the exact local phrase that prompted a pause—without changing the
 editor or sending text merely to draw the mark. The person chooses whether to
@@ -41,10 +43,9 @@ publisher attribution, or fails closed. A signed token binds any optional
 rewrite to the exact analysed draft and incoming context, so a stale or altered
 message cannot receive a suggestion intended for something else.
 
-The technical posture is intentionally restrained: no draft persistence or body
-logging, strict request schemas, an 8 KiB request boundary, separately fenced
-third-party reply context, shadow-DOM overlays that do not alter host editors,
-and a built extension artifact gate. The public evaluation covers 54 cases:
+The technical posture is restrained: no draft persistence or body logging,
+strict schemas, an 8 KiB boundary, fenced reply context, shadow-DOM overlays,
+and a built-artifact gate. The public evaluation covers 54 cases:
 15/15 weighty drafts met; 0/8 ordinary task messages received a passage; 0
 outside-library references rendered; and injected instructions were held.
 

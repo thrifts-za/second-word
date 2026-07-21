@@ -6,8 +6,9 @@ of it.
 
 ## 0:00–0:18 — the human problem
 
-**Visual:** Gmail-style reply. Dave has copied the team and wrongly says the
-handover was never sent. The cursor sits in a heated response.
+**Visual:** An empty composer carries YouVersion's Verse of the Day. Type the
+first character; it disappears. Cut to Dave wrongly blaming the writer for a
+missed handover.
 
 **Voice:** “Other writing tools ask whether your sentence is correct. Second
 Word asks what kind of human moment this is. Most words we regret are written
@@ -25,13 +26,12 @@ voice. It notices one live moment, locally, and asks permission to enter it.”
 ## 0:42–1:12 — the Word meets the actual situation
 
 **Visual:** Open the card. Show the verified YouVersion reference, the passage,
-translation, copyright, why line, and question. Keep the original draft visible
+translation, copyright, reviewed why line, and question. Keep the original draft visible
 behind the card.
 
-**Voice:** “It reads the difference between a draft and the message that
-provoked it. Gloo identifies the human moment; YouVersion supplies the words.
-The model never invents Scripture. If the passage or its attribution cannot be
-verified, nothing appears.”
+**Voice:** “Gloo identifies the human moment; YouVersion supplies the words.
+The model never invents Scripture, and its internal commentary never reaches
+this card. Every sentence shown to the person is reviewed.”
 
 ## 1:12–1:32 — agency, not automation
 
@@ -54,7 +54,7 @@ only a word for this good moment.”
 
 ## 2:00–2:30 — proof
 
-**Visual:** `npm run preflight`; Worker health; a verified reference; rewrite
+**Visual:** `npm run preflight`; Worker health; today's verified daily reference; rewrite
 tamper rejection; extension package gate; brief test summary. After live Gloo
 credentials are configured, show `REQUIRE_GLOO=1 npm run preflight` passing.
 

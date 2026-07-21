@@ -11,7 +11,8 @@ Nobody carries a Bible to work, and nobody stops mid-email to search for a verse
 most of the working week happens in a text box: Slack, Teams, WhatsApp, email, a prompt
 box at one in the morning. Second Word puts Scripture there.
 
-Once a person explicitly enables automatic noticing, it watches for the moments that
+With optional Presence, YouVersion's Verse of the Day rests over an empty composer and
+leaves with the first keystroke without reading the draft. Once a person explicitly enables automatic noticing, it watches for the moments that
 will still matter in a year and stays quiet the rest of the time. Until then it only
 reads a draft they choose to reflect on. It never posts, never blocks Send, never edits
 without a click, and never writes into the box they are typing in.
@@ -24,7 +25,11 @@ challenge, on the YouVersion Platform API and Gloo AI Studio. MIT licensed.
 - **Sandbox**, no install and no login: https://second-word.pages.dev
 - **Worker**: https://second-word.nkosithrifts.workers.dev - `/health`, `/health/upstream`
 
-## Three ideas hold this together
+## Four ideas hold this together
+
+**The Word can be present before there is a problem.** Presence uses YouVersion's real
+daily selection, the chosen translation, and full publisher attribution. It is off by
+default, makes no analysis request, reads no draft, and disappears as soon as writing begins.
 
 **It should not have to wait to be asked—but that is the person's choice.** The moment
 you most need a pause is the moment you are least willing to reach for one, and nobody
@@ -40,7 +45,7 @@ boundary and a loss the moment it could see what provoked them. Nothing in those
 changed.
 
 **The model never writes Scripture, and structurally cannot.** Its schema has no field
-that could carry a verse. It selects one principle from a reviewed library of seventeen
+that could carry a verse. It selects one principle from a reviewed library of eighteen
 and ranks references from that principle's own list; anything outside is dropped before
 any fetch happens. The words come from YouVersion, or nothing is shown.
 
@@ -92,7 +97,13 @@ These are not stylistic. They are the product.
    passages rotate without storing a draft or safety label. Safety moments never offer a rewrite.
 10. **Guide is not correction in a warmer colour.** Gratitude, good news, and freely
     offered support receive a distinct gold invitation and verified Scripture, with no
-    alternatives action. Neutral logistics receive nothing.
+    alternatives action or rewrite credential. Neutral logistics receive nothing.
+11. **Provider analysis is not product copy.** The model classifies the moment and ranks
+    references, but the explanation and question a person sees come only from the reviewed
+    principle library. Internal commentary such as "the user is..." never renders.
+12. **Presence is opt-in and draft-blind.** It fetches YouVersion's daily reference once per
+    local day and translation, displays full attribution outside the editor DOM, and is
+    destroyed on the first input.
 
 ## Layout
 
@@ -112,6 +123,7 @@ extension/                 Chrome MV3, nine surfaces
   src/adapters/              generic, plus Gmail which can read a thread
   src/badge.ts               the mark in the corner
   src/overlay.ts             positions the card without resizing the host page
+  src/presence.ts            Verse of the Day over an empty composer
   src/scheduler.ts           single flight, cache, stale answers dropped
 
 sandbox/                   the public demo, same gate and same backend
@@ -123,7 +135,7 @@ docs/RESEARCH-PRIOR-ART.md why it is built this way, with sources
 
 ```bash
 npm install
-npm test              # 181 tests, no credentials needed
+npm test              # 191 tests, no credentials needed
 npm run typecheck     # worker and browser configs
 npm run build         # sandbox bundle and extension/dist
 npm run verify:refs   # fetches every reviewed reference from YouVersion
@@ -138,7 +150,7 @@ npx wrangler dev
 
 **The extension.** `npm run build`, then load `extension/dist` unpacked at
 `chrome://extensions` with Developer mode on. It stays quiet until you turn on "Notice on
-its own" in the options page. See rule 4.
+its own" in the options page. Verse of the Day Presence is a separate opt-in. See rules 4 and 12.
 
 **The harness.** `extension/dev/harness.html` reproduces Gmail's compose DOM with a
 stubbed backend, so the whole client path can be exercised without a Google account. It
