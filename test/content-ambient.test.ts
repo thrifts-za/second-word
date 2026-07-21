@@ -29,8 +29,20 @@ const PASSAGE = {
   analysis_token: 'test.token',
   safety_flags: [],
   source: 'model_ranked_reviewed_library',
+  experience: 'guard',
   provider: 'fake',
   latency_ms: 5,
+}
+
+const GUIDE_PASSAGE = {
+  ...PASSAGE,
+  principle: 'offer_support',
+  verified_reference_id: 'GAL.5.13',
+  display_reference: 'Galatians 5:13',
+  verse_text: 'Serve one another humbly in love.',
+  why: 'You are freely choosing to carry something for someone.',
+  question: 'What makes this help an act of love rather than obligation?',
+  experience: 'guide',
 }
 
 const SILENCE = {
@@ -241,6 +253,26 @@ describe('ambient path', () => {
 
     expect(badges()).toBe(1)
     expect(document.querySelector('[data-second-word-panel]')).toBeNull()
+  })
+
+  it('renders a positive moment as gold Guide with no rewrite action', async () => {
+    const harness = mountHarness({ thread: 'My son is unwell. Could anyone carry Thursday for me?' })
+    stubChrome(true)
+    stubFetch(harness, GUIDE_PASSAGE)
+    await load()
+
+    await type(harness, 'Be with your family, Priya. I can carry Thursday for you.')
+
+    const badge = document.querySelector<HTMLElement>('second-word-badge')!
+    expect(badge.shadowRoot!.querySelector('.badge')?.classList.contains('guide')).toBe(true)
+    expect(badge.shadowRoot!.textContent).toContain('A word for this good moment')
+    badge.shadowRoot!.querySelector<HTMLElement>('.badge')!.click()
+
+    const panelText = document.querySelector<HTMLElement>('second-word-overlay')!
+      .querySelector<HTMLElement>('[data-second-word]')!
+      .shadowRoot!.textContent
+    expect(panelText).toContain('A word for this good moment')
+    expect(panelText).not.toContain('Show alternatives')
   })
 
   it('marks an exact local phrase without changing the draft, then clears it on the next edit', async () => {

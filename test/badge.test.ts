@@ -190,6 +190,19 @@ describe('badge: interaction', () => {
     expect(badge.element.textContent).toContain('A word for this')
     badge.destroy()
   })
+
+  it('gives Guide a distinct gold invitation', () => {
+    const badge = new SecondWordBadge({
+      field,
+      label: '✦',
+      title: 'A word for this good moment',
+      tone: 'guide',
+      onOpen: () => {},
+    })
+    expect(badge.element.classList.contains('guide')).toBe(true)
+    expect(badge.element.textContent).toContain('A word for this good moment')
+    badge.destroy()
+  })
 })
 
 describe('badge: staying out of the way', () => {

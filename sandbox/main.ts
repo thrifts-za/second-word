@@ -217,11 +217,13 @@ async function evaluateDraft(): Promise<void> {
 function showBadge(result: AnalyzeResponse | SafetyResponse): void {
   offer = result
   const safety = !('verified_reference_id' in result)
+  const guide = !safety && result.experience === 'guide'
   badge?.destroy()
   badge = new SecondWordBadge({
     field: draftField,
-    label: '\u201C',
-    title: safety ? 'Take a moment' : 'Something here may be worth a second look',
+    label: guide ? '\u2726' : '\u201C',
+    tone: guide ? 'guide' : 'guard',
+    title: safety ? 'Take a moment' : guide ? 'A word for this good moment' : 'Something here may be worth a second look',
     onOpen: () => {
       badge?.destroy()
       badge = null

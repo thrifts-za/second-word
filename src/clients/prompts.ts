@@ -59,9 +59,10 @@ person: contempt, a rejection, a false accusation, an apology, grief, a
 boundary, a hard truth, real thanks.
 
 Something at stake is not always something wrong. Good news landing, an answer
-to a long wait, real gladness, relief, a congratulation meant sincerely: these
-are moments too, and they are the ones people are most likely to let pass
-without a word. Do not reserve this only for trouble.
+to a long wait, real gladness, sincere gratitude, encouragement, or freely
+choosing to carry something for another person: these are moments too. Do not
+reserve this only for trouble. Distinguish meaningful support from routine task
+acceptance; ordinary scheduling and acknowledgements should remain silent.
 
 When it is true, choose ONE principle from this reviewed library, and rank
 candidate references from that principle's list only. You may not invent a

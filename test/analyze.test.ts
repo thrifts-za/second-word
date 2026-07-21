@@ -65,6 +65,7 @@ describe('analyze', () => {
     expect(outcome.body.why.length).toBeGreaterThan(0)
     expect(outcome.body.question.length).toBeGreaterThan(0)
     expect(outcome.body.analysis_token).toContain('.')
+    expect(outcome.body.experience).toBe('guard')
   })
 
   it('carries translation and attribution, which the passage endpoint omits', async () => {
@@ -192,6 +193,37 @@ describe('analyze', () => {
     if (outcome.kind !== 'safety') throw new Error('expected safety')
     expect(outcome.body.verse_text).toBeUndefined()
     expect(outcome.body.message).toContain('you are not alone')
+  })
+
+  it('marks freely offered support as Guide and refuses to rewrite it', async () => {
+    const guiding: ReflectionModel = {
+      provider: 'fake',
+      async analyze() {
+        return GlooAnalysisSchema.parse({
+          needs_reflection: true,
+          goal: 'offer support freely',
+          principle: 'offer_support',
+          candidate_reference_ids: ['GAL.5.13'],
+          why: 'freely carrying something for another person',
+          question: 'what makes this help an act of love',
+          safety_flags: [],
+        })
+      },
+      async rewrite(): Promise<GlooRewrites> { throw new Error('Guide must not rewrite') },
+    }
+    const guideRequest = { draft: 'Be with your family, Priya. I can carry Thursday for you.', surface: 'sandbox' as const }
+    const analyzed = await runAnalyze(
+      guideRequest,
+      deps({ model: guiding, youversion: youVersionStub({ resolves: ['GAL.5.13'] }) }),
+    )
+    if (analyzed.kind !== 'ok') throw new Error('expected ok')
+    expect(analyzed.body.experience).toBe('guide')
+
+    const rewritten = await runRewrite(
+      { draft: guideRequest.draft, analysis_token: analyzed.body.analysis_token, modes: ['clearer'] },
+      { model: guiding, signingKey: SIGNING_KEY, defaultLocale: 'en' },
+    )
+    expect(rewritten).toEqual({ kind: 'rejected', reason: 'guide_does_not_rewrite' })
   })
 })
 

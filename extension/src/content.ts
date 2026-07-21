@@ -250,14 +250,18 @@ function showBadge(attachment: Attachment, result: AnalyzeResponse | SafetyRespo
   attachment.offer = { result, evidence }
 
   const safety = !('verified_reference_id' in result)
+  const guide = !safety && result.experience === 'guide'
   attachment.badge = new SecondWordBadge({
     field: attachment.composer,
-    label: '\u201C',
+    label: guide ? '\u2726' : '\u201C',
+    tone: guide ? 'guide' : 'guard',
     // D10. Explainability was a modelling constraint for Grammarly, not a
     // nicety: a suggestion with no visible reason is confusing. Something that
     // arrived uninvited owes an answer to "why are you here".
     title: safety
       ? 'Take a moment'
+      : guide
+        ? 'A word for this good moment'
       : evidence.length > 0
         ? `Noticed: ${evidence.join(', ')}`
         : 'Something here may be worth a second look',

@@ -51,6 +51,8 @@ export interface BadgeOptions {
   onOpen: () => void
   /** A breathing dot while the model reads, so the box shows life. Not clickable. */
   thinking?: boolean
+  /** Guide is a blessing/affirmation, visually distinct from Guard. */
+  tone?: 'guide' | 'guard'
 }
 
 /**
@@ -116,6 +118,11 @@ const SHADOW_STYLE = `
     outline: 2px solid #c4705a;
     outline-offset: 2px;
   }
+  .badge.guide {
+    background: #9a6a17;
+    box-shadow: 0 1px 4px rgba(73, 45, 8, 0.25);
+  }
+  .badge.guide:focus-visible { outline-color: #9a6a17; }
   .badge .mark {
     font: 600 19px/.8 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
     transform: translateY(-1px);
@@ -182,7 +189,7 @@ export class SecondWordBadge {
       pulse.className = 'pulse'
       this.element.append(pulse)
     } else {
-      this.element.className = 'badge'
+      this.element.className = `badge ${options.tone === 'guide' ? 'guide' : 'guard'}`
       this.element.setAttribute('role', 'button')
       this.element.setAttribute('tabindex', '0')
       const mark = document.createElement('span')
@@ -190,7 +197,7 @@ export class SecondWordBadge {
       mark.textContent = options.label
       const copy = document.createElement('span')
       copy.className = 'copy'
-      copy.textContent = 'A word for this'
+      copy.textContent = options.tone === 'guide' ? 'A word for this good moment' : 'A word for this'
       this.element.append(mark, copy)
       this.element.setAttribute('aria-label', `Second Word: ${options.title}`)
       // Clicking must not pull the caret out of the message being written.

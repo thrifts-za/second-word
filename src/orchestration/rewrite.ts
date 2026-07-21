@@ -8,12 +8,12 @@
 
 import type { ReflectionModel } from '../clients/model'
 import type { RewriteRequest, RewriteResponse, RewriteMode } from '../lib/contracts'
-import { isAllowedReference } from '../lib/scripture-library'
+import { GUIDE_PRINCIPLES, isAllowedReference } from '../lib/scripture-library'
 import { verifyAnalysisToken, type TokenFailure } from '../security/token'
 
 export type RewriteOutcome =
   | { kind: 'ok'; body: RewriteResponse }
-  | { kind: 'rejected'; reason: TokenFailure | 'reference_not_allowed' }
+  | { kind: 'rejected'; reason: TokenFailure | 'reference_not_allowed' | 'guide_does_not_rewrite' }
 
 export interface RewriteDeps {
   model: ReflectionModel
@@ -43,6 +43,10 @@ export async function runRewrite(
   // library can change between deploys and a stale token must not slip through.
   if (!isAllowedReference(referenceId)) {
     return { kind: 'rejected', reason: 'reference_not_allowed' }
+  }
+
+  if (GUIDE_PRINCIPLES.has(principle)) {
+    return { kind: 'rejected', reason: 'guide_does_not_rewrite' }
   }
 
   const rewrites = await deps.model.rewrite({

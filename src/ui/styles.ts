@@ -357,6 +357,17 @@ export const PANEL_STYLES = `
 
 .status--working { color: var(--paper-faint); }
 
+.guide__kicker {
+  margin: 0 0 10px;
+  color: #9a6a17;
+  font: 600 10.5px/1.3 var(--ui);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.panel__body[data-experience="guide"] .eyebrow,
+.panel__body[data-experience="guide"] .passage__marker { color: #9a6a17; }
+
 .footnote {
   margin: 14px 0 0;
   padding-top: 12px;

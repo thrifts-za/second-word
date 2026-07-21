@@ -161,6 +161,15 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
     question: 'Who is this good news actually from?',
     moment: 'Something good has happened',
   },
+  offer_support: {
+    principle: 'offer_support',
+    candidates: ['GAL.5.13', '1PE.4.10', 'PHP.2.4'],
+    constraint:
+      'Preserve the freely offered help. Do not inflate it into self-sacrifice, obligation, or a promise broader than the person made.',
+    explanation: 'You are choosing to carry something for someone, freely and with care.',
+    question: 'What makes this help an act of love rather than obligation?',
+    moment: 'I am freely choosing to help or carry something for someone',
+  },
 
   // --- when you are speaking near someone else's pain or name ---------------
 
@@ -293,6 +302,16 @@ export function orderedCandidates(principle: Principle, modelRanked: string[]): 
   return [...ranked, ...rest]
 }
 
+export const GUIDE_PRINCIPLES: ReadonlySet<Principle> = new Set([
+  'give_thanks',
+  'receive_good_news',
+  'offer_support',
+])
+
+export function experienceForPrinciple(principle: Principle): 'guide' | 'guard' {
+  return GUIDE_PRINCIPLES.has(principle) ? 'guide' : 'guard'
+}
+
 /**
  * The moments a person can choose from when they invite Second Word rather
  * than waiting to be offered it. Ordered by how often correspondence actually
@@ -309,5 +328,6 @@ export const SELECTABLE_MOMENTS: Principle[] = [
   'speak_with_courage',
   'give_thanks',
   'receive_good_news',
+  'offer_support',
   'guard_anothers_name',
 ]

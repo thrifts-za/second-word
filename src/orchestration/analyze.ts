@@ -10,7 +10,7 @@
 import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
-import { PRINCIPLE_LIBRARY, isAllowedReference, orderedCandidates, orderedSafetyCandidates } from '../lib/scripture-library'
+import { PRINCIPLE_LIBRARY, experienceForPrinciple, isAllowedReference, orderedCandidates, orderedSafetyCandidates } from '../lib/scripture-library'
 import { detectExplicitSafety } from '../lib/safety'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
@@ -140,6 +140,7 @@ export async function runAnalyze(
       why: analysis.why || entry.explanation,
       question: analysis.question || entry.question,
       analysis_token: analysisToken,
+      experience: experienceForPrinciple(analysis.principle),
       safety_flags: [],
       source: attemptedCount === 1 ? 'model_ranked_reviewed_library' : 'fallback_secondary_candidate',
       provider: deps.model.provider,

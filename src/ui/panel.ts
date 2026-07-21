@@ -209,6 +209,10 @@ export class SecondWordPanel {
 
   private renderPassage(result: AnalyzeResponse): void {
     const body = this.panel()
+    body.dataset.experience = result.experience
+    if (result.experience === 'guide') {
+      body.append(el('p', 'guide__kicker', 'A word for this good moment'))
+    }
 
     const eyebrow = el('div', 'eyebrow')
     eyebrow.append(text(result.display_reference))
@@ -228,15 +232,20 @@ export class SecondWordPanel {
     body.append(el('hr', 'rule'), el('p', 'question', result.question))
 
     const actions = el('div', 'actions')
-    const alternatives = button('Show alternatives', 'action action--primary')
     const keepEditing = button('Keep editing', 'action')
     const keepOriginal = button('Keep original', 'action')
 
-    alternatives.addEventListener('click', () => void this.runRewrites(alternatives))
     keepEditing.addEventListener('click', () => this.callbacks.onClose())
     keepOriginal.addEventListener('click', () => this.callbacks.onClose())
 
-    actions.append(alternatives, keepEditing, keepOriginal)
+    if (result.experience === 'guide') {
+      keepOriginal.textContent = 'Return to my message'
+      actions.append(keepOriginal)
+    } else {
+      const alternatives = button('Show alternatives', 'action action--primary')
+      alternatives.addEventListener('click', () => void this.runRewrites(alternatives))
+      actions.append(alternatives, keepEditing, keepOriginal)
+    }
     body.append(actions, this.attribution(result))
   }
 

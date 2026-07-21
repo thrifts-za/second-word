@@ -26,6 +26,7 @@ export const PRINCIPLES = [
   'give_thanks',
   // when something good has happened
   'receive_good_news',
+  'offer_support',
   // when you are speaking near someone else's pain or name
   'comfort_the_grieving',
   'guard_anothers_name',
@@ -192,6 +193,8 @@ export interface AnalyzeResponse {
   why: string
   question: string
   analysis_token: string
+  /** Guide affirms an existing good moment; Guard supports a consequential one. */
+  experience: 'guide' | 'guard'
   safety_flags: SafetyFlag[]
   source: 'model_ranked_reviewed_library' | 'fallback_secondary_candidate'
   /** Which model actually read the draft. Always stated, never inferred. */
