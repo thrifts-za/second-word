@@ -218,10 +218,27 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
  */
 export const EPIGRAPH_REFERENCE = 'PRO.16.2'
 
-/** Every reference the system is permitted to display. */
-export const ALLOWED_REFERENCE_IDS: ReadonlySet<string> = new Set(
-  Object.values(PRINCIPLE_LIBRARY).flatMap((entry) => entry.candidates),
-)
+/**
+ * The one fixed passage shown on a safety moment: self-harm, abuse, a threat,
+ * a crisis. Psalm 34:18, "the LORD is close to the brokenhearted."
+ *
+ * Never chosen by the model. It is here, in the reviewed set, so it is audited
+ * like every other reference and `verify:refs` confirms it still resolves. A
+ * comfort verse shown to someone in their hardest moment must not be the one
+ * reference nobody checks.
+ */
+export const SAFETY_REFERENCE = 'PSA.34.18'
+
+/**
+ * Every reference the system is permitted to display: the principle
+ * candidates, the epigraph, and the safety passage. `verify:refs` fetches
+ * each one so none can silently stop resolving.
+ */
+export const ALLOWED_REFERENCE_IDS: ReadonlySet<string> = new Set([
+  ...Object.values(PRINCIPLE_LIBRARY).flatMap((entry) => entry.candidates),
+  EPIGRAPH_REFERENCE,
+  SAFETY_REFERENCE,
+])
 
 export function isAllowedReference(referenceId: string): boolean {
   return ALLOWED_REFERENCE_IDS.has(referenceId)

@@ -10,7 +10,7 @@
 import type { ReflectionModel } from '../clients/model'
 import type { YouVersionClient } from '../clients/youversion'
 import type { AnalyzeRequest, AnalyzeResponse, NoMomentResponse, SafetyResponse } from '../lib/contracts'
-import { PRINCIPLE_LIBRARY, isAllowedReference, orderedCandidates } from '../lib/scripture-library'
+import { PRINCIPLE_LIBRARY, SAFETY_REFERENCE, isAllowedReference, orderedCandidates } from '../lib/scripture-library'
 import { digestDraft, signAnalysisToken } from '../security/token'
 
 export type AnalyzeOutcome =
@@ -82,7 +82,7 @@ export async function runAnalyze(
     // The model only identifies danger. This fixed reference is fetched and
     // attributed through YouVersion like every other passage, never written by
     // a model. A safety response remains available if the upstream is down.
-    const comfort = await deps.youversion.resolveFirst(bibleId, ['PSA.34.18']).catch(() => null)
+    const comfort = await deps.youversion.resolveFirst(bibleId, [SAFETY_REFERENCE]).catch(() => null)
     const comfortBible = comfort ? await deps.youversion.getBible(bibleId).catch(() => null) : null
     return {
       kind: 'safety',
