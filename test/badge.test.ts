@@ -1,7 +1,18 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { BADGE_PROMPT_WIDTH, BADGE_SIZE, SecondWordBadge } from '../extension/src/badge'
+import {
+  BADGE_COMPACT_SIZE,
+  BADGE_PROMPT_WIDTH,
+  BADGE_SIZE,
+  SecondWordBadge,
+} from '../extension/src/badge'
+
+/** jsdom reports no layout, so a full composer has to be declared. */
+function fill(element: HTMLElement, content: number, box: number): void {
+  Object.defineProperty(element, 'scrollHeight', { value: content, configurable: true })
+  Object.defineProperty(element, 'clientHeight', { value: box, configurable: true })
+}
 
 let field: HTMLTextAreaElement
 let measured = 0
@@ -42,6 +53,44 @@ afterEach(() => {
 function mount(): SecondWordBadge {
   return new SecondWordBadge({ field, label: '1', title: 'noticed something', onOpen: () => {} })
 }
+
+describe('badge: yielding to the writing', () => {
+  it('collapses to a dot once the text reaches its corner', () => {
+    const badge = mount()
+    expect(badge.element.classList.contains('compact')).toBe(false)
+
+    fill(field, 120, 100)
+    badge.reposition()
+
+    expect(badge.element.classList.contains('compact')).toBe(true)
+    // The dot keeps the pill's corner instead of dropping to the field's edge.
+    const offset = (BADGE_SIZE - BADGE_COMPACT_SIZE) / 2
+    expect(badge.element.style.top).toBe(`${300 - BADGE_SIZE + offset}px`)
+    badge.destroy()
+  })
+
+  it('shows its words again when reached for', () => {
+    const badge = mount()
+    fill(field, 120, 100)
+    badge.reposition()
+    expect(badge.element.classList.contains('compact')).toBe(true)
+
+    badge.element.dispatchEvent(new MouseEvent('mouseenter'))
+    expect(badge.element.classList.contains('compact')).toBe(false)
+
+    badge.element.dispatchEvent(new MouseEvent('mouseleave'))
+    expect(badge.element.classList.contains('compact')).toBe(true)
+    badge.destroy()
+  })
+
+  it('stays a pill while there is still room to write', () => {
+    const badge = mount()
+    fill(field, 40, 100)
+    badge.reposition()
+    expect(badge.element.classList.contains('compact')).toBe(false)
+    badge.destroy()
+  })
+})
 
 describe('badge: where it lives', () => {
   it('mounts outside the field it is watching', () => {

@@ -18,6 +18,15 @@
 
 /** Diameter, and the inset used to place it inside the field's corner. */
 export const BADGE_SIZE = 34
+
+/**
+ * The collapsed mark, for a composer whose text has reached the corner.
+ *
+ * Grammarly's own answer to this collision, and the right one: the labelled
+ * control becomes a dot the moment the words arrive, rather than sitting on
+ * top of them. Ours belongs inside the box, so it has to yield inside the box.
+ */
+export const BADGE_COMPACT_SIZE = 14
 /** Conservative width used before a host browser has laid the prompt out. */
 export const BADGE_PROMPT_WIDTH = 132
 
@@ -132,6 +141,22 @@ const SHADOW_STYLE = `
     letter-spacing: 0.01em;
   }
 
+  /*
+   * Collapsed. The words come back on hover and on keyboard focus, so the
+   * explanation is never lost, only moved behind an intent to read it.
+   */
+  .badge.compact {
+    min-width: ${BADGE_COMPACT_SIZE}px;
+    width: ${BADGE_COMPACT_SIZE}px;
+    height: ${BADGE_COMPACT_SIZE}px;
+    padding: 0;
+    gap: 0;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(38, 22, 16, 0.30);
+  }
+  .badge.compact .mark,
+  .badge.compact .copy { display: none; }
+
   /* Thinking: a quiet breathing dot while the model reads. Shows life. */
   .badge.thinking {
     width: ${BADGE_SIZE}px;
@@ -162,6 +187,8 @@ export class SecondWordBadge {
   private readonly reconcile: ReturnType<typeof setInterval>
   private framePending = false
   private destroyed = false
+  /** Hovered or focused: the person is reaching for it, so it shows its words. */
+  private attended = false
 
   constructor(options: BadgeOptions) {
     this.field = options.field
@@ -203,6 +230,16 @@ export class SecondWordBadge {
       // Clicking must not pull the caret out of the message being written.
       this.element.addEventListener('mousedown', (event) => event.preventDefault())
       this.element.addEventListener('click', () => options.onOpen())
+
+      // Reaching for it is the intent to read it, so the words come back.
+      const attend = (on: boolean) => (): void => {
+        this.attended = on
+        this.reposition()
+      }
+      this.element.addEventListener('mouseenter', attend(true))
+      this.element.addEventListener('mouseleave', attend(false))
+      this.element.addEventListener('focus', attend(true))
+      this.element.addEventListener('blur', attend(false))
     }
 
     root.append(this.element)
@@ -311,6 +348,11 @@ export class SecondWordBadge {
     }
 
     this.element.style.display = 'flex'
+
+    // Decide the shape before measuring it: width and height both depend on it.
+    this.element.classList.toggle('compact', this.crowded())
+    const height = this.element.classList.contains('compact') ? BADGE_COMPACT_SIZE : BADGE_SIZE
+
     const neighbour = this.neighbourInset()
     const inset = Math.max(this.gripInset(), neighbour)
     // When Grammarly owns the bottom-right corner, move to the lower-left
@@ -318,7 +360,25 @@ export class SecondWordBadge {
     const width = this.element.getBoundingClientRect().width || BADGE_PROMPT_WIDTH
     const left = neighbour > 0 ? rect.left + 10 : rect.right - width - inset
     this.element.style.left = `${Math.max(0, left)}px`
-    this.element.style.top = `${Math.min(window.innerHeight - BADGE_SIZE, rect.bottom - BADGE_SIZE)}px`
+    // The dot keeps the pill's corner rather than dropping to the field's edge.
+    const top = rect.bottom - BADGE_SIZE + (BADGE_SIZE - height) / 2
+    this.element.style.top = `${Math.min(window.innerHeight - height, top)}px`
+  }
+
+  /**
+   * Has the writing reached the corner the badge sits in?
+   *
+   * Measured on the box, not on the words: a composer whose content is within
+   * one line of filling it is a composer whose next line lands under the
+   * badge. Scrolled past full counts too, and is the common case.
+   */
+  private crowded(): boolean {
+    if (this.attended) return false
+    if (this.element.classList.contains('thinking')) return false
+    const box = this.field.clientHeight
+    if (!box) return false
+    const line = Number.parseFloat(getComputedStyle(this.field).lineHeight)
+    return this.field.scrollHeight > box - (Number.isFinite(line) ? line : 20)
   }
 
   destroy(): void {
