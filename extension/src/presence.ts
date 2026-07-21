@@ -27,7 +27,9 @@ const STYLES = `
     padding: 8px 11px;
     border-left: 2px solid #9a6a17;
     border-radius: 2px;
-    background: rgba(255, 254, 250, 0.96);
+    /* Fully opaque. At 0.96 the composer's own placeholder read through the
+       card, so the day's verse arrived with ghost words printed across it. */
+    background: #fffefa;
     color: #4f4a40;
     box-shadow: 0 1px 4px rgba(45, 34, 18, 0.10);
     pointer-events: none;
@@ -126,10 +128,20 @@ export class SecondWordPresence {
       return
     }
 
+    // Width first: the height depends on how the verse wraps at this width.
     this.element.style.display = 'block'
-    this.element.style.left = `${Math.max(GAP, rect.left + GAP)}px`
-    this.element.style.top = `${Math.max(GAP, rect.top + GAP)}px`
-    this.element.style.width = `${Math.max(280, rect.width - GAP * 2)}px`
+    this.element.style.left = `${Math.max(GAP, rect.left)}px`
+    this.element.style.width = `${Math.max(280, rect.width)}px`
+
+    /*
+     * Never inside the field's own rectangle. Sitting over the composer, the
+     * day's verse reads as text somebody typed into the draft, which is the
+     * one thing Second Word promises it never does. Above by preference,
+     * below when there is no headroom, and always clear of the border.
+     */
+    const height = this.element.offsetHeight || this.element.getBoundingClientRect().height
+    const above = rect.top - GAP - height
+    this.element.style.top = `${above >= GAP ? above : rect.bottom + GAP}px`
   }
 
   destroy(): void {

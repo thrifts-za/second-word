@@ -40,6 +40,35 @@ describe('Verse of the Day Presence', () => {
     presence.destroy()
   })
 
+  it('never overlaps the composer, so the verse cannot read as typed text', () => {
+    const field = document.createElement('textarea')
+    field.getBoundingClientRect = () =>
+      ({ left: 100, top: 300, right: 600, bottom: 420, width: 500, height: 120 }) as DOMRect
+    document.body.append(field)
+
+    const presence = new SecondWordPresence(field, verse)
+    presence.element.getBoundingClientRect = () => ({ height: 70 }) as DOMRect
+    presence.reposition()
+
+    const top = Number.parseFloat(presence.element.style.top)
+    expect(top + 70).toBeLessThanOrEqual(300)
+    presence.destroy()
+  })
+
+  it('drops below the composer when there is no headroom above it', () => {
+    const field = document.createElement('textarea')
+    field.getBoundingClientRect = () =>
+      ({ left: 100, top: 20, right: 600, bottom: 140, width: 500, height: 120 }) as DOMRect
+    document.body.append(field)
+
+    const presence = new SecondWordPresence(field, verse)
+    presence.element.getBoundingClientRect = () => ({ height: 70 }) as DOMRect
+    presence.reposition()
+
+    expect(Number.parseFloat(presence.element.style.top)).toBeGreaterThanOrEqual(140)
+    presence.destroy()
+  })
+
   it('drops a quotation mark the verse has no partner for', () => {
     const field = document.createElement('textarea')
     field.getBoundingClientRect = () =>
