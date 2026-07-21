@@ -61,7 +61,7 @@ export interface BadgeOptions {
   /** A breathing dot while the model reads, so the box shows life. Not clickable. */
   thinking?: boolean
   /** Guide is a blessing/affirmation, visually distinct from Guard. */
-  tone?: 'guide' | 'guard'
+  tone?: 'guide' | 'guard' | 'presence'
 }
 
 /**
@@ -132,6 +132,20 @@ const SHADOW_STYLE = `
     box-shadow: 0 1px 4px rgba(73, 45, 8, 0.25);
   }
   .badge.guide:focus-visible { outline-color: #9a6a17; }
+  .badge.presence {
+    min-width: 30px;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background: #16181d;
+    color: #d29a35;
+    border: 1px solid #c8cbd3;
+    border-radius: 50% 50% 50% 8px;
+    box-shadow: 0 1px 4px rgba(20, 22, 27, 0.24);
+  }
+  .badge.presence .copy { display: none; }
+  .badge.presence .mark { transform: none; }
+  .badge.presence:focus-visible { outline-color: #9a6a17; }
   .badge .mark {
     font: 600 19px/.8 'Iowan Old Style', Palatino, 'Book Antiqua', Georgia, serif;
     transform: translateY(-1px);
@@ -216,7 +230,7 @@ export class SecondWordBadge {
       pulse.className = 'pulse'
       this.element.append(pulse)
     } else {
-      this.element.className = `badge ${options.tone === 'guide' ? 'guide' : 'guard'}`
+      this.element.className = `badge ${options.tone ?? 'guard'}`
       this.element.setAttribute('role', 'button')
       this.element.setAttribute('tabindex', '0')
       const mark = document.createElement('span')
@@ -224,7 +238,7 @@ export class SecondWordBadge {
       mark.textContent = options.label
       const copy = document.createElement('span')
       copy.className = 'copy'
-      copy.textContent = options.tone === 'guide' ? 'A word for this good moment' : 'A word for this'
+      copy.textContent = options.tone === 'guide' ? 'A word for this good moment' : options.tone === 'presence' ? '' : 'A word for this'
       this.element.append(mark, copy)
       this.element.setAttribute('aria-label', `Second Word: ${options.title}`)
       // Clicking must not pull the caret out of the message being written.
@@ -350,7 +364,7 @@ export class SecondWordBadge {
     this.element.style.display = 'flex'
 
     // Decide the shape before measuring it: width and height both depend on it.
-    this.element.classList.toggle('compact', this.crowded())
+    this.element.classList.toggle('compact', !this.element.classList.contains('presence') && this.crowded())
     const height = this.element.classList.contains('compact') ? BADGE_COMPACT_SIZE : BADGE_SIZE
 
     const neighbour = this.neighbourInset()

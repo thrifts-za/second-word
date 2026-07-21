@@ -33,7 +33,6 @@ import { findEditable, isEligibleField } from './adapters/generic'
 import { isMounted, markMounted, type ComposerAdapter } from './adapters/types'
 import { SecondWordBadge } from './badge'
 import { SecondWordOverlay } from './overlay'
-import { SecondWordPresence } from './presence'
 import { markMoments, type MomentMarker } from './moment-marker'
 import { createScheduler } from './scheduler'
 import { apiBase, isAmbient, isEnabledFor, rememberReference, settings } from './config'
@@ -80,8 +79,7 @@ interface Attachment {
   offer: { result: AnalyzeResponse | SafetyResponse; evidence: string[] } | null
   lastEvaluated: string
   timer: number | undefined
-  presence: SecondWordPresence | null
-  presenceDismissed: boolean
+  dailyVerse: VerseOfTheDayResponse | null
 }
 
 const attachments = new WeakMap<HTMLElement, Attachment>()
@@ -126,13 +124,12 @@ function attach(target: EventTarget | null): void {
     offer: null,
     lastEvaluated: '',
     timer: undefined,
-    presence: null,
-    presenceDismissed: false,
+    dailyVerse: null,
   }
   attachments.set(composer, attachment)
 
   mountInvitation(attachment)
-  if (presenceEnabled && !adapter.getDraft(composer).trim()) void mountPresence(attachment)
+  if (presenceEnabled) void mountPresence(attachment)
 
   composer.addEventListener('input', () => {
     // An offer belongs to one settled draft. Once the person changes the
@@ -142,9 +139,7 @@ function attach(target: EventTarget | null): void {
     attachment.marker = null
     attachment.badge?.destroy()
     attachment.badge = null
-    attachment.presence?.destroy()
-    attachment.presence = null
-    attachment.presenceDismissed = true
+    showPresenceBadge(attachment)
     window.clearTimeout(attachment.timer)
     attachment.timer = window.setTimeout(() => void evaluate(attachment), DEBOUNCE_MS)
   })
@@ -174,11 +169,38 @@ async function mountPresence(attachment: Attachment): Promise<void> {
   const verse = await pending
   if (
     !verse ||
-    attachment.presenceDismissed ||
-    !attachment.composer.isConnected ||
-    adapter.getDraft(attachment.composer).trim()
+    !attachment.composer.isConnected
   ) return
-  attachment.presence = new SecondWordPresence(attachment.composer, verse)
+  attachment.dailyVerse = verse
+  showPresenceBadge(attachment)
+}
+
+function showPresenceBadge(attachment: Attachment): void {
+  if (!presenceEnabled || !attachment.dailyVerse || attachment.panel || attachment.offer) return
+  attachment.badge?.destroy()
+  attachment.badge = new SecondWordBadge({
+    field: attachment.composer,
+    label: '\u2726',
+    tone: 'presence',
+    title: 'Open today\'s verse',
+    onOpen: () => openVerseOfTheDay(attachment),
+  })
+}
+
+function openVerseOfTheDay(attachment: Attachment): void {
+  const verse = attachment.dailyVerse
+  if (!verse) return
+  attachment.badge?.destroy()
+  attachment.badge = null
+  closePanel(attachment)
+  const panel = buildPanel(attachment)
+  attachment.panel = panel
+  attachment.overlay = new SecondWordOverlay({
+    field: attachment.composer,
+    content: panel.host,
+    onDismiss: () => closePanel(attachment),
+  })
+  panel.presentVerseOfTheDay(verse)
 }
 
 
@@ -319,8 +341,9 @@ function showBadge(attachment: Attachment, result: AnalyzeResponse | SafetyRespo
 /** Re-show the same resolved invitation after a person closes the card. */
 function restoreBadge(attachment: Attachment): void {
   const offer = attachment.offer
-  if (!offer || !attachment.composer.isConnected || !adapter.getDraft(attachment.composer).trim()) return
-  showBadge(attachment, offer.result, offer.evidence)
+  if (!attachment.composer.isConnected) return
+  if (offer && adapter.getDraft(attachment.composer).trim()) showBadge(attachment, offer.result, offer.evidence)
+  else showPresenceBadge(attachment)
 }
 
 /** The click. Only now does anything take up room on the page. */

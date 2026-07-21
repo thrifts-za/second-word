@@ -66,7 +66,7 @@ export const PANEL_STYLES = `
 /* ---------- panel ---------- */
 
 .panel {
-  width: min(420px, calc(100vw - 32px));
+  width: 100%;
   background: var(--ink);
   color: var(--paper);
   border-radius: 3px;
@@ -385,10 +385,26 @@ export const PANEL_STYLES = `
 .panel__body[data-experience="guide"] .eyebrow,
 .panel__body[data-experience="guide"] .passage__marker { color: #9a6a17; }
 
-.footnote {
-  margin: 14px 0 0;
+.references {
+  margin: 12px 0 0;
   padding-top: 12px;
   border-top: 1px solid var(--rule);
+  color: var(--paper-faint);
+}
+
+.references summary {
+  width: max-content;
+  font-size: 10.5px;
+  line-height: 1.4;
+  cursor: pointer;
+  user-select: none;
+}
+
+.references summary:hover,
+.references summary:focus-visible { color: var(--paper-dim); }
+
+.footnote {
+  margin: 8px 0 0;
   font-size: 10px;
   line-height: 1.45;
   color: var(--paper-faint);

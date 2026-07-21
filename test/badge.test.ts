@@ -55,6 +55,22 @@ function mount(): SecondWordBadge {
 }
 
 describe('badge: yielding to the writing', () => {
+  it('keeps Presence as a quiet icon even when writing fills the composer', () => {
+    const badge = new SecondWordBadge({
+      field,
+      label: '\u2726',
+      title: 'Open today\'s verse',
+      tone: 'presence',
+      onOpen: () => {},
+    })
+    fill(field, 120, 100)
+    badge.reposition()
+    expect(badge.element.classList.contains('presence')).toBe(true)
+    expect(badge.element.classList.contains('compact')).toBe(false)
+    expect(badge.element.querySelector('.copy')?.textContent).toBe('')
+    badge.destroy()
+  })
+
   it('collapses to a dot once the text reaches its corner', () => {
     const badge = mount()
     expect(badge.element.classList.contains('compact')).toBe(false)

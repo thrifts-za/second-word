@@ -18,8 +18,10 @@ import type {
   RewriteMode,
   RewriteResponse,
   SafetyResponse,
+  VerseOfTheDayResponse,
 } from '../lib/contracts'
 import { PRINCIPLE_LIBRARY, SELECTABLE_MOMENTS } from '../lib/scripture-library'
+import { balanceQuotes } from '../lib/verse-of-the-day'
 import { PANEL_STYLES } from './styles'
 
 export interface AnalyzeOptions {
@@ -207,6 +209,25 @@ export class SecondWordPanel {
     this.renderSafety(result)
   }
 
+  /** Presence stays a quiet icon until the person asks to see today's verse. */
+  presentVerseOfTheDay(result: VerseOfTheDayResponse): void {
+    const body = this.panel()
+    body.append(el('p', 'guide__kicker', 'Verse of the Day'))
+
+    const eyebrow = el('div', 'eyebrow')
+    eyebrow.append(text(result.display_reference), el('span', 'eyebrow__translation', result.translation))
+    const passage = el('p', 'passage')
+    passage.append(el('span', 'passage__marker', verseNumber(result.verified_reference_id)))
+    passage.append(text(balanceQuotes(result.verse_text)))
+    body.append(eyebrow, passage)
+
+    const actions = el('div', 'actions')
+    const close = button('Return to my message', 'action')
+    close.addEventListener('click', () => this.callbacks.onClose())
+    actions.append(close)
+    body.append(actions, this.attribution(result))
+  }
+
   private renderPassage(result: AnalyzeResponse): void {
     const body = this.panel()
     body.dataset.experience = result.experience
@@ -347,18 +368,7 @@ export class SecondWordPanel {
     body.append(heading('You are not alone'), el('p', 'safety__lead', 'This message can wait. You matter more than it.'), el('p', 'status', result.message))
     if (result.verse_text && result.display_reference) {
       body.append(el('p', 'verse__text', result.verse_text), el('p', 'eyebrow', `${result.display_reference}${result.translation ? ` · ${result.translation}` : ''}`))
-      if (result.attribution) {
-        const attribution = el('p', 'attribution', result.attribution)
-        if (result.attribution_url) {
-          const link = document.createElement('a')
-          link.href = result.attribution_url
-          link.target = '_blank'
-          link.rel = 'noopener noreferrer'
-          link.textContent = ' View on YouVersion'
-          attribution.append(link)
-        }
-        body.append(attribution)
-      }
+      if (result.attribution) body.append(this.attribution(result))
     }
 
     const actions = el('div', 'actions')
@@ -389,7 +399,11 @@ export class SecondWordPanel {
    * The publisher notice comes from the platform verbatim and is displayed
    * verbatim, line breaks included. Never paraphrase it.
    */
-  private attribution(result: AnalyzeResponse): HTMLElement {
+  private attribution(result: { attribution?: string; attribution_url?: string | null }): HTMLElement {
+    const disclosure = document.createElement('details')
+    disclosure.className = 'references'
+    const summary = document.createElement('summary')
+    summary.textContent = 'References'
     const note = el('p', 'footnote')
     if (result.attribution) note.append(text(result.attribution))
 
@@ -401,7 +415,8 @@ export class SecondWordPanel {
       link.textContent = 'via YouVersion'
       note.append(text('\n'), link)
     }
-    return note
+    disclosure.append(summary, note)
+    return disclosure
   }
 
   private panel(): HTMLElement {

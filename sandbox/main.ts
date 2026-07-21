@@ -24,7 +24,6 @@ import type {
 import { isVerseOfTheDayResponse } from '../src/lib/verse-of-the-day'
 import { SecondWordBadge } from '../extension/src/badge'
 import { SecondWordOverlay } from '../extension/src/overlay'
-import { SecondWordPresence } from '../extension/src/presence'
 import { createScheduler } from '../extension/src/scheduler'
 import { SecondWordPanel, type AnalyzeOptions } from '../src/ui/panel'
 import { SCENARIOS, type Scenario } from './scenarios'
@@ -67,8 +66,8 @@ let badge: SecondWordBadge | null = null
 let offer: AnalyzeResponse | SafetyResponse | null = null
 let lastEvaluated = ''
 let debounceTimer: number | undefined
-let presence: SecondWordPresence | null = null
 let dailyVerse: VerseOfTheDayResponse | null = null
+let recentReferenceIds: string[] = []
 
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
@@ -100,8 +99,9 @@ function renderScenario(next: Scenario): void {
   el('composer-label').textContent = next.composerLabel
 
   draftField.value = ''
+  resizeDraftField()
   draftField.placeholder = next.placeholder
-  showPresenceIfEmpty()
+  showPresenceBadge()
 
   for (const tab of tabsNav.children) {
     tab.classList.toggle('tab--on', (tab as HTMLElement).dataset.id === next.id)
@@ -246,20 +246,27 @@ function showBadge(result: AnalyzeResponse | SafetyResponse): void {
 
 /** A choice to keep writing is not a choice to lose the reading forever. */
 function restoreBadge(): void {
-  if (!offer || !draftField.value.trim()) return
-  showBadge(offer)
+  if (offer && draftField.value.trim()) showBadge(offer)
+  else showPresenceBadge()
 }
 
 draftField.addEventListener('input', () => {
-  presence?.destroy()
-  presence = null
+  resizeDraftField()
   clearChecked()
   offer = null
   badge?.destroy()
   badge = null
+  showPresenceBadge()
   window.clearTimeout(debounceTimer)
   debounceTimer = window.setTimeout(() => void evaluateDraft(), DEBOUNCE_MS)
 })
+
+function resizeDraftField(): void {
+  draftField.style.height = 'auto'
+  const height = Math.min(220, Math.max(110, draftField.scrollHeight))
+  draftField.style.height = `${height}px`
+  draftField.style.overflowY = draftField.scrollHeight > height ? 'auto' : 'hidden'
+}
 
 // ---------------------------------------------------------------------------
 // Backend
@@ -279,10 +286,18 @@ async function analyze(
       ...(options.principle ? { principle_hint: options.principle } : {}),
       ...(options.context ? { context: options.context } : {}),
       ...(options.received ? { received_message: options.received } : {}),
+      ...(recentReferenceIds.length > 0 ? { recent_reference_ids: recentReferenceIds } : {}),
     }),
   })
   if (!response.ok) throw new Error(`analyze failed: ${response.status}`)
-  return (await response.json()) as AnalyzeResponse | SafetyResponse | NoMomentResponse
+  const result = (await response.json()) as AnalyzeResponse | SafetyResponse | NoMomentResponse
+  const referenceId = 'verified_reference_id' in result
+    ? result.verified_reference_id
+    : 'comfort_reference_id' in result
+      ? result.comfort_reference_id
+      : undefined
+  if (referenceId) recentReferenceIds = [referenceId, ...recentReferenceIds.filter((id) => id !== referenceId)].slice(0, 5)
+  return result
 }
 
 async function rewrite(draft: string, token: string, modes: RewriteMode[]): Promise<RewriteResponse> {
@@ -315,17 +330,33 @@ async function loadPresence(): Promise<void> {
     const body: unknown = await response.json()
     if (!isVerseOfTheDayResponse(body)) throw new Error('unverifiable verse')
     dailyVerse = body
-    showPresenceIfEmpty()
+    showPresenceBadge()
   } catch {
     // The composer reads fine without it. Never show placeholder Scripture.
     dailyVerse = null
   }
 }
 
-function showPresenceIfEmpty(): void {
-  presence?.destroy()
-  presence = null
-  if (dailyVerse && !draftField.value.trim()) presence = new SecondWordPresence(draftField, dailyVerse)
+function showPresenceBadge(): void {
+  if (!dailyVerse || panel || offer) return
+  badge?.destroy()
+  badge = new SecondWordBadge({
+    field: draftField,
+    label: '\u2726',
+    tone: 'presence',
+    title: 'Open today\'s verse',
+    onOpen: openVerseOfTheDay,
+  })
+}
+
+function openVerseOfTheDay(): void {
+  if (!dailyVerse) return
+  badge?.destroy()
+  badge = null
+  closePanel()
+  panel = buildPanel()
+  overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
+  panel.presentVerseOfTheDay(dailyVerse)
 }
 
 /**
@@ -354,14 +385,13 @@ async function loadProvider(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 fillButton.addEventListener('click', () => {
-  presence?.destroy()
-  presence = null
   closePanel()
   badge?.destroy()
   badge = null
   chipSlot.replaceChildren()
   lastEvaluated = ''
   draftField.value = scenario.suggestedDraft
+  resizeDraftField()
   draftField.focus()
   evaluateDraft()
 })

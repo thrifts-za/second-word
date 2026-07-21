@@ -215,7 +215,7 @@ afterEach(() => {
 })
 
 describe('ambient path', () => {
-  it('shows verified daily Presence on an empty composer and removes it on first input', async () => {
+  it('keeps a quiet Presence mark in the composer and reveals the verified daily verse on click', async () => {
     const harness = mountHarness()
     stubChrome(false, { presence: true })
     vi.stubGlobal('fetch', async (input: string) => {
@@ -236,11 +236,24 @@ describe('ambient path', () => {
 
     harness.body.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
     await vi.advanceTimersByTimeAsync(0)
-    expect(document.querySelectorAll('second-word-presence')).toHaveLength(1)
+    expect(badges()).toBe(1)
+    const badge = document.querySelector('second-word-badge')
+    expect(badge?.shadowRoot?.querySelector('.presence')).not.toBeNull()
+    badge?.shadowRoot?.querySelector<HTMLElement>('.presence')?.click()
+
+    const overlay = document.querySelector('second-word-overlay')
+    const panel = overlay?.querySelector<HTMLElement>('[data-second-word]')
+    expect(panel?.shadowRoot?.textContent).toContain('Verse of the Day')
+    expect(panel?.shadowRoot?.textContent).toContain('Psalm 23:4')
+    expect(panel?.shadowRoot?.textContent).toContain('References')
+    expect(panel?.shadowRoot?.querySelector('details')?.open).toBe(false)
+
+    panel?.shadowRoot?.querySelector<HTMLButtonElement>('.action')?.click()
 
     harness.body.textContent = 'I have started writing.'
     harness.body.dispatchEvent(new InputEvent('input', { bubbles: true }))
-    expect(document.querySelectorAll('second-word-presence')).toHaveLength(0)
+    expect(badges()).toBe(1)
+    expect(document.querySelector('second-word-badge')?.shadowRoot?.querySelector('.presence')).not.toBeNull()
   })
 
   it('sends nothing and shows nothing for logistics', async () => {
