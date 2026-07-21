@@ -4,6 +4,9 @@
 
 *Scripture in the space between reaction and response.*
 
+**Other writing tools ask whether your sentence is correct. Second Word asks
+what kind of human moment this is.**
+
 Most consequential writing happens in a text box: a reply to being blamed at
 work, an apology to a friend, a hard boundary, a public argument, or a moment
 of joy that deserves more than a quick reaction. Those are often the exact
@@ -19,14 +22,16 @@ enables automatic noticing, it waits until typing settles. A local gate keeps
 ordinary logistics in the browser. For a consequential draft, **Living Margin**
 softly marks the exact local phrase that prompted a pause—without changing the
 editor or sending text merely to draw the mark. The person chooses whether to
-open it. The card then offers a verified passage, publisher attribution, one
-specific relational question, and optional alternatives; it never posts,
-blocks Send, or replaces the original without a click.
+open it. The card then offers a verified passage, publisher attribution, and
+one specific relational question. Guard can offer optional alternatives. A
+gold Guide affirms gratitude, good news, or freely offered help without
+correcting the person or offering a rewrite. It never posts, blocks Send, or
+replaces the original without a click.
 
 This is deliberately not a Bible app painted onto email. Scripture changes the
-decision already being made. The same experience serves anger and contempt, but
-also grief, false accusation, apology, gratitude, and good news. Silence is a
-valid outcome for ordinary correspondence.
+decision already being made. Its discernment can guard anger, guide pain,
+affirm generosity and joy, or stay silent. Silence is a valid outcome for
+ordinary correspondence.
 
 Gloo provides structured discernment: it identifies the human moment, selects
 one reviewed principle, and ranks only allowed reference IDs. It cannot return

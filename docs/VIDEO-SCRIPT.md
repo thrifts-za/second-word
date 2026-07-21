@@ -9,8 +9,9 @@ of it.
 **Visual:** Gmail-style reply. Dave has copied the team and wrongly says the
 handover was never sent. The cursor sits in a heated response.
 
-**Voice:** “Most words we regret are not written in a Bible app. They are
-written here: in a reply when we feel blamed, tired, ashamed, or furious.”
+**Voice:** “Other writing tools ask whether your sentence is correct. Second
+Word asks what kind of human moment this is. Most words we regret are written
+here: in a reply when we feel blamed, tired, ashamed, or furious.”
 
 ## 0:18–0:42 — the native intervention
 
@@ -43,13 +44,13 @@ of person they want to be before Send.”
 
 ## 1:32–2:00 — not only anger
 
-**Visual:** Fast cuts through sandbox tabs: Nomsa grieving; Lebo receives a
-direct apology; a team win receives genuine gratitude; an ordinary handover
-quietly receives nothing.
+**Visual:** Fast cuts through sandbox tabs: Nomsa grieving; a team win receives
+a gold Guide; Priya's colleague freely offers to carry the handover and receives
+a gold Guide; a neutral calendar acknowledgement quietly receives nothing.
 
-**Voice:** “The Word does not only guard anger. It helps us comfort without
-platitudes, apologise without excuses, celebrate without pride, and leave
-ordinary messages alone.”
+**Voice:** “The Word can guard anger, guide pain, affirm what is already good,
+and leave ordinary messages alone. Guide is gold: no correction and no rewrite,
+only a word for this good moment.”
 
 ## 2:00–2:30 — proof
 
@@ -73,4 +74,5 @@ person’s permission, it can return to the Bible they already carry.”
 
 **Visual:** Return to the composer. The person sends a truthful, gracious reply.
 
-**Voice:** “Second Word: Scripture in the space between reaction and response.”
+**Voice:** “Sometimes the Word guards what could wound. Sometimes it helps us
+recognise what is already good. Second Word.”
