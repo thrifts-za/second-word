@@ -30,7 +30,15 @@ interface Stored {
    * has already happened. So it is consented to once, deliberately, and can be
    * withdrawn at any time.
    *
-   * Off by default. Until it is on, Second Word only speaks when pressed.
+   * On by default, and switchable off in one click from the options page.
+   *
+   * It shipped off, which made the extension a different product from the
+   * sandbox: install it and the only thing on screen was a button asking to
+   * be pressed, which is the design the sandbox retired and the writeup
+   * argues against. An alarm you have to be awake to set is not an alarm.
+   *
+   * The disclosure moves rather than disappears: the options page opens once
+   * on install, so what leaves the browser is stated before it does.
    */
   [KEYS.ambient]?: boolean
   /** Show a quiet composer mark that opens YouVersion's Verse of the Day. No draft is sent. */
@@ -61,9 +69,9 @@ export async function isEnabledFor(host: string): Promise<boolean> {
   return !(stored[KEYS.disabledSites] ?? []).includes(host)
 }
 
-/** Whether Second Word may look without being asked. Off until chosen. */
+/** Whether Second Word may look without being asked. See the note on Stored. */
 export async function isAmbient(): Promise<boolean> {
-  return (await read())[KEYS.ambient] ?? false
+  return (await read())[KEYS.ambient] ?? true
 }
 
 export async function setAmbient(on: boolean): Promise<void> {
@@ -107,8 +115,8 @@ export async function settings(): Promise<Required<Stored>> {
     apiBase: stored[KEYS.apiBase] ?? DEFAULT_API_BASE,
     globalOff: stored[KEYS.globalOff] ?? false,
     disabledSites: stored[KEYS.disabledSites] ?? [],
-    ambient: stored[KEYS.ambient] ?? false,
-    presence: stored[KEYS.presence] ?? false,
+    ambient: stored[KEYS.ambient] ?? true,
+    presence: stored[KEYS.presence] ?? true,
     translationId: stored[KEYS.translationId] ?? '',
     recentReferenceIds: stored[KEYS.recentReferenceIds] ?? [],
   }

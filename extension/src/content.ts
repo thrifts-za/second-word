@@ -215,23 +215,41 @@ function mountInvitation(attachment: Attachment): void {
   const anchor = adapter.attachAnchor(attachment.composer)
   if (!anchor) return
 
+  /*
+   * A quiet link, not a control competing with Send.
+   *
+   * This shipped as a bordered "Second Word" button beside Gmail's Send, which
+   * is the press-to-work design the sandbox retired and the writeup argues
+   * against on the first page: the moment you most need a pause is the moment
+   * you are least willing to reach for one. Same words and same weight as the
+   * sandbox now, so installing the extension meets the product the demo
+   * describes.
+   */
   const button = document.createElement('button')
   button.type = 'button'
-  button.textContent = 'Second Word'
   button.setAttribute('aria-label', 'Reflect on this draft with Second Word')
   Object.assign(button.style, {
     all: 'unset',
     boxSizing: 'border-box',
     display: 'inline-flex',
     alignItems: 'center',
-    padding: '6px 12px',
-    border: '1px solid #d8d5ce',
-    borderRadius: '2px',
-    background: '#fbfaf7',
-    color: '#55524c',
+    gap: '5px',
+    color: '#6f6a62',
     font: "12.5px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    textDecoration: 'underline',
+    textUnderlineOffset: '2px',
     cursor: 'pointer',
   })
+
+  const dot = document.createElement('span')
+  Object.assign(dot.style, {
+    display: 'inline-block',
+    width: '5px',
+    height: '5px',
+    borderRadius: '50%',
+    background: '#c4705a',
+  })
+  button.append(dot, document.createTextNode('Reflect on this now'))
 
   button.addEventListener('click', () => {
     if (!adapter.getDraft(attachment.composer).trim()) return

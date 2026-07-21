@@ -419,6 +419,16 @@ export class SecondWordBadge {
     if (!box) return false
 
     /*
+     * A short box is crowded by definition.
+     *
+     * Email composers are tall enough to hold a 34px labelled pill in a
+     * corner. A comment box on X, LinkedIn or Reddit is one or two lines, and
+     * the pill would cover most of what someone is writing. Below roughly two
+     * lines, the mark yields to the words without waiting for overflow.
+     */
+    if (box < 64) return true
+
+    /*
      * Overflow, not fullness.
      *
      * The first rule asked whether the content came within a line of filling

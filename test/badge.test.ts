@@ -99,6 +99,20 @@ describe('badge: yielding to the writing', () => {
     badge.destroy()
   })
 
+  it('collapses in a short comment box before any overflow', () => {
+    // A social composer is one or two lines. A 116px labelled pill would cover
+    // most of what the person is writing, so the mark yields on size alone.
+    const short = document.createElement('textarea')
+    place(short, { left: 100, top: 200, right: 500, bottom: 244, width: 400, height: 44 })
+    document.body.append(short)
+    fill(short, 40, 44)
+
+    const badge = new SecondWordBadge({ field: short, label: '1', title: 'noticed', onOpen: () => {} })
+    badge.reposition()
+    expect(badge.element.classList.contains('compact')).toBe(true)
+    badge.destroy()
+  })
+
   it('stays a pill while there is still room to write', () => {
     const badge = mount()
     fill(field, 40, 100)
