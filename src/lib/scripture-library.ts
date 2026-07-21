@@ -149,20 +149,20 @@ export const PRINCIPLE_LIBRARY: Record<Principle, PrincipleEntry> = {
   },
   trust_in_provision: {
     principle: 'trust_in_provision',
-    candidates: ['MAT.6.25-26', 'PHP.4.19', 'PSA.23.1'],
+    candidates: ['MAT.6.25-26', 'PHP.4.19', 'PSA.121.1-2'],
     constraint:
       'Name the real need and make the practical request plainly. Do not add shame, panic, false certainty, or promises the person cannot keep.',
     explanation: 'You are carrying a real need, and it is not outside God\'s care.',
     explanationsByReference: {
       'MAT.6.25-26': 'You are carrying a real need, and Jesus speaks directly to the fear that there will not be enough.',
       'PHP.4.19': 'What you need is real, and it is not outside God\'s care.',
-      'PSA.23.1': 'Scarcity is speaking loudly here. It does not get the final word.',
+      'PSA.121.1-2': 'The need is in front of you, but so is the One from whom your help comes.',
     },
     question: 'Can you name what you need without carrying all of tomorrow at once?',
     questionsByReference: {
       'MAT.6.25-26': 'Can you ask plainly for the time you need without carrying all of tomorrow at once?',
       'PHP.4.19': 'What is the practical help you need to ask for today?',
-      'PSA.23.1': 'What would a clear request sound like if fear did not have to write it for you?',
+      'PSA.121.1-2': 'What help do you need to ask God and this person for today?',
     },
     moment: 'I am under financial pressure or facing a real material need',
   },
