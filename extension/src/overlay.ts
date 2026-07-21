@@ -119,7 +119,13 @@ export class SecondWordOverlay {
     // Before first paint there is nothing to measure. Assuming zero would make
     // "does it fit below" trivially true and pin the card off the bottom of
     // the screen, so assume a typical card instead.
-    const wanted = this.frame.getBoundingClientRect().height || TYPICAL_HEIGHT
+    /*
+     * scrollHeight, not the rendered rect. The rect returns the height after
+     * maxHeight has already clamped it, so the first cap became the measure
+     * for every later one: a 367px card measured 300, asked for 300, and kept
+     * a scrollbar forever no matter how much room was above it.
+     */
+    const wanted = this.frame.scrollHeight || TYPICAL_HEIGHT
 
     /*
      * Below reads more naturally, but the host's own controls live directly
@@ -130,16 +136,27 @@ export class SecondWordOverlay {
      * row underneath it.
      */
     const wouldCoverControls = field.bottom > viewport / 2
-    const roomAbove = above >= Math.min(wanted, 200)
 
-    if ((!wouldCoverControls && below >= Math.min(wanted, 220)) || !roomAbove) {
+    /*
+     * Whole card or nothing. The old rule accepted a side with 200px in it
+     * for a card that wanted 330, so the card scrolled inside a box that does
+     * not look scrollable and the buttons fell below the fold. Take a side
+     * that fits the whole card, and only when neither does, take the larger.
+     */
+    const placeBelow = (): void => {
       this.frame.style.top = `${field.bottom + GAP}px`
       this.frame.style.maxHeight = `${Math.max(140, below)}px`
-    } else {
+    }
+    const placeAbove = (): void => {
       const height = Math.max(140, Math.min(above, wanted || above))
       this.frame.style.top = `${Math.max(GAP, field.top - GAP - height)}px`
       this.frame.style.maxHeight = `${height}px`
     }
+
+    if (!wouldCoverControls && below >= wanted) placeBelow()
+    else if (above >= wanted) placeAbove()
+    else if (below > above && !wouldCoverControls) placeBelow()
+    else placeAbove()
   }
 
   destroy(): void {

@@ -113,7 +113,13 @@ export const PANEL_STYLES = `
 .panel__dismiss:hover { background: var(--ink-raised); color: var(--paper); }
 .panel__dismiss:focus-visible { outline: 2px solid var(--clay); outline-offset: 1px; }
 
-.panel__body { padding: 20px 22px 18px; }
+/*
+ * Set to fit. The card was typed like a page rather than like a panel over
+ * someone's inbox, and on a composer low in the window it ran past the room
+ * above it, scrolled, and hid its own buttons. Type sizes and rhythm below
+ * are the fix; the sticky action row is only the backstop.
+ */
+.panel__body { padding: 16px 18px 14px; }
 
 /* ---------- consent ---------- */
 /* Shown before anything is transmitted. This screen is the privacy promise. */
@@ -201,12 +207,12 @@ export const PANEL_STYLES = `
 
 .passage {
   position: relative;
-  margin: 13px 0 0;
-  padding-left: 24px;
+  margin: 11px 0 0;
+  padding-left: 22px;
   border-left: 1px solid var(--clay);
   font-family: var(--book);
-  font-size: 17px;
-  line-height: 1.62;
+  font-size: 15.5px;
+  line-height: 1.5;
   color: var(--paper);
 }
 
@@ -226,18 +232,18 @@ export const PANEL_STYLES = `
 
 /* The marginal gloss. Study-Bible commentary, set apart from Scripture. */
 .gloss {
-  margin: 12px 0 0;
-  padding-left: 16px;
+  margin: 10px 0 0;
+  padding-left: 14px;
   font-family: var(--book);
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-style: italic;
-  line-height: 1.5;
+  line-height: 1.45;
   color: var(--paper-dim);
 }
 
 .rule {
   height: 1px;
-  margin: 17px 0 15px;
+  margin: 13px 0 11px;
   background: var(--rule);
   border: 0;
 }
@@ -246,8 +252,8 @@ export const PANEL_STYLES = `
 .question {
   margin: 0;
   font-family: var(--book);
-  font-size: 20px;
-  line-height: 1.4;
+  font-size: 16.5px;
+  line-height: 1.35;
   letter-spacing: -0.005em;
   color: #f4f2ec;
 }
@@ -258,7 +264,18 @@ export const PANEL_STYLES = `
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 14px;
+  /*
+   * A short composer leaves the card taller than the room above it, so the
+   * overlay caps the height and the card scrolls. Measured on the sandbox: the
+   * cap fell across the action row, so Keep original was below the fold of a
+   * box that does not look scrollable. A choice you cannot see is a choice you
+   * were not offered. The row rides the bottom edge instead.
+   */
+  position: sticky;
+  bottom: 0;
+  padding-bottom: 2px;
+  background: var(--ink);
 }
 
 .action {
