@@ -332,6 +332,9 @@ export class SecondWordPanel {
   private renderSafety(result: SafetyResponse): void {
     const body = this.panel()
     body.append(heading('You are not alone'), el('p', 'safety__lead', 'This message can wait. You matter more than it.'), el('p', 'status', result.message))
+    if (result.verse_text && result.display_reference) {
+      body.append(el('p', 'verse__text', result.verse_text), el('p', 'eyebrow', `${result.display_reference}${result.translation ? ` · ${result.translation}` : ''}`))
+    }
 
     const actions = el('div', 'actions')
     const close = button('Return to my draft', 'action')

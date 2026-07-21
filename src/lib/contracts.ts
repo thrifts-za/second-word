@@ -221,6 +221,10 @@ export interface SafetyResponse {
   request_id: string
   safety_flags: SafetyFlag[]
   message: string
+  /** Deterministic comfort passage, fetched from YouVersion; absent if unverifiable. */
+  verse_text?: string
+  display_reference?: string
+  translation?: string
   provider: 'gloo' | 'workers-ai' | 'fake'
   latency_ms: number
 }

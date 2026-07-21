@@ -79,12 +79,22 @@ export async function runAnalyze(
 
   // A heavy moment gets care, not a tone rewrite. Spec section 16.3.
   if (analysis.safety_flags.length > 0) {
+    // The model only identifies danger. This fixed reference is fetched and
+    // attributed through YouVersion like every other passage, never written by
+    // a model. A safety response remains available if the upstream is down.
+    const comfort = await deps.youversion.resolveFirst(bibleId, ['PSA.34.18']).catch(() => null)
+    const comfortBible = comfort ? await deps.youversion.getBible(bibleId).catch(() => null) : null
     return {
       kind: 'safety',
       body: {
         request_id: requestId,
         safety_flags: analysis.safety_flags,
         message: SAFETY_MESSAGE,
+        ...(comfort && comfortBible ? {
+          verse_text: comfort.passage.content,
+          display_reference: comfort.passage.displayReference,
+          translation: comfortBible.localizedAbbreviation,
+        } : {}),
         provider: deps.model.provider,
         latency_ms: now() - startedAt,
       },
