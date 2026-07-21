@@ -116,11 +116,59 @@ function isValueField(element: HTMLElement): element is HTMLTextAreaElement | HT
   return element instanceof HTMLTextAreaElement || element instanceof HTMLInputElement
 }
 
-/** Our own host, appended to the document. Never to the field. See D28. */
-function createHost(): HTMLElement {
+/** How often to check the field is still there, matching the badge. */
+const RECONCILE_MS = 1000
+
+/**
+ * Our own host, positioned against the field. Never inside it. See D28.
+ *
+ * This used to be a bare div appended to the body with no position and no
+ * lifecycle. Two consequences, both visible on ChatGPT: the invitation landed
+ * wherever the document flow put it, nowhere near the composer, and since
+ * sites like ChatGPT rebuild their composer as you move around, every new
+ * element mounted another one and nothing ever removed the old. Five stacked
+ * buttons in the corner of the page.
+ *
+ * It is now anchored to the field it belongs to and removes itself when that
+ * field goes, exactly like the badge and the card.
+ */
+function createHost(field: HTMLElement): HTMLElement {
   const host = document.createElement('div')
   host.setAttribute('data-second-word-host', '')
+  for (const [property, value] of [
+    ['position', 'fixed'],
+    ['z-index', '2147483644'],
+    ['display', 'block'],
+    ['transform', 'none'],
+    ['filter', 'none'],
+  ] as const) {
+    host.style.setProperty(property, value, 'important')
+  }
   document.body.append(host)
+
+  const place = (): void => {
+    if (!field.isConnected) {
+      clearInterval(timer)
+      window.removeEventListener('scroll', place, true)
+      window.removeEventListener('resize', place, true)
+      host.remove()
+      return
+    }
+    const rect = field.getBoundingClientRect()
+    const onScreen =
+      rect.width > 0 && rect.height > 0 && rect.bottom > 0 && rect.top < window.innerHeight
+    host.style.setProperty('display', onScreen ? 'block' : 'none', 'important')
+    if (!onScreen) return
+    // Below the field and left-aligned: the far side of the box from the mark,
+    // and clear of the send controls sites put in the bottom-right corner.
+    host.style.setProperty('left', `${Math.max(8, rect.left)}px`, 'important')
+    host.style.setProperty('top', `${Math.min(window.innerHeight - 22, rect.bottom + 6)}px`, 'important')
+  }
+
+  const timer = setInterval(place, RECONCILE_MS)
+  window.addEventListener('scroll', place, true)
+  window.addEventListener('resize', place, true)
+  place()
   return host
 }
 
@@ -168,12 +216,12 @@ export const genericAdapter: ComposerAdapter = {
     return null
   },
 
-  attachAnchor() {
-    return createHost()
+  attachAnchor(element) {
+    return createHost(element)
   },
 
-  panelAnchor() {
-    return createHost()
+  panelAnchor(element) {
+    return createHost(element)
   },
 
   canReplace(element) {

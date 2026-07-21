@@ -1,10 +1,36 @@
 // @vitest-environment jsdom
 
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { findEditable, genericAdapter, isEligibleField } from '../extension/src/adapters/generic'
 
 beforeEach(() => {
   document.body.replaceChildren()
+})
+
+describe('generic anchor: one per field, and only while the field lives', () => {
+  it('anchors the invitation to its field and removes it when the field goes', () => {
+    /*
+     * Seen on ChatGPT: five stacked invitations in the corner of the page.
+     * The host was appended to the body with no position and no lifecycle, so
+     * every composer the site rebuilt left another one behind, and none of
+     * them were anywhere near the box being typed in.
+     */
+    vi.useFakeTimers()
+    const field = document.createElement('textarea')
+    field.getBoundingClientRect = () =>
+      ({ left: 120, top: 400, right: 620, bottom: 460, width: 500, height: 60 }) as DOMRect
+    document.body.append(field)
+
+    const host = genericAdapter.attachAnchor(field)!
+    expect(host.style.position).toBe('fixed')
+    expect(host.style.left).toBe('120px')
+    expect(host.isConnected).toBe(true)
+
+    field.remove()
+    vi.advanceTimersByTime(1200)
+    expect(host.isConnected).toBe(false)
+    vi.useRealTimers()
+  })
 })
 
 function mount(html: () => HTMLElement): HTMLElement {
