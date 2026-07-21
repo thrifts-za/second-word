@@ -23,6 +23,9 @@
     "https://x.com/*",
     "https://www.reddit.com/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": [

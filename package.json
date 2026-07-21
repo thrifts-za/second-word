@@ -16,7 +16,7 @@
     "preflight:extension": "node scripts/extension-preflight.mjs",
     "build:sandbox": "esbuild sandbox/main.ts --bundle --format=esm --target=es2022 --outfile=sandbox/main.js --minify",
     "dev:sandbox": "esbuild sandbox/main.ts --bundle --format=esm --target=es2022 --outfile=sandbox/main.js --watch --servedir=sandbox --serve=8788",
-    "build:extension": "esbuild extension/src/content.ts --bundle --format=iife --target=es2022 --outfile=extension/dist/content.js --minify && esbuild extension/src/options.ts --bundle --format=esm --target=es2022 --outfile=extension/dist/options.js --minify && cp extension/manifest.json extension/options.html extension/dist/ && mkdir -p extension/dist/icons && cp extension/icons/*.png extension/dist/icons/",
+    "build:extension": "esbuild extension/src/content.ts --bundle --format=iife --target=es2022 --outfile=extension/dist/content.js --minify && esbuild extension/src/background.ts --bundle --format=esm --target=es2022 --outfile=extension/dist/background.js --minify && esbuild extension/src/options.ts --bundle --format=esm --target=es2022 --outfile=extension/dist/options.js --minify && cp extension/manifest.json extension/options.html extension/dist/ && mkdir -p extension/dist/icons && cp extension/icons/*.png extension/dist/icons/",
     "build": "npm run build:sandbox && npm run build:extension",
     "verify:all": "npm run typecheck && npm test && npm run build && npm run preflight:extension",
     "deploy:worker": "wrangler deploy",

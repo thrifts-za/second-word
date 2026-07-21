@@ -37,8 +37,10 @@ interface Stored {
    * be pressed, which is the design the sandbox retired and the writeup
    * argues against. An alarm you have to be awake to set is not an alarm.
    *
-   * The disclosure moves rather than disappears: the options page opens once
-   * on install, so what leaves the browser is stated before it does.
+   * The disclosure moves rather than disappears: `background.ts` opens the
+   * options page on install, so what leaves the browser is stated before it
+   * does, and one switch turns it off. If that listener is ever removed, this
+   * default has to go back to false with it.
    */
   [KEYS.ambient]?: boolean
   /** Show a quiet composer mark that opens YouVersion's Verse of the Day. No draft is sent. */
