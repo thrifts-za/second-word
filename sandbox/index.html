@@ -199,45 +199,71 @@
 
   /* The rotating word. Only the word moves; the line it sits on does not. */
   /*
-   * Both words share one grid cell, so the box is as wide as the longest word
-   * in the set and never reflows the line. The full stop travels inside each
-   * word: with it outside, short words left it stranded ("land   ."), and
-   * taking the outgoing word out of flow instead made it overhang the box.
+   * The rotating word is typed, not faded.
+   *
+   * The sizer sits in the same grid cell holding the longest word at zero
+   * opacity, so the box never changes width and the line break before the word
+   * is permanent. The typed span is left-aligned inside it, because characters
+   * appending rightward from a fixed origin is what typing looks like;
+   * centring made the word twitch on every keystroke.
    */
   .rotator {
     display: inline-grid;
-    justify-items: center;
+    justify-items: start;
     vertical-align: baseline;
     color: #e6b877;
   }
-  .rotator__word {
-    grid-area: 1 / 1;
-    opacity: 0;
-    transform: translateY(.24em);
-    transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.3,1);
-    white-space: nowrap;
+  .rotator__sizer, .rotator__typed { grid-area: 1 / 1; white-space: nowrap; }
+  /* the trailing space the caret occupies, so the box clears it too */
+  .rotator__sizer { opacity: 0; pointer-events: none; padding-right: .13em; }
+  .rotator__typed::after {
+    content: '';
+    display: inline-block;
+    width: .06em;
+    height: .78em;
+    margin-left: .06em;
+    vertical-align: baseline;
+    background: currentColor;
+    opacity: .55;
   }
-  .rotator__word.is-in { opacity: 1; transform: none; }
-  /*
-   * The outgoing word leaves the layout, so the grid is only ever as wide as
-   * the word on screen. Without this it stayed as wide as the longest word in
-   * the set and the full stop floated away from short ones: "land   ."
-   */
-  .rotator__word.is-out { opacity: 0; transform: translateY(-.24em); }
+  .rotator.is-typing .rotator__typed::after { animation: caret 1.1s steps(1) infinite; }
+  @keyframes caret { 0%, 55% { opacity: .55; } 56%, 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .rotator__typed::after { display: none; }
+  }
 
-  /* The hero light drifts between clay and gold rather than sitting still. */
+  /*
+   * The hero light breathes between clay and gold.
+   *
+   * The first version animated the whole background shorthand and moved the
+   * circle at the same time, so each keyframe landed as a switch rather than a
+   * drift. Now the position is fixed and only the colour changes, declared
+   * through @property so the browser interpolates it as a colour rather than
+   * swapping one gradient for another. Twenty-eight seconds: slow enough that
+   * you notice it only if you stay.
+   */
+  @property --glow {
+    syntax: '<color>';
+    initial-value: rgba(196, 112, 90, .16);
+    inherits: false;
+  }
   .hero::before {
     content: '';
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 24%, var(--hero-glow, rgba(196,112,90,.14)), transparent 34%);
-    animation: heroGlow 18s ease-in-out infinite;
+    background: radial-gradient(circle at 50% 23%, var(--glow), transparent 36%);
+    animation: heroGlow 28s ease-in-out infinite;
   }
   @keyframes heroGlow {
-    0%, 100% { background: radial-gradient(circle at 46% 22%, rgba(196,112,90,.16), transparent 34%); }
-    33%      { background: radial-gradient(circle at 54% 26%, rgba(210,165,90,.15), transparent 36%); }
-    66%      { background: radial-gradient(circle at 50% 20%, rgba(154,106,23,.13), transparent 32%); }
+    0%, 100% { --glow: rgba(196, 112, 90, .16); }
+    25%      { --glow: rgba(214, 168, 96, .14); }
+    50%      { --glow: rgba(154, 106, 23, .13); }
+    75%      { --glow: rgba(205, 132, 96, .15); }
+  }
+  @supports not (background: paint(x)) {
+    /* @property is unavailable: hold one colour rather than flicker. */
+    .hero::before { animation: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .hero::before { animation: none; }
@@ -512,7 +538,7 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__copy">
         <p class="eyebrow eyebrow--gold">Introducing Second Word</p>
-        <h1 id="hero-title">The Word,<br />where your words <span class="rotator" id="rotator"><span class="rotator__word is-in">happen.</span></span></h1>
+        <h1 id="hero-title">The Word,<br />where your words <span class="rotator" id="rotator"><span class="rotator__typed">happen.</span></span></h1>
         <p class="hero__lead">
           Other writing tools ask whether a sentence is correct. <strong>Second Word understands the human moment inside it</strong>—then brings verified Scripture into pressure, grief, courage, gratitude and conflict.
         </p>

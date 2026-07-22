@@ -11,7 +11,7 @@ describe('public launch experience', () => {
     // fixed part of the headline and the rotator it hands off to, not the
     // string that used to be hard-coded there.
     expect(page).toContain('The Word,<br />where your words <span class="rotator"')
-    expect(page).toContain('>happen.</span>')
+    expect(page).toContain('rotator__typed">happen.</span>')
     expect(page).toContain('Live experience · no login · nothing is stored or sent for you')
     expect(page).toContain('id="experience"')
     expect(page).toContain('id="surface-tabs"')

@@ -646,24 +646,87 @@ void renderVerseOfTheDaySection()
 function rotateHeadlineWord(): void {
   const host = document.querySelector<HTMLElement>('#rotator')
   if (!host) return
+
+  /*
+   * Typed, deleted, retyped.
+   *
+   * A cross-fade was the wrong gesture for this product. What Second Word
+   * actually does is give somebody the two seconds in which they go back and
+   * change the word they were about to send, so the headline does exactly
+   * that: it writes "wound", stops, takes it back, and writes "heal".
+   *
+   * The sizer holds the longest word at zero opacity, which fixes the box
+   * width. Without it the line reflows on every keystroke and the break before
+   * the word, which is the point of the break, comes and goes.
+   */
   const words = ['happen.', 'land.', 'wound.', 'heal.', 'matter.']
+
+  host.replaceChildren()
+  const sizer = document.createElement('span')
+  sizer.className = 'rotator__sizer'
+  sizer.setAttribute('aria-hidden', 'true')
+  /*
+   * Widest, measured, not longest by character count. In this serif "matter."
+   * and "happen." are both seven characters and different widths, and the box
+   * has to clear whichever actually draws wider, plus the caret. Guessing left
+   * a 10px twitch at the end of every word.
+   */
+  sizer.textContent = words[0]!
+  host.append(sizer)
+  let widest = words[0]!
+  let widestPx = 0
+  for (const word of words) {
+    sizer.textContent = word
+    const measured = sizer.getBoundingClientRect().width
+    if (measured > widestPx) {
+      widestPx = measured
+      widest = word
+    }
+  }
+  sizer.textContent = widest
+  const typed = document.createElement('span')
+  typed.className = 'rotator__typed'
+  typed.textContent = words[0]!
+  host.append(typed)
+
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
+  const TYPE_MS = 62
+  const DELETE_MS = 28
+  const HOLD_MS = 1900
+  const BETWEEN_MS = 320
+
   let index = 0
-  window.setInterval(() => {
-    const current = host.querySelector<HTMLElement>('.rotator__word.is-in')
-    index = (index + 1) % words.length
-    const next = document.createElement('span')
-    next.className = 'rotator__word'
-    next.textContent = words[index] ?? words[0]!
-    host.append(next)
-    requestAnimationFrame(() => {
-      next.classList.add('is-in')
-      current?.classList.remove('is-in')
-      current?.classList.add('is-out')
-      window.setTimeout(() => current?.remove(), 600)
-    })
-  }, 2600)
+  let count = words[0]!.length
+  let deleting = false
+  host.classList.add('is-typing')
+
+  const tick = (): void => {
+    const word = words[index]!
+    if (deleting) {
+      count -= 1
+      typed.textContent = word.slice(0, count)
+      if (count === 0) {
+        deleting = false
+        index = (index + 1) % words.length
+        window.setTimeout(tick, BETWEEN_MS)
+        return
+      }
+      window.setTimeout(tick, DELETE_MS)
+      return
+    }
+
+    count += 1
+    typed.textContent = word.slice(0, count)
+    if (count >= word.length) {
+      deleting = true
+      window.setTimeout(tick, HOLD_MS)
+      return
+    }
+    window.setTimeout(tick, TYPE_MS)
+  }
+
+  window.setTimeout(tick, HOLD_MS)
 }
 
 rotateHeadlineWord()
