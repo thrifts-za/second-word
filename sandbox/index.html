@@ -203,17 +203,20 @@
    *
    * The sizer sits in the same grid cell holding the longest word at zero
    * opacity, so the box never changes width and the line break before the word
-   * is permanent. The typed span is left-aligned inside it, because characters
-   * appending rightward from a fixed origin is what typing looks like;
-   * centring made the word twitch on every keystroke.
+   * is permanent. Words are centred inside that fixed box, so every one of
+   * them sits under the middle of the line above rather than hanging off to
+   * the left of it.
    */
   .rotator {
     display: inline-grid;
-    justify-items: start;
+    justify-items: center;
     vertical-align: baseline;
     color: #e6b877;
   }
   .rotator__sizer, .rotator__typed { grid-area: 1 / 1; white-space: nowrap; }
+  /* Centred text plus a trailing caret would swing the word half a caret-width
+     left. Balance it with the same space on the other side. */
+  .rotator__typed { padding-left: .13em; }
   /* the trailing space the caret occupies, so the box clears it too */
   .rotator__sizer { opacity: 0; pointer-events: none; padding-right: .13em; }
   .rotator__typed::after {
