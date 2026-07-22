@@ -1,10 +1,10 @@
-# Second Word — three-minute video script
+# Second Word - three-minute video script
 
 Do not film the Gloo or Highlights scenes until the corresponding live checks
 are green. The story must be stronger than the technical proof, but never ahead
 of it.
 
-## 0:00–0:18 — the human problem
+## 0:00 - 0:18 - the human problem
 
 **Visual:** An empty composer carries a quiet Second Word mark. Click it to
 reveal YouVersion's Verse of the Day, then collapse References. Cut to Dave
@@ -14,7 +14,7 @@ wrongly blaming the writer for a missed handover.
 Word asks what kind of human moment this is. Most words we regret are written
 here: in a reply when we feel blamed, tired, ashamed, or furious.”
 
-## 0:18–0:42 — the native intervention
+## 0:18 - 0:42 - the native intervention
 
 **Visual:** Type the response. After the pause, Living Margin lightly marks
 “Maybe check your inbox” and “makes people not want to work with you.” The
@@ -23,7 +23,7 @@ small invitation appears; Send remains visible and usable.
 **Voice:** “Second Word does not correct a person’s grammar or seize their
 voice. It notices one live moment, locally, and asks permission to enter it.”
 
-## 0:42–1:12 — the Word meets the actual situation
+## 0:42 - 1:12 - the Word meets the actual situation
 
 **Visual:** Open the card. Show the verified YouVersion reference, the passage,
 translation, collapsed References, reviewed why line, and question. Keep the original draft visible
@@ -33,7 +33,7 @@ behind the card.
 The model never invents Scripture, and its internal commentary never reaches
 this card. Every sentence shown to the person is reviewed.”
 
-## 1:12–1:32 — agency, not automation
+## 1:12 - 1:32 - agency, not automation
 
 **Visual:** Open alternatives, choose none, then type a calmer factual response
 manually. Edit the original draft and show the marker disappearing immediately.
@@ -42,7 +42,7 @@ manually. Edit the original draft and show the marker disappearing immediately.
 person remains the author. Second Word simply creates room to choose what kind
 of person they want to be before Send.”
 
-## 1:32–2:00 — not only anger
+## 1:32 - 2:00 - not only anger
 
 **Visual:** Fast cuts through sandbox tabs: Nomsa grieving; a team win receives
 a gold Guide; Priya's colleague freely offers to carry the handover and receives
@@ -52,7 +52,7 @@ a gold Guide; a neutral calendar acknowledgement quietly receives nothing.
 and leave ordinary messages alone. Guide is gold: no correction and no rewrite,
 only a word for this good moment.”
 
-## 2:00–2:30 — proof
+## 2:00 - 2:30 - proof
 
 **Visual:** `npm run preflight`; Worker health; today's verified daily reference; rewrite
 tamper rejection; extension package gate; brief test summary. After live Gloo
@@ -62,7 +62,7 @@ credentials are configured, show `REQUIRE_GLOO=1 npm run preflight` passing.
 requests, no draft persistence, strict provenance, and a rewrite tied to the
 exact words it analysed.”
 
-## 2:30–2:50 — durable spiritual loop (only when implemented live)
+## 2:30 - 2:50 - durable spiritual loop (only when implemented live)
 
 **Visual:** Person explicitly approves YouVersion data exchange and saves the
 passage to their real YouVersion Highlights. Show the confirmation there.
@@ -70,7 +70,7 @@ passage to their real YouVersion Highlights. Show the confirmation there.
 **Voice:** “And the word does not disappear when the tab closes. With the
 person’s permission, it can return to the Bible they already carry.”
 
-## 2:50–3:00 — closing
+## 2:50 - 3:00 - closing
 
 **Visual:** Return to the composer. The person sends a truthful, gracious reply.
 

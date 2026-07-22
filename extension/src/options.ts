@@ -34,7 +34,7 @@ async function loadTranslations(base: string, selected: string): Promise<void> {
     const response = await fetch(`${base.replace(/\/$/, '')}/v1/bibles`, { signal: AbortSignal.timeout(5_000) })
     if (!response.ok) throw new Error('unavailable')
     const body = (await response.json()) as { bibles?: Array<{ id: string; abbreviation: string; title: string }> }
-    for (const bible of body.bibles ?? []) translation.add(new Option(`${bible.abbreviation} — ${bible.title}`, bible.id))
+    for (const bible of body.bibles ?? []) translation.add(new Option(`${bible.abbreviation} - ${bible.title}`, bible.id))
     translation.value = selected
   } catch {
     // The default remains usable; never offer an unverified local catalogue.

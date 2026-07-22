@@ -17,7 +17,7 @@ primary_experience: A live extension simulation inside the hero.
 
 Second Word is **warm editorial restraint around a living product surface**.
 
-The page should feel as considered as a good book and as immediate as the software people use all day. The brand does not borrow church iconography, stained glass, glowing crosses, generic prayer photography, or AI gradients. Scripture is made distinct through typography, spacing, provenance, and the dark reading card—not religious decoration.
+The page should feel as considered as a good book and as immediate as the software people use all day. The brand does not borrow church iconography, stained glass, glowing crosses, generic prayer photography, or AI gradients. Scripture is made distinct through typography, spacing, provenance, and the dark reading card - not religious decoration.
 
 The governing image is a **margin note appearing at the exact place a sentence is being formed**.
 
@@ -35,11 +35,11 @@ The governing image is a **margin note appearing at the exact place a sentence i
 
 Use alternating surface modes to create narrative pace:
 
-1. **Warm paper** — positioning, editorial copy, trust.
-2. **Soft paper stage** — live application simulator.
-3. **Ink band** — technical proof or the extension appearing across surfaces.
-4. **Warm paper** — human moments and product principles.
-5. **Ink footer** — evidence, source, and final statement.
+1. **Warm paper** - positioning, editorial copy, trust.
+2. **Soft paper stage** - live application simulator.
+3. **Ink band** - technical proof or the extension appearing across surfaces.
+4. **Warm paper** - human moments and product principles.
+5. **Ink footer** - evidence, source, and final statement.
 
 The live simulator carries the most visual weight. Prefer real product chrome and real interaction over abstract illustrations.
 
@@ -85,7 +85,7 @@ The live simulator carries the most visual weight. Prefer real product chrome an
 
 - Warm paper is the floor. Do not use pure white as the full-page background.
 - Ink is reserved for the Scripture card, proof bands, and footer. Do not turn every section dark.
-- Clay is the brand voltage. Use it for the primary demo action, Guard, Scripture rules, and focus—not every link or heading.
+- Clay is the brand voltage. Use it for the primary demo action, Guard, Scripture rules, and focus - not every link or heading.
 - Gold belongs only to Guide. Never use gold as generic luxury decoration.
 - Red is not a reflection colour. A person is not an error.
 - Application-specific colour may identify the selected simulation, but must stop at the application frame boundary.
@@ -182,18 +182,18 @@ Use a 4px base with an 8px primary rhythm.
 
 - Marketing max width: `1240px`.
 - Editorial reading max width: `680px`.
-- Hero grid: 12 columns; copy uses 4–5, simulator uses 7–8.
+- Hero grid: 12 columns; copy uses 4 - 5, simulator uses 7 - 8.
 - Desktop gutters: `32px` minimum.
 - Tablet gutters: `24px`.
 - Mobile gutters: `16px`.
-- Major section separation: `96px`; hero may use `112–128px` vertically.
+- Major section separation: `96px`; hero may use `112 - 128px` vertically.
 
 ### Hero composition
 
 The live simulator must be visible above the fold at `1280×800`.
 
 - Left: eyebrow, thesis, one concise paragraph, proof line, three-step guide.
-- Right: large live simulator, approximately `720–800px` wide.
+- Right: large live simulator, approximately `720 - 800px` wide.
 - Simulator is not an image. It is the real functional experience.
 - The first/default story is Gmail under financial pressure.
 - Primary action is **Try this moment**, not **Install** or **Sign up**.
@@ -252,10 +252,10 @@ Height `64px`, warm paper background, no heavy border.
 
 Required copy hierarchy:
 
-1. **Meet Second Word** — eyebrow.
-2. **The Word, where words happen.** — hero display.
+1. **Meet Second Word** - eyebrow.
+2. **The Word, where words happen.** - hero display.
 3. One paragraph explaining contextual, verified Scripture in the text box.
-4. **Live experience. No login. Nothing is sent for you.** — proof line.
+4. **Live experience. No login. Nothing is sent for you.** - proof line.
 5. Three-step guide: **Use the reply → watch the mark → open the word.**
 
 ### C. Cross-surface moment band
@@ -318,7 +318,7 @@ Ink background. Compact, factual, and transparent.
 ### Primary button
 
 - Clay background, light paper text.
-- `40–44px` height, `8px` radius, `14px/500` UI type.
+- `40 - 44px` height, `8px` radius, `14px/500` UI type.
 - Padding `0 18px`.
 - Hover darkens to clay-active; no glow or vertical jump.
 - Focus ring: `2px solid clay`, `2px` offset.
@@ -347,8 +347,8 @@ Ink background. Compact, factual, and transparent.
 ### Live simulator stage
 
 - Outer background: paper or slightly darker warm neutral.
-- `18px` radius, `24–32px` padding desktop, `8–12px` mobile.
-- Application frame: white or surface-appropriate canvas, `10–12px` radius, `1px` hairline, frame shadow.
+- `18px` radius, `24 - 32px` padding desktop, `8 - 12px` mobile.
+- Application frame: white or surface-appropriate canvas, `10 - 12px` radius, `1px` hairline, frame shadow.
 - Keep host chrome minimal: sender/context, content, composer, send control.
 - The extension badge and panel sit above host chrome through the existing shared components.
 
@@ -426,7 +426,7 @@ Preserve the real component exactly unless a separately tested product change is
 
 | Surface | Human moment | Product state |
 |---|---|---|
-| Gmail | Financial pressure and provision | Guard/accompaniment; Matthew 6:25–26 first |
+| Gmail | Financial pressure and provision | Guard/accompaniment; Matthew 6:25 - 26 first |
 | Slack | Freely carrying a colleague | Gold Guide; no rewrite |
 | X | Public provocation with a truthful point and a sting | Living Margin + Guard |
 | WhatsApp | Writing into grief without explaining it | Guard with care |
@@ -446,16 +446,16 @@ Do not simulate Outlook or Microsoft Word as live support until adapters, permis
 
 Every implementation must account for these states:
 
-1. **Presence** — Verse of the Day mark; no draft analysis required.
-2. **Writing** — host composer remains primary; no interruption.
-3. **Reading** — breathing mark after the idle threshold.
-4. **Guard resolved** — clay invitation; passage waits for a click.
-5. **Guide resolved** — gold invitation; positive moment, no correction.
-6. **Silence resolved** — return to Presence; no passage card.
-7. **Card open** — verified Scripture and reviewed direct-to-person copy.
-8. **Alternatives open** — only with a valid signed rewrite credential.
-9. **Draft changed** — clear stale mark, marker, card, and offer.
-10. **Unavailable** — never substitute model-generated or local Scripture.
+1. **Presence** - Verse of the Day mark; no draft analysis required.
+2. **Writing** - host composer remains primary; no interruption.
+3. **Reading** - breathing mark after the idle threshold.
+4. **Guard resolved** - clay invitation; passage waits for a click.
+5. **Guide resolved** - gold invitation; positive moment, no correction.
+6. **Silence resolved** - return to Presence; no passage card.
+7. **Card open** - verified Scripture and reviewed direct-to-person copy.
+8. **Alternatives open** - only with a valid signed rewrite credential.
+9. **Draft changed** - clear stale mark, marker, card, and offer.
+10. **Unavailable** - never substitute model-generated or local Scripture.
 
 Do not show a toast simply to prove Silence. A small explanation outside the simulated host may explain the design during the dedicated Silence scenario.
 
@@ -476,7 +476,7 @@ Do not show a toast simply to prove Silence. A small explanation outside the sim
 ### Rules
 
 - The panel rises no more than `4px` while fading in.
-- Surface changes crossfade with a restrained `8–12px` horizontal movement.
+- Surface changes crossfade with a restrained `8 - 12px` horizontal movement.
 - Never animate Scripture word by word.
 - Never use confetti for Guide.
 - Hover may clarify, not entertain.
@@ -493,7 +493,7 @@ Do not show a toast simply to prove Silence. A small explanation outside the sim
 - Simulator visible above fold at `1280×800`.
 - Application switcher may be vertical if it improves simulator width.
 
-### Tablet: `768–1099px`
+### Tablet: `768 - 1099px`
 
 - Stack hero copy above simulator.
 - Keep simulator at full container width.
@@ -578,7 +578,7 @@ Direct, humane, specific, and restrained.
 
 - Prefer live interface simulation to photography or illustration.
 - Second Word's mark is the only persistent brand glyph.
-- Use simple line icons at `16–20px`, with `1.5px` strokes.
+- Use simple line icons at `16 - 20px`, with `1.5px` strokes.
 - Application glyphs identify a surface but remain secondary to text labels.
 - Do not use stock prayer imagery, floating Bibles, halos, doves, stained glass, or glowing hands.
 - Do not use neural meshes, chat bubbles, gradient orbs, circuit brains, or sparkles as AI shorthand.

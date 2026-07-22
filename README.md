@@ -31,7 +31,7 @@ challenge, on the YouVersion Platform API and Gloo AI Studio. MIT licensed.
 daily selection, the chosen translation, and full publisher attribution. It is off by
 default, makes no analysis request, reads no draft, and opens only when clicked.
 
-**It should not have to wait to be asked—but that is the person's choice.** The moment
+**It should not have to wait to be asked - but that is the person's choice.** The moment
 you most need a pause is the moment you are least willing to reach for one, and nobody
 presses a button to be reminded to give thanks. So, after explicit opt-in, it looks once
 typing settles and a mark appears in the corner of the box. Nothing opens. Clicking it is

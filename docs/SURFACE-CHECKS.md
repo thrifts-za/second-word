@@ -25,7 +25,7 @@ const RULES = {
 const key = Object.keys(RULES).find(k => location.host.includes(k));
 const rule = RULES[key];
 const el = document.activeElement;
-console.log('host rule      :', key || 'NONE — add one');
+console.log('host rule      :', key || 'NONE - add one');
 console.log('composer focused:', el && el.tagName, el && (el.getAttribute('role') || el.type || ''));
 if (rule) {
   const all = [...document.querySelectorAll(rule.message)];

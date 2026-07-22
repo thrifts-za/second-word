@@ -175,7 +175,7 @@ export const SCENARIOS: Scenario[] = [
     composerLabel: 'Share your news',
     placeholder: 'What do you want to talk about?',
     suggestedDraft:
-      'Three years, a lot of late nights, and a team I would run through walls for—today I am stepping into the Head of Design role. Grateful does not begin to cover it.',
+      'Three years, a lot of late nights, and a team I would run through walls for - today I am stepping into the Head of Design role. Grateful does not begin to cover it.',
   },
   {
     id: 'ordinary',
