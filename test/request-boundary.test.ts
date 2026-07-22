@@ -48,4 +48,36 @@ describe('Worker request boundary', () => {
     expect(response.status).toBe(400)
     await expect(response.json()).resolves.toMatchObject({ error: 'invalid_request' })
   })
+
+  it('rejects an invalid rewrite token before it can consume Gloo allowance', async () => {
+    let budgetCalled = false
+    const guardedEnv: Env = {
+      ...env,
+      LLM_PROVIDER: 'gloo',
+      GLOO_BUDGET: {
+        idFromName: () => ({}) as DurableObjectId,
+        get: () => ({
+          fetch: async () => {
+            budgetCalled = true
+            return Response.json({ allowed: true, remainingDaily: 1, remainingTotal: 1 })
+          },
+        }) as unknown as DurableObjectStub,
+      } as unknown as DurableObjectNamespace,
+    }
+    const response = await app.fetch(
+      new Request('https://worker.invalid/v1/rewrite', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          draft: 'This request was never analysed.',
+          analysis_token: 'not-a-valid-token',
+          modes: ['clearer'],
+        }),
+      }),
+      guardedEnv,
+    )
+
+    expect(response.status).toBe(401)
+    expect(budgetCalled).toBe(false)
+  })
 })

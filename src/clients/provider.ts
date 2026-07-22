@@ -6,9 +6,8 @@
  *
  *   LLM_PROVIDER=gloo        the competition requires this, and the
  *                            submission runs on it
- *   LLM_PROVIDER=workers-ai  development stand-in while Gloo AI Studio is
- *                            unreachable (its free tier requires payment
- *                            details; the cards available were declined)
+ *   LLM_PROVIDER=workers-ai  availability fallback when the protected Gloo
+ *                            allowance is unavailable or exhausted
  *   LLM_PROVIDER=fake        deterministic, for tests. Never in the demo.
  */
 

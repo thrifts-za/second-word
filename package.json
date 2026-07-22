@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.browser.json",
     "verify:refs": "esbuild scripts/verify-references.ts --bundle --platform=node --format=esm --target=node20 --outfile=/tmp/second-word-verify-references.mjs && node /tmp/second-word-verify-references.mjs",
+    "smoke:gloo": "esbuild scripts/gloo-smoke.ts --bundle --platform=node --format=esm --target=node20 --outfile=/tmp/second-word-gloo-smoke.mjs && node /tmp/second-word-gloo-smoke.mjs",
     "preflight": "node scripts/preflight.mjs",
     "preflight:extension": "node scripts/extension-preflight.mjs",
     "build:sandbox": "esbuild sandbox/main.ts --bundle --format=esm --target=es2022 --outfile=sandbox/main.js --minify",

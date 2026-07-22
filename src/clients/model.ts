@@ -9,10 +9,8 @@
  * It is never asked to produce verse text. The schema has no field for it.
  *
  * COMPETITION NOTE: Scripture in New Frontiers requires Gloo AI Studio, and
- * the submission runs on Gloo. Workers AI exists here because Gloo AI Studio
- * requires payment details even on its free tier and the cards available to
- * this builder were declined, so development could not otherwise proceed.
- * Provider is a single env var. Nothing else changes when Gloo is wired in.
+ * the submission runs on Gloo behind a server-side spend allowance. Workers AI
+ * remains the availability fallback. Provider is explicit in every response.
  */
 
 import type { GlooAnalysis, GlooRewrites, Principle, RewriteMode } from '../lib/contracts'

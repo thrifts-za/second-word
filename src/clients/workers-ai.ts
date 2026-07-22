@@ -1,12 +1,9 @@
 /**
  * Cloudflare Workers AI provider.
  *
- * A stand-in for Gloo while Gloo AI Studio is unreachable: its free tier
- * requires payment details, and the cards available were declined. This keeps
- * development honest rather than stalling behind a billing form.
- *
- * The submission runs on Gloo. Everything here exists behind the same
- * interface, receives the same prompts, and is swapped with one env var.
+ * The availability fallback behind the protected Gloo judging path. It shares
+ * the same interface, prompts, schemas, and reviewed Scripture library, while
+ * every response states which provider actually ran.
  *
  * Chosen model: Llama 3.3 70B Instruct (fp8, fast). It is the strongest
  * general instruction-following model on Workers AI and holds a JSON contract

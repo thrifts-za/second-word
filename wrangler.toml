@@ -12,16 +12,31 @@ compatibility_flags = ["nodejs_compat"]
 YOUVERSION_APP_KEY = "zIdKbkilUOBYhUE0Y3Txh8HxikIOr8AGyZifFsWGeeJywbY7"
 DEFAULT_BIBLE_ID = "111"
 DEFAULT_LOCALE = "en"
-# Which model reads the draft. The competition requires Gloo and the
-# submission runs on it; workers-ai is the stand-in while Gloo AI Studio
-# is unreachable (its free tier requires payment details).
-LLM_PROVIDER = "workers-ai"
+# Gloo is the judged path. An atomic Durable Object allowance protects the
+# competition credit; Workers AI remains the truthful availability fallback.
+LLM_PROVIDER = "gloo"
+GLOO_MODEL = "gloo-google-gemini-2.5-flash-lite"
+GLOO_BUDGET_END = "2026-07-31T22:00:00Z"
+GLOO_ANALYSIS_DAILY_LIMIT = "300"
+GLOO_REWRITE_DAILY_LIMIT = "75"
+GLOO_ANALYSIS_TOTAL_LIMIT = "2500"
+GLOO_REWRITE_TOTAL_LIMIT = "600"
+GLOO_ANALYSIS_BURST_LIMIT = "30"
+GLOO_REWRITE_BURST_LIMIT = "10"
 WORKERS_AI_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 ALLOWED_ORIGINS = "https://second-word.pages.dev,https://master.second-word.pages.dev,https://mail.google.com,http://localhost:8788,http://localhost:8789"
 
 # Cloudflare Workers AI. No key needed; the binding is the credential.
 [ai]
 binding = "AI"
+
+[[durable_objects.bindings]]
+name = "GLOO_BUDGET"
+class_name = "GlooBudget"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GlooBudget"]
 
 # Gloo access token cache. Create with:
 #   wrangler kv namespace create TOKEN_CACHE

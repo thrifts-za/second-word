@@ -51,7 +51,7 @@ describe('Gloo provider protocol', () => {
       expect(completion.init?.signal).toBeTruthy()
       const payload = JSON.parse(String(completion.init?.body))
       expect(payload).toMatchObject({
-        model: 'gloo-openai-gpt-5-mini',
+        model: 'gloo-google-gemini-2.5-flash-lite',
         tool_choice: 'required',
         tools: [{ function: { name: 'select_reviewed_scripture' } }],
       })

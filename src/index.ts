@@ -14,6 +14,10 @@ import { AnalyzeRequestSchema, MAX_DRAFT_LENGTH, RewriteRequestSchema, VerseOfTh
 import { EPIGRAPH_REFERENCE } from './lib/scripture-library'
 import { runAnalyze } from './orchestration/analyze'
 import { runRewrite } from './orchestration/rewrite'
+import type { GlooBudgetDecision, GlooOperation } from './security/gloo-budget'
+import { verifyAnalysisToken } from './security/token'
+
+export { GlooBudget } from './security/gloo-budget'
 
 export interface Env {
   YOUVERSION_APP_KEY: string
@@ -32,6 +36,14 @@ export interface Env {
   GLOO_TOKEN_URL?: string
   GLOO_API_BASE?: string
   GLOO_MODEL?: string
+  GLOO_BUDGET?: DurableObjectNamespace
+  GLOO_BUDGET_END?: string
+  GLOO_ANALYSIS_DAILY_LIMIT?: string
+  GLOO_REWRITE_DAILY_LIMIT?: string
+  GLOO_ANALYSIS_TOTAL_LIMIT?: string
+  GLOO_REWRITE_TOTAL_LIMIT?: string
+  GLOO_ANALYSIS_BURST_LIMIT?: string
+  GLOO_REWRITE_BURST_LIMIT?: string
 }
 
 const MAX_BODY_BYTES = 8 * 1024
@@ -80,6 +92,7 @@ app.get('/health', (c) =>
     ok: true,
     llm_provider: c.env.LLM_PROVIDER ?? 'gloo',
     gloo_configured: Boolean(c.env.GLOO_CLIENT_ID && c.env.GLOO_CLIENT_SECRET),
+    gloo_budget_guard: Boolean(c.env.GLOO_BUDGET),
     workers_ai_available: Boolean(c.env.AI || (c.env.CF_ACCOUNT_ID && c.env.CF_WORKERS_AI_TOKEN)),
     signing_key_configured: Boolean(c.env.TOKEN_SIGNING_KEY),
     default_bible_id: c.env.DEFAULT_BIBLE_ID,
@@ -220,13 +233,21 @@ app.post('/v1/analyze', async (c) => {
   if (!signingKey) return c.json({ error: 'server_misconfigured' }, 500)
 
   try {
-    const outcome = await runAnalyze(parsed.data, {
-      model: createReflectionModel(c.env),
+    const model = await modelForOperation(c.env, 'analyze')
+    const dependencies = {
+      model,
       youversion: new YouVersionClient(c.env.YOUVERSION_APP_KEY),
       signingKey,
       defaultBibleId: c.env.DEFAULT_BIBLE_ID,
       defaultLocale: c.env.DEFAULT_LOCALE,
-    })
+    }
+    let outcome
+    try {
+      outcome = await runAnalyze(parsed.data, dependencies)
+    } catch (error) {
+      if (!(error instanceof ModelError) || model.provider !== 'gloo') throw error
+      outcome = await runAnalyze(parsed.data, { ...dependencies, model: workersFallback(c.env) })
+    }
 
     if (outcome.kind === 'safety') return c.json(outcome.body, 200)
     if (outcome.kind === 'no_moment') return c.json(outcome.body, 200)
@@ -258,12 +279,32 @@ app.post('/v1/rewrite', async (c) => {
   const signingKey = c.env.TOKEN_SIGNING_KEY
   if (!signingKey) return c.json({ error: 'server_misconfigured' }, 500)
 
+  // Invalid or stale tokens must not be able to consume the shared Gloo
+  // rewrite allowance. runRewrite repeats this check as defence in depth.
+  const verified = await verifyAnalysisToken(
+    parsed.data.analysis_token,
+    parsed.data.draft,
+    signingKey,
+    parsed.data.received_message,
+  )
+  if (!verified.ok) {
+    return c.json({ error: 'analysis_token_rejected', reason: verified.reason }, 401)
+  }
+
   try {
-    const outcome = await runRewrite(parsed.data, {
-      model: createReflectionModel(c.env),
+    const model = await modelForOperation(c.env, 'rewrite')
+    const dependencies = {
+      model,
       signingKey,
       defaultLocale: c.env.DEFAULT_LOCALE,
-    })
+    }
+    let outcome
+    try {
+      outcome = await runRewrite(parsed.data, dependencies)
+    } catch (error) {
+      if (!(error instanceof ModelError) || model.provider !== 'gloo') throw error
+      outcome = await runRewrite(parsed.data, { ...dependencies, model: workersFallback(c.env) })
+    }
 
     if (outcome.kind === 'rejected') {
       return c.json({ error: 'analysis_token_rejected', reason: outcome.reason }, 401)
@@ -273,6 +314,34 @@ app.post('/v1/rewrite', async (c) => {
     return errorResponse(c, error)
   }
 })
+
+/**
+ * Spend permission is acquired before a Gloo request. If the allowance is
+ * exhausted or the guard itself is unavailable, the already-configured
+ * Workers AI path keeps the public demo useful without touching Gloo credit.
+ */
+export async function modelForOperation(env: Env, operation: GlooOperation) {
+  if ((env.LLM_PROVIDER ?? 'gloo') !== 'gloo') return createReflectionModel(env)
+  if (!env.GLOO_BUDGET) return workersFallback(env)
+
+  try {
+    const id = env.GLOO_BUDGET.idFromName('second-word-competition-budget')
+    const response = await env.GLOO_BUDGET.get(id).fetch('https://budget.internal/consume', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ operation }),
+    })
+    if (!response.ok) return workersFallback(env)
+    const decision = await response.json<GlooBudgetDecision>()
+    return decision.allowed ? createReflectionModel(env) : workersFallback(env)
+  } catch {
+    return workersFallback(env)
+  }
+}
+
+function workersFallback(env: Env) {
+  return createReflectionModel({ ...env, LLM_PROVIDER: 'workers-ai' })
+}
 
 /** Error text is user-facing and must never leak a draft or a credential. */
 function errorResponse(c: { json: (body: unknown, status: 502 | 503) => Response }, error: unknown): Response {

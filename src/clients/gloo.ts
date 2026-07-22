@@ -1,10 +1,7 @@
 /**
  * Gloo AI Studio provider.
  *
- * This is the provider the competition requires and the one the submission
- * runs on. It is written and wired but **unverified**: Gloo AI Studio requires
- * payment details even on its free tier, and every card tried was declined, so
- * no credentials exist yet to test against.
+ * This is the provider the competition requires and the primary judged path.
  *
  * Endpoint defaults were confirmed against Gloo's official developer
  * quickstart on 2026-07-20. They remain overridable because available models
@@ -23,7 +20,7 @@ import {
 
 const DEFAULT_TOKEN_URL = 'https://platform.ai.gloo.com/oauth2/token'
 const DEFAULT_API_BASE = 'https://platform.ai.gloo.com/ai/v2'
-const DEFAULT_MODEL = 'gloo-openai-gpt-5-mini'
+const DEFAULT_MODEL = 'gloo-google-gemini-2.5-flash-lite'
 const TOKEN_TIMEOUT_MS = 5_000
 const COMPLETION_TIMEOUT_MS = 12_000
 

@@ -530,7 +530,7 @@ async function loadProvider(): Promise<void> {
         provider === 'gloo'
           ? 'Gloo AI Studio'
           : provider === 'workers-ai'
-            ? 'Cloudflare Workers AI, standing in for Gloo AI Studio while its credentials are unavailable'
+            ? 'Cloudflare Workers AI, the automatic availability fallback for Gloo AI Studio'
             : (provider ?? 'an unknown provider')
     }
     if (status) status.textContent = 'Connected to the live Second Word Worker'
