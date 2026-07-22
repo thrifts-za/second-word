@@ -78,8 +78,9 @@ let evaluationRun = 0
 /** Same as the extension: never on keypress, and never twice for one draft. */
 const DEBOUNCE_MS = 800
 /** Match the extension: a demo must fail visibly, never wait forever. */
-const ANALYZE_TIMEOUT_MS = 15_000
-const REWRITE_TIMEOUT_MS = 15_000
+// The Worker may make one budgeted Gloo retry before using its fallback.
+const ANALYZE_TIMEOUT_MS = 32_000
+const REWRITE_TIMEOUT_MS = 32_000
 const PASSAGE_TIMEOUT_MS = 5_000
 const HEALTH_TIMEOUT_MS = 5_000
 const scheduler = createScheduler<AnalyzeResponse | SafetyResponse | NoMomentResponse>()

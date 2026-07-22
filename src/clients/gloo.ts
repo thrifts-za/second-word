@@ -22,7 +22,7 @@ const DEFAULT_TOKEN_URL = 'https://platform.ai.gloo.com/oauth2/token'
 const DEFAULT_API_BASE = 'https://platform.ai.gloo.com/ai/v2'
 const DEFAULT_MODEL = 'gloo-google-gemini-2.5-flash-lite'
 const TOKEN_TIMEOUT_MS = 5_000
-const COMPLETION_TIMEOUT_MS = 12_000
+const COMPLETION_TIMEOUT_MS = 14_000
 
 const ANALYSIS_TOOL_NAME = 'select_reviewed_scripture'
 

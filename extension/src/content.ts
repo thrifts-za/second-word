@@ -59,9 +59,10 @@ const DEBOUNCE_MS = 800
  * for the rest of the session without ever saying so. A hung read becomes
  * silence, deliberately, rather than a hang.
  */
-const ANALYZE_TIMEOUT_MS = 15_000
+// The Worker may make one budgeted Gloo retry before using its fallback.
+const ANALYZE_TIMEOUT_MS = 32_000
 /** A rewrite is optional; it must never leave an action button waiting forever. */
-const REWRITE_TIMEOUT_MS = 15_000
+const REWRITE_TIMEOUT_MS = 32_000
 
 type AnalyzeOutcome = AnalyzeResponse | SafetyResponse | NoMomentResponse
 
