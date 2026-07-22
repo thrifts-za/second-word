@@ -691,10 +691,17 @@ function rotateHeadlineWord(): void {
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  const TYPE_MS = 62
-  const DELETE_MS = 28
-  const HOLD_MS = 1900
-  const BETWEEN_MS = 320
+  /*
+   * Paced for reading, not for showing off the effect.
+   *
+   * At 62ms a character the word was gone before anyone had finished the line
+   * it belongs to. A person reads "where your words wound." in roughly two
+   * seconds; the hold has to be longer than that or the sentence never lands.
+   */
+  const TYPE_MS = 105
+  const DELETE_MS = 45
+  const HOLD_MS = 3400
+  const BETWEEN_MS = 700
 
   let index = 0
   let count = words[0]!.length
