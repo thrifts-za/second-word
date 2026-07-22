@@ -16,6 +16,7 @@
  */
 
 import type { ComposerAdapter } from './types'
+import { readConversation } from './conversation'
 
 /** Inputs where a passing glance is a security incident. D18. */
 // Search and form fields are not messages. Treating a large site-search box
@@ -212,8 +213,22 @@ export const genericAdapter: ComposerAdapter = {
   },
 
   /** Only a site-specific adapter can know what a conversation looks like. */
-  getReceivedMessage() {
-    return null
+  getReceivedMessage(element) {
+    /*
+     * The conversation above this box, where we can read it reliably.
+     *
+     * This returned null on every surface but Gmail, which meant the argument
+     * the product is built on, that a draft cannot be weighed against itself,
+     * operated on one of nine places people write. Slack, Teams, WhatsApp, X,
+     * LinkedIn and Reddit all render the conversation directly above the
+     * composer; the problem was never architectural, only unwritten.
+     *
+     * Still null on an unrecognised host, and null whenever the answer is not
+     * obvious. Reading nothing is the behaviour we already ship. Reading the
+     * wrong thing would feed a stranger's words, or the person's own last
+     * message, into the analysis as context.
+     */
+    return readConversation(element, element.ownerDocument.location?.host ?? '')
   },
 
   attachAnchor(element) {

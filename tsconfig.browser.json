@@ -24,6 +24,7 @@
     "test/content-ambient.test.ts",
     "test/moment-marker.test.ts",
     "test/overlay.test.ts",
-    "test/presence.test.ts"
+    "test/presence.test.ts",
+    "test/conversation.test.ts"
   ]
 }
