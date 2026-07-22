@@ -69,11 +69,25 @@ export class SecondWordOverlay {
       pointerEvents: 'auto',
       overflowY: 'auto',
       overscrollBehavior: 'contain',
+      background: '#16181d',
+      scrollbarColor: 'rgba(236, 233, 226, 0.28) #16181d',
+      scrollbarWidth: 'thin',
       borderRadius: '3px',
       boxShadow: '0 10px 34px rgba(20, 14, 10, 0.30)',
     })
+    this.frame.className = 'second-word-overlay__frame'
+    const scrollbarStyle = document.createElement('style')
+    scrollbarStyle.textContent = `
+      second-word-overlay > .second-word-overlay__frame::-webkit-scrollbar { width: 7px; }
+      second-word-overlay > .second-word-overlay__frame::-webkit-scrollbar-track { background: #16181d; }
+      second-word-overlay > .second-word-overlay__frame::-webkit-scrollbar-thumb {
+        border: 2px solid #16181d;
+        border-radius: 999px;
+        background: rgba(236, 233, 226, 0.28);
+      }
+    `
     this.frame.append(options.content)
-    this.host.append(this.frame)
+    this.host.append(scrollbarStyle, this.frame)
     ;(document.body ?? document.documentElement).append(this.host)
 
     this.schedule = this.schedule.bind(this)

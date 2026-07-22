@@ -26,7 +26,7 @@ import { SecondWordBadge } from '../extension/src/badge'
 import { SecondWordOverlay } from '../extension/src/overlay'
 import { createScheduler } from '../extension/src/scheduler'
 import { SecondWordPanel, type AnalyzeOptions } from '../src/ui/panel'
-import { SCENARIOS, type Scenario } from './scenarios'
+import { APP_SURFACES, SCENARIOS, type AppId, type AppSurface, type Scenario } from './scenarios'
 
 const API_BASE = (document.documentElement.dataset.api ?? 'http://localhost:8787').replace(/\/$/, '')
 
@@ -40,6 +40,11 @@ const inviteButton = el<HTMLButtonElement>('invite')
 const sendButton = el<HTMLButtonElement>('send')
 const fillButton = el<HTMLButtonElement>('fill')
 const statusSlot = el('status-slot')
+const surfaceTabsNav = el('surface-tabs')
+const momentGrid = el('moment-grid')
+const supportedSurfaces = el('supported-surfaces')
+const productSurface = el('product-surface')
+const sendLabel = el<HTMLButtonElement>('send')
 
 /*
  * Nothing writes into this slot on the ambient path any more.
@@ -83,8 +88,50 @@ const scheduler = createScheduler<AnalyzeResponse | SafetyResponse | NoMomentRes
 // Scenario switching
 // ---------------------------------------------------------------------------
 
+function appFor(id: AppId): AppSurface {
+  const app = APP_SURFACES.find((item) => item.id === id)
+  if (!app) throw new Error(`Unknown application surface: ${id}`)
+  return app
+}
+
+function logoFor(app: AppSurface, className: string): HTMLImageElement {
+  const image = document.createElement('img')
+  image.className = className
+  image.src = `./assets/${app.id}.svg`
+  image.alt = ''
+  image.width = 22
+  image.height = 22
+  image.setAttribute('aria-hidden', 'true')
+  return image
+}
+
+function initials(name: string): string {
+  return name
+    .split(/\s|·/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+function renderScenarioTabs(appId: AppId): void {
+  tabsNav.replaceChildren()
+  for (const item of SCENARIOS.filter((candidate) => candidate.app === appId)) {
+    const tab = document.createElement('button')
+    tab.type = 'button'
+    tab.className = `scenario-tab${item.id === scenario.id ? ' scenario-tab--on' : ''}`
+    tab.dataset.id = item.id
+    tab.textContent = item.tab
+    tab.setAttribute('aria-pressed', String(item.id === scenario.id))
+    tab.addEventListener('click', () => renderScenario(item))
+    tabsNav.append(tab)
+  }
+}
+
 function renderScenario(next: Scenario): void {
   scenario = next
+  const app = appFor(next.app)
   closePanel()
   badge?.destroy()
   badge = null
@@ -94,29 +141,95 @@ function renderScenario(next: Scenario): void {
   lastEvaluated = ''
 
   el('location').textContent = next.location
+  el('app-name').textContent = app.name
+  const appGlyph = el('app-glyph')
+  appGlyph.replaceChildren(logoFor(app, 'surface__logo'))
   el('from').textContent = next.received.from
   el('meta').textContent = next.received.meta
   el('body').textContent = next.received.body
+  el('avatar').textContent = initials(next.received.from)
   el('composer-label').textContent = next.composerLabel
+  productSurface.dataset.app = app.id
+  productSurface.style.setProperty('--app-accent', app.accent)
+  sendLabel.textContent = app.id === 'x' || app.id === 'linkedin' ? 'Post' : 'Send'
 
   draftField.value = ''
   resizeDraftField()
   draftField.placeholder = next.placeholder
   showPresenceBadge()
 
-  for (const tab of tabsNav.children) {
-    tab.classList.toggle('tab--on', (tab as HTMLElement).dataset.id === next.id)
+  renderScenarioTabs(app.id)
+  for (const tab of surfaceTabsNav.children) {
+    const selected = (tab as HTMLElement).dataset.id === app.id
+    tab.classList.toggle('app-tab--on', selected)
+    tab.setAttribute('aria-pressed', String(selected))
   }
 }
 
-for (const item of SCENARIOS) {
+for (const app of APP_SURFACES) {
   const tab = document.createElement('button')
   tab.type = 'button'
-  tab.className = 'tab'
-  tab.dataset.id = item.id
-  tab.textContent = item.tab
-  tab.addEventListener('click', () => renderScenario(item))
-  tabsNav.append(tab)
+  tab.className = 'app-tab'
+  tab.dataset.id = app.id
+  tab.style.setProperty('--app-accent', app.accent)
+  tab.append(logoFor(app, 'app-tab__logo'))
+  const name = document.createElement('span')
+  name.className = 'app-tab__name'
+  name.textContent = app.shortName
+  tab.append(name)
+  tab.setAttribute('aria-label', `Show Second Word in ${app.name}`)
+  tab.addEventListener('click', () => {
+    const first = SCENARIOS.find((item) => item.app === app.id)
+    if (first) renderScenario(first)
+  })
+  surfaceTabsNav.append(tab)
+}
+
+for (const item of SCENARIOS) {
+  const app = appFor(item.app)
+  const card = document.createElement('button')
+  card.type = 'button'
+  card.className = 'moment-card'
+  card.style.setProperty('--app-accent', app.accent)
+  card.setAttribute('aria-label', `${item.moment} in ${app.name}`)
+
+  const top = document.createElement('span')
+  top.className = 'moment-card__top'
+  const appLabel = document.createElement('span')
+  appLabel.className = 'moment-card__app'
+  appLabel.append(logoFor(app, 'moment-card__logo'), document.createTextNode(app.shortName))
+  const kind = document.createElement('span')
+  kind.className = `moment-card__kind moment-card__kind--${item.kind}`
+  kind.textContent = item.kind === 'guide' ? 'Guide' : item.kind === 'silence' ? 'Silence' : 'Guard'
+  top.append(appLabel, kind)
+
+  const title = document.createElement('span')
+  title.className = 'moment-card__title'
+  title.textContent = item.moment
+  card.append(top, title)
+  card.addEventListener('click', () => {
+    renderScenario(item)
+    document.querySelector('#experience')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    window.setTimeout(() => draftField.focus(), 450)
+  })
+  momentGrid.append(card)
+}
+
+for (const app of APP_SURFACES) {
+  const item = document.createElement('div')
+  item.className = 'supported__item'
+  item.style.setProperty('--app-accent', app.accent)
+  item.append(logoFor(app, 'supported__logo'))
+  const copy = document.createElement('div')
+  const name = document.createElement('div')
+  name.className = 'supported__name'
+  name.textContent = app.shortName
+  const state = document.createElement('div')
+  state.className = 'supported__state'
+  state.textContent = 'Live in this experience'
+  copy.append(name, state)
+  item.append(copy)
+  supportedSurfaces.append(item)
 }
 
 // ---------------------------------------------------------------------------
@@ -265,10 +378,12 @@ function showBadge(result: AnalyzeResponse | SafetyResponse): void {
       badge = null
       closePanel()
       panel = buildPanel()
-      overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
       // Already paid for. Re-running it to display it would be a second call.
       if ('verified_reference_id' in result) panel.present(result)
       else panel.presentSafety(result)
+      // Present before measuring: the resolved card opens at its real height
+      // on the first frame rather than growing out of a temporary 300px box.
+      overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
     },
   })
 }
@@ -384,8 +499,8 @@ function openVerseOfTheDay(): void {
   badge = null
   closePanel()
   panel = buildPanel()
-  overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
   panel.presentVerseOfTheDay(dailyVerse)
+  overlay = new SecondWordOverlay({ field: draftField, content: panel.host })
 }
 
 /**
@@ -394,20 +509,26 @@ function openVerseOfTheDay(): void {
  */
 async function loadProvider(): Promise<void> {
   const label = document.querySelector<HTMLElement>('#provider')
-  if (!label) return
+  const status = document.querySelector<HTMLElement>('#live-status')
+  const dot = document.querySelector<HTMLElement>('#live-dot')
   try {
     const response = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS) })
-    if (!response.ok) return
+    if (!response.ok) throw new Error('health unavailable')
     const body = (await response.json()) as { llm_provider?: string }
     const provider = body.llm_provider
-    label.textContent =
-      provider === 'gloo'
-        ? 'Gloo AI Studio'
-        : provider === 'workers-ai'
-          ? 'Cloudflare Workers AI, standing in for Gloo AI Studio while its credentials are unavailable'
-          : (provider ?? 'an unknown provider')
+    if (label) {
+      label.textContent =
+        provider === 'gloo'
+          ? 'Gloo AI Studio'
+          : provider === 'workers-ai'
+            ? 'Cloudflare Workers AI, standing in for Gloo AI Studio while its credentials are unavailable'
+            : (provider ?? 'an unknown provider')
+    }
+    if (status) status.textContent = 'Connected to the live Second Word Worker'
+    if (dot) dot.style.background = '#75a783'
   } catch {
-    // Leave the neutral wording already in the page.
+    if (status) status.textContent = 'The live Worker is unavailable right now'
+    if (dot) dot.style.background = '#c4705a'
   }
 }
 

@@ -84,6 +84,15 @@ describe('overlay', () => {
     overlay.destroy()
   })
 
+  it('keeps a necessary scrollbar inside the dark card instead of a pale gutter', () => {
+    place(field, { left: 100, top: 200, right: 500, bottom: 300, width: 400, height: 100 })
+    const overlay = new SecondWordOverlay({ field, content })
+
+    expect(overlay.frame.style.background).toBe('rgb(22, 24, 29)')
+    expect(overlay.frame.style.scrollbarColor).toContain('#16181d')
+    overlay.destroy()
+  })
+
   it('removes itself from the document on destroy', () => {
     place(field, { left: 100, top: 200, right: 500, bottom: 300, width: 400, height: 100 })
     const overlay = new SecondWordOverlay({ field, content })
