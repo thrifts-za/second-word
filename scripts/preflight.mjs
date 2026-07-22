@@ -11,7 +11,7 @@
 const base = (process.env.API_BASE ?? 'https://second-word.nkosithrifts.workers.dev').replace(/\/$/, '')
 const requireGloo = process.env.REQUIRE_GLOO === '1'
 const fixture = {
-  draft: 'I want to correct this without returning the blow, but I feel angry.',
+  draft: 'You clearly have no idea what you are talking about. Stop wasting my time.',
   surface: 'sandbox',
   received_message: 'You failed again and everyone knows it.',
 }
@@ -40,6 +40,12 @@ const silenceFixture = {
 function fail(message) {
   console.error(`FAIL ${message}`)
   process.exitCode = 1
+}
+
+function requireExpectedProvider(result, label) {
+  if (requireGloo && result.provider !== 'gloo') {
+    fail(`${label} used ${result.provider ?? 'an unknown provider'} instead of Gloo`)
+  }
 }
 
 async function get(path) {
@@ -80,6 +86,7 @@ try {
   const analyzed = await post('/v1/analyze', fixture)
   if (!analyzed.ok) throw new Error(`/v1/analyze returned HTTP ${analyzed.status}`)
   const analysis = await analyzed.json()
+  requireExpectedProvider(analysis, 'Analysis')
   if (!analysis.analysis_token || !analysis.verse_text || !analysis.verified_reference_id) fail('Analysis did not return a signed, verified Scripture result')
   if (analysis.experience !== 'guard') fail(`Angry fixture should be Guard, received ${analysis.experience}`)
   else console.log(`ok   Analyze -> verified ${analysis.display_reference} (${analysis.latency_ms}ms)`)
@@ -88,6 +95,7 @@ try {
     const response = await post('/v1/analyze', impactFixture)
     if (!response.ok) throw new Error(`/v1/analyze impact fixture returned HTTP ${response.status}`)
     const result = await response.json()
+    requireExpectedProvider(result, 'Impact fixture')
     if (!result.verse_text || !result.verified_reference_id) fail('Impact fixture did not return verified Scripture')
   }
   console.log('ok   Impact breadth -> gratitude and disappointment both receive verified Scripture')
@@ -95,6 +103,7 @@ try {
   const guidedResponse = await post('/v1/analyze', guideFixture)
   if (!guidedResponse.ok) throw new Error(`/v1/analyze Guide fixture returned HTTP ${guidedResponse.status}`)
   const guided = await guidedResponse.json()
+  requireExpectedProvider(guided, 'Guide fixture')
   if (guided.experience !== 'guide' || !guided.verse_text || !guided.verified_reference_id) {
     fail('Meaningful support did not return verified Guide Scripture')
   } else console.log(`ok   Guide -> ${guided.display_reference}, no corrective UI path`)
@@ -106,6 +115,7 @@ try {
   const silentResponse = await post('/v1/analyze', silenceFixture)
   if (!silentResponse.ok) throw new Error(`/v1/analyze Silence fixture returned HTTP ${silentResponse.status}`)
   const silent = await silentResponse.json()
+  requireExpectedProvider(silent, 'Silence fixture')
   if (silent.needs_reflection !== false) fail('Neutral scheduling fixture should remain silent')
   else console.log('ok   Silence -> neutral scheduling receives no passage')
 
@@ -117,6 +127,7 @@ try {
   })
   if (!rewritten.ok) throw new Error(`/v1/rewrite returned HTTP ${rewritten.status}`)
   const rewrite = await rewritten.json()
+  requireExpectedProvider(rewrite, 'Rewrite')
   if (!rewrite.rewrites?.clearer || !rewrite.rewrites?.firm_and_gracious) fail('Rewrite did not return both requested alternatives')
   else console.log(`ok   Rewrite -> signed flow (${rewrite.latency_ms}ms)`)
 

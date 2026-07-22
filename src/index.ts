@@ -7,7 +7,7 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { createReflectionModel } from './clients/provider'
-import { ModelError } from './clients/model'
+import { ModelError, type ReflectionModel } from './clients/model'
 import type { WorkersAiBinding } from './clients/workers-ai'
 import { YouVersionClient, YouVersionError } from './clients/youversion'
 import { AnalyzeRequestSchema, MAX_DRAFT_LENGTH, RewriteRequestSchema, VerseOfTheDayQuerySchema } from './lib/contracts'
@@ -233,21 +233,13 @@ app.post('/v1/analyze', async (c) => {
   if (!signingKey) return c.json({ error: 'server_misconfigured' }, 500)
 
   try {
-    const model = await modelForOperation(c.env, 'analyze')
-    const dependencies = {
+    const outcome = await runWithProviderFallback(c.env, 'analyze', (model) => runAnalyze(parsed.data, {
       model,
       youversion: new YouVersionClient(c.env.YOUVERSION_APP_KEY),
       signingKey,
       defaultBibleId: c.env.DEFAULT_BIBLE_ID,
       defaultLocale: c.env.DEFAULT_LOCALE,
-    }
-    let outcome
-    try {
-      outcome = await runAnalyze(parsed.data, dependencies)
-    } catch (error) {
-      if (!(error instanceof ModelError) || model.provider !== 'gloo') throw error
-      outcome = await runAnalyze(parsed.data, { ...dependencies, model: workersFallback(c.env) })
-    }
+    }))
 
     if (outcome.kind === 'safety') return c.json(outcome.body, 200)
     if (outcome.kind === 'no_moment') return c.json(outcome.body, 200)
@@ -292,19 +284,11 @@ app.post('/v1/rewrite', async (c) => {
   }
 
   try {
-    const model = await modelForOperation(c.env, 'rewrite')
-    const dependencies = {
+    const outcome = await runWithProviderFallback(c.env, 'rewrite', (model) => runRewrite(parsed.data, {
       model,
       signingKey,
       defaultLocale: c.env.DEFAULT_LOCALE,
-    }
-    let outcome
-    try {
-      outcome = await runRewrite(parsed.data, dependencies)
-    } catch (error) {
-      if (!(error instanceof ModelError) || model.provider !== 'gloo') throw error
-      outcome = await runRewrite(parsed.data, { ...dependencies, model: workersFallback(c.env) })
-    }
+    }))
 
     if (outcome.kind === 'rejected') {
       return c.json({ error: 'analysis_token_rejected', reason: outcome.reason }, 401)
@@ -337,6 +321,30 @@ export async function modelForOperation(env: Env, operation: GlooOperation) {
   } catch {
     return workersFallback(env)
   }
+}
+
+/** One budgeted Gloo retry absorbs transient provider/schema failures. */
+async function runWithProviderFallback<T>(
+  env: Env,
+  operation: GlooOperation,
+  execute: (model: ReflectionModel) => Promise<T>,
+): Promise<T> {
+  const primary = await modelForOperation(env, operation)
+  try {
+    return await execute(primary)
+  } catch (error) {
+    if (!(error instanceof ModelError) || primary.provider !== 'gloo') throw error
+  }
+
+  const retry = await modelForOperation(env, operation)
+  if (retry.provider === 'gloo') {
+    try {
+      return await execute(retry)
+    } catch (error) {
+      if (!(error instanceof ModelError)) throw error
+    }
+  }
+  return execute(workersFallback(env))
 }
 
 function workersFallback(env: Env) {
