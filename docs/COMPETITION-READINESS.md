@@ -28,6 +28,7 @@ without contempt, and gratitude in moments of victory.
 | Living Margin safety | Green, automated | CSS Custom Highlights only; it inserts no nodes or text, clears on the next edit, and falls back silently; `test/moment-marker.test.ts` and `test/content-ambient.test.ts`. |
 | Safety Scripture is contextual and non-repeating | Green, automated | Four existing safety flags map to curated multi-reference sets; a narrow explicit-language guard survives model refusal; recent reference IDs stay in local extension storage; YouVersion verifies text and attribution; failure renders no substitute Scripture; `test/safety.test.ts`, `test/contracts.test.ts`, `test/analyze.test.ts`, and `test/content-ambient.test.ts`. This is a competition reflection demo, not an emergency service. |
 | Sandbox and deployed Worker | Green | `npm run verify:all`, then `npm run preflight` against `https://second-word.nkosithrifts.workers.dev`; the live preflight is the authoritative deployment proof. |
+| Public product experience | Green, browser E2E | `uv run --with selenium python scripts/public-browser-e2e.py` passed the deployed Presence -> Guard -> Rewrite -> Guide -> Silence journey in headless Chrome on 2026-07-22 and confirmed the page names Gloo AI Studio. |
 | Impact is broader than correction | Green | Deployed preflight verifies angry, grateful/victorious, and disappointed drafts each receive verified Scripture before its signed rewrite/tamper checks. |
 | User-facing language is reviewed | Green | Provider-generated `why` and `question` fields are never rendered. The selected principle's reviewed explanation and question are used instead; `test/analyze.test.ts`. |
 | Guide cannot become correction | Green | Guide receives no analysis token, the UI has no alternatives action, and the rewrite route still rejects stale signed Guide tokens; `test/analyze.test.ts` and deployed preflight. |
@@ -49,6 +50,7 @@ without contempt, and gratitude in moments of victory.
 npm run verify:all
 npm run preflight
 REQUIRE_GLOO=1 npm run preflight  # only after real Gloo configuration
+uv run --with selenium python scripts/public-browser-e2e.py
 ```
 
 ## Filmable proof sequence
