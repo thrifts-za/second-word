@@ -7,7 +7,11 @@ const page = readFileSync(`${root}/sandbox/index.html`, 'utf8')
 
 describe('public launch experience', () => {
   it('opens with the product thesis and the live experience contract', () => {
-    expect(page).toContain('The Word,<br />where your words happen.')
+    // The final word rotates (happen, land, wound, heal, matter), so assert the
+    // fixed part of the headline and the rotator it hands off to, not the
+    // string that used to be hard-coded there.
+    expect(page).toContain('The Word,<br />where your words <span class="rotator"')
+    expect(page).toContain('>happen</span>')
     expect(page).toContain('Live experience · no login · nothing is stored or sent for you')
     expect(page).toContain('id="experience"')
     expect(page).toContain('id="surface-tabs"')
