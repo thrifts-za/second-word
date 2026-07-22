@@ -95,7 +95,9 @@
   .hero {
     position: relative;
     min-height: 1040px;
-    overflow: hidden;
+    /* visible, so the demo frame can cross into the section below. The
+       background gradients are painted inside the box regardless. */
+    overflow: visible;
     background:
       radial-gradient(circle at 50% 24%, rgba(196,112,90,.11), transparent 28%),
       linear-gradient(180deg, #1c1915 0%, #151310 76%, #181512 100%);
@@ -110,8 +112,13 @@
   .hero__copy h1 {
     max-width: 860px;
     margin: 0 auto;
-    font: 400 clamp(54px, 7.2vw, 94px)/.94 var(--book);
+    font: 400 clamp(48px, 6.6vw, 86px)/.96 var(--book);
     letter-spacing: -.045em;
+    /* balance evens the lines; pretty is the orphan guard. Without these the
+       second line broke after "words" and left "happen." alone. */
+    /* The line break before the rotating word is deliberate: that word is the
+       one that changes, so it gets the line. */
+    text-wrap: normal;
   }
   .hero__lead { max-width: 730px; margin: 28px auto 0; color: #b8b1a8; font-size: 18px; line-height: 1.7; }
   .hero__lead strong { color: var(--paper); font-weight: 550; }
@@ -126,14 +133,26 @@
   .hero__proof { margin: 18px 0 0; color: #8d877f; font-size: 12px; }
 
   /* live product ------------------------------------------------------- */
-  .live-wrap { position: relative; z-index: 3; width: min(1060px, calc(100% - 48px)); margin: 0 auto; }
+  .live-wrap { position: relative; z-index: 3; width: min(940px, calc(100% - 48px)); margin: 0 auto; }
   .live-label {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     margin: 0 4px 12px; color: #9d968d; font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
   }
   .live-label__status { display: inline-flex; align-items: center; gap: 7px; color: #bcb5ac; }
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #75a783; box-shadow: 0 0 0 4px rgba(117,167,131,.12); }
+  /*
+   * The frame overlaps the band beneath it, and its border is alive.
+   *
+   * Two jobs. The overlap ties the dark hero to the paper section so the demo
+   * reads as one object crossing a seam rather than a card parked at the
+   * bottom of a dark box. The travelling light says something is running
+   * without a spinner, a pulse, or a word of copy: the product is watching,
+   * quietly, which is the whole pitch.
+   */
+  .live-wrap { margin-bottom: -104px; }
   .product-frame {
+    position: relative;
+    isolation: isolate;
     overflow: hidden;
     border: 1px solid rgba(255,255,255,.14);
     border-radius: 18px;
@@ -141,6 +160,78 @@
     color: var(--ink);
     box-shadow: var(--shadow-frame);
   }
+  /* The travelling light. A conic gradient rotated behind the frame, masked to
+     a hairline, so only the border carries it. */
+  .product-frame::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--sweep, 0deg),
+      transparent 0deg, transparent 250deg,
+      rgba(196,112,90,.75) 300deg,
+      rgba(226,190,120,.95) 330deg,
+      rgba(196,112,90,.55) 350deg,
+      transparent 360deg);
+    animation: sweep 7s linear infinite;
+  }
+  @property --sweep { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes sweep { to { --sweep: 360deg; } }
+  @supports not (background: conic-gradient(from 0deg, red, blue)) {
+    .product-frame::before { display: none; }
+  }
+
+  /* Entrances. Nothing loops, nothing bounces: content arrives once, from
+     slightly below, and then behaves. */
+  [data-reveal] { opacity: 0; transform: translateY(14px); }
+  [data-reveal].is-in {
+    opacity: 1; transform: none;
+    transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; }
+    [data-reveal].is-in { transition: none; }
+    .product-frame::before { animation: none; }
+  }
+
+  /* The rotating word. Only the word moves; the line it sits on does not. */
+  .rotator {
+    position: relative;
+    display: inline-grid;
+    vertical-align: baseline;
+    color: #e6b877;
+  }
+  .rotator__word {
+    grid-area: 1 / 1;
+    opacity: 0;
+    transform: translateY(.24em);
+    transition: opacity .5s ease, transform .5s cubic-bezier(.2,.7,.3,1);
+    white-space: nowrap;
+  }
+  .rotator__word.is-in { opacity: 1; transform: none; }
+  .rotator__word.is-out { opacity: 0; transform: translateY(-.24em); }
+
+  /* The hero light drifts between clay and gold rather than sitting still. */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 24%, var(--hero-glow, rgba(196,112,90,.14)), transparent 34%);
+    animation: heroGlow 18s ease-in-out infinite;
+  }
+  @keyframes heroGlow {
+    0%, 100% { background: radial-gradient(circle at 46% 22%, rgba(196,112,90,.16), transparent 34%); }
+    33%      { background: radial-gradient(circle at 54% 26%, rgba(210,165,90,.15), transparent 36%); }
+    66%      { background: radial-gradient(circle at 50% 20%, rgba(154,106,23,.13), transparent 32%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero::before { animation: none; }
+  }
+
   .app-switcher {
     display: flex; align-items: center; gap: 4px; overflow-x: auto; scrollbar-width: none;
     padding: 10px 12px; border-bottom: 1px solid var(--line); background: #f5f1e9;
@@ -158,6 +249,10 @@
   .app-tab:focus-visible, .scenario-tab:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
   .app-tab--on { border-color: var(--line); background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(38,22,16,.08); }
   .app-tab__logo { display: block; width: 20px; height: 20px; object-fit: contain; }
+  /* Vendors draw to different margins. WhatsApp and X sit inside more bleed
+     than the rest and read small at a shared box size. */
+  [data-logo="whatsapp"] { transform: scale(1.22); }
+  [data-logo="x"] { transform: scale(1.08); }
   .scenario-tabs {
     display: flex; gap: 7px; overflow-x: auto; scrollbar-width: none;
     min-height: 48px; padding: 9px 14px; border-bottom: 1px solid var(--line); background: #fbf8f2;
@@ -227,7 +322,34 @@
   .sent { color: var(--body); font: italic 13px/1.4 var(--book); }
 
   /* launch narrative --------------------------------------------------- */
+
+  /* ---- Verse of the Day, and what comes next ---------------------------- */
+  .votd { padding: 104px 0; background: var(--canvas-raised); border-block: 1px solid var(--line); }
+  .votd__layout { display: grid; grid-template-columns: 1.05fr .95fr; gap: 72px; align-items: center; }
+  .votd__card {
+    margin: 0; padding: 30px 32px; border-radius: 14px;
+    background: var(--ink); color: var(--paper);
+    box-shadow: 0 24px 60px -34px rgba(15,11,8,.7);
+  }
+  .votd__label {
+    margin-bottom: 14px; color: #d2a55a;
+    font: 700 10.5px/1 var(--ui); letter-spacing: .16em; text-transform: uppercase;
+  }
+  .votd__text { margin: 0; padding-left: 18px; border-left: 1px solid var(--clay); font: 400 21px/1.5 var(--book); }
+  .votd__ref { margin: 16px 0 0; color: var(--paper-dim); font-size: 12px; letter-spacing: .04em; }
+
+  .next { padding: 104px 0 118px; }
+  .next__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 44px 0 0; padding: 0; list-style: none; }
+  .next__item {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 20px 20px; border: 1px dashed var(--line); border-radius: 10px;
+    color: var(--body); font-size: 14px;
+  }
+  .next__item em { color: var(--faint); font: 600 10px/1 var(--ui); letter-spacing: .16em; text-transform: uppercase; font-style: normal; }
+
   .reveal { padding: 118px 0 108px; }
+  /* room for the demo frame overlapping down into this section */
+  #idea { padding-top: 190px; }
   .reveal__head { display: grid; grid-template-columns: 1.05fr .95fr; gap: 80px; align-items: end; }
   .reveal__head .section-lead { margin: 0; }
   .moment-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 48px; }
@@ -291,7 +413,12 @@
   .evidence__note { margin: 23px 0 0; color: #77716a; font-size: 10.5px; }
 
   .final { padding: 120px 0; text-align: center; }
-  .final__quote { max-width: 850px; margin: 0 auto; font: 400 clamp(32px, 4.5vw, 58px)/1.1 var(--book); letter-spacing: -.025em; }
+  .final__quote {
+    max-width: 780px; margin: 0 auto;
+    font: 400 clamp(26px, 3.1vw, 40px)/1.22 var(--book);
+    letter-spacing: -.02em;
+    text-wrap: balance;
+  }
   .final__copy { max-width: 650px; margin: 24px auto 0; color: var(--body); font-size: 16px; line-height: 1.7; }
   .final__actions { display: flex; justify-content: center; gap: 10px; margin-top: 30px; }
   .final .button { border-color: var(--line); color: var(--ink); }
@@ -342,6 +469,8 @@
     .moment-card { min-height: 140px; }
     .flow { border-top: 0; gap: 28px; }
     .flow__step { padding-top: 18px; border-top: 1px solid var(--line); }
+    .votd__layout { grid-template-columns: 1fr; gap: 34px; }
+    .next__grid { grid-template-columns: 1fr; }
     .truth-note { grid-template-columns: 1fr; gap: 12px; }
     .evidence { padding-block: 70px; }
     .metric { min-height: 120px; }
@@ -372,7 +501,7 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__copy">
         <p class="eyebrow eyebrow--gold">Introducing Second Word</p>
-        <h1 id="hero-title">The Word,<br />where your words happen.</h1>
+        <h1 id="hero-title">The Word,<br />where your words <span class="rotator" id="rotator"><span class="rotator__word is-in">happen</span></span>.</h1>
         <p class="hero__lead">
           Other writing tools ask whether a sentence is correct. <strong>Second Word understands the human moment inside it</strong>—then brings verified Scripture into pressure, grief, courage, gratitude and conflict.
         </p>
@@ -467,6 +596,38 @@
       </div>
     </section>
 
+
+    <section class="votd" id="votd">
+      <div class="shell votd__layout">
+        <div>
+          <p class="eyebrow">Every day, not only hard days</p>
+          <h2 class="section-title" data-reveal>The Verse of the Day,<br />where you already are.</h2>
+          <p class="section-lead" data-reveal style="--reveal-delay:120ms">Most days nothing is at stake, and Second Word says nothing. The mark still sits in the corner of the box, and clicking it opens YouVersion&rsquo;s Verse of the Day. No draft is read. Nothing is sent. It is the one thing here that asks nothing of you at all.</p>
+        </div>
+        <figure class="votd__card" data-reveal style="--reveal-delay:200ms">
+          <figcaption class="votd__label">Verse of the Day</figcaption>
+          <blockquote class="votd__text" id="votd-text">Loading today&rsquo;s verse from YouVersion&hellip;</blockquote>
+          <p class="votd__ref" id="votd-ref"></p>
+        </figure>
+      </div>
+    </section>
+
+    <section class="next" id="next">
+      <div class="shell">
+        <p class="eyebrow">Where it goes next</p>
+        <h2 class="section-title" data-reveal>The same mark,<br />in every box that matters.</h2>
+        <p class="section-lead" data-reveal style="--reveal-delay:110ms">Six surfaces work today. These are the boxes people also write in, and none of them has ever had Scripture in it.</p>
+        <ul class="next__grid">
+          <li class="next__item" data-reveal style="--reveal-delay:120ms"><span>Outlook</span><em>next</em></li>
+          <li class="next__item" data-reveal style="--reveal-delay:170ms"><span>Microsoft Word</span><em>next</em></li>
+          <li class="next__item" data-reveal style="--reveal-delay:220ms"><span>A code review comment</span><em>next</em></li>
+          <li class="next__item" data-reveal style="--reveal-delay:270ms"><span>A creator studio description</span><em>next</em></li>
+          <li class="next__item" data-reveal style="--reveal-delay:320ms"><span>A game&rsquo;s team chat</span><em>next</em></li>
+          <li class="next__item" data-reveal style="--reveal-delay:370ms"><span>A wearable reply screen</span><em>next</em></li>
+        </ul>
+      </div>
+    </section>
+
     <section class="how" id="how">
       <div class="shell">
         <div class="how__head">
@@ -475,10 +636,10 @@
           <p class="section-lead">Automatic does not mean intrusive. Second Word notices after typing settles, and the person still chooses whether to open the word.</p>
         </div>
         <div class="flow">
-          <article class="flow__step"><span class="flow__number">01</span><h3 class="flow__title">Your words settle</h3><p class="flow__copy">A local gate first ignores ordinary task talk. Nothing opens while you type.</p></article>
-          <article class="flow__step"><span class="flow__number">02</span><h3 class="flow__title">The moment is weighed</h3><p class="flow__copy">The model sees the draft and the single message being answered—not the page or your history.</p></article>
-          <article class="flow__step"><span class="flow__number">03</span><h3 class="flow__title">Scripture is verified</h3><p class="flow__copy">The model may rank reviewed references. The verse itself can only come from YouVersion.</p></article>
-          <article class="flow__step"><span class="flow__number">04</span><h3 class="flow__title">The mark waits</h3><p class="flow__copy">Open the word, keep writing, choose an alternative, or send your own words. Agency stays yours.</p></article>
+          <article class="flow__step" data-reveal style="--reveal-delay:0ms"><span class="flow__number">01</span><h3 class="flow__title">Your words settle</h3><p class="flow__copy">A local gate first ignores ordinary task talk. Nothing opens while you type.</p></article>
+          <article class="flow__step" data-reveal style="--reveal-delay:110ms"><span class="flow__number">02</span><h3 class="flow__title">The moment is weighed</h3><p class="flow__copy">The model sees the draft and the single message being answered—not the page or your history.</p></article>
+          <article class="flow__step" data-reveal style="--reveal-delay:220ms"><span class="flow__number">03</span><h3 class="flow__title">Scripture is verified</h3><p class="flow__copy">The model may rank reviewed references. The verse itself can only come from YouVersion.</p></article>
+          <article class="flow__step" data-reveal style="--reveal-delay:330ms"><span class="flow__number">04</span><h3 class="flow__title">The mark waits</h3><p class="flow__copy">Open the word, keep writing, choose an alternative, or send your own words. Agency stays yours.</p></article>
         </div>
         <aside class="truth-note">
           <div class="truth-note__label">What is live now</div>
@@ -519,7 +680,7 @@
     <section class="final">
       <div class="shell">
         <p class="eyebrow">Second Word</p>
-        <blockquote class="final__quote">“It does not speak for God. It creates space between emotion and action, where Scripture, prayer and wisdom meet your first response.”</blockquote>
+        <blockquote class="final__quote">“It does not speak for God. It makes room between the feeling and the sending, and lets a verified word arrive before your first reaction does.”</blockquote>
         <p class="final__copy">Technology should not only help people say more. Sometimes its deepest service is helping us remember what is true before we decide what to say.</p>
         <div class="final__actions">
           <a class="button button--primary" href="#experience">Try a human moment</a>

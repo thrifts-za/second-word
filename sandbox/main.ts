@@ -21,7 +21,7 @@ import type {
   SafetyResponse,
   VerseOfTheDayResponse,
 } from '../src/lib/contracts'
-import { isVerseOfTheDayResponse } from '../src/lib/verse-of-the-day'
+import { balanceQuotes, isVerseOfTheDayResponse } from '../src/lib/verse-of-the-day'
 import { SecondWordBadge } from '../extension/src/badge'
 import { SecondWordOverlay } from '../extension/src/overlay'
 import { createScheduler } from '../extension/src/scheduler'
@@ -98,6 +98,10 @@ function logoFor(app: AppSurface, className: string): HTMLImageElement {
   const image = document.createElement('img')
   image.className = className
   image.src = `./assets/${app.id}.svg`
+  // Each vendor draws to its own margins: WhatsApp's mark sits inside a large
+  // transparent bleed and reads noticeably smaller than the rest at the same
+  // box size. Optical sizing per logo, not one number for all six.
+  image.dataset.logo = app.id
   image.alt = ''
   image.width = 22
   image.height = 22
@@ -198,10 +202,15 @@ for (const item of SCENARIOS) {
   const appLabel = document.createElement('span')
   appLabel.className = 'moment-card__app'
   appLabel.append(logoFor(app, 'moment-card__logo'), document.createTextNode(app.shortName))
-  const kind = document.createElement('span')
-  kind.className = `moment-card__kind moment-card__kind--${item.kind}`
-  kind.textContent = item.kind === 'guide' ? 'Guide' : item.kind === 'silence' ? 'Silence' : 'Guard'
-  top.append(appLabel, kind)
+  /*
+   * No Guard/Guide/Silence pill.
+   *
+   * The card's job here is "this moment happens in this app". Labelling the
+   * product's internal states on a card nobody has interacted with yet asks a
+   * first-time reader to learn a taxonomy before they have seen the thing it
+   * describes. The tone still carries it: clay, gold, or neither.
+   */
+  top.append(appLabel)
 
   const title = document.createElement('span')
   title.className = 'moment-card__title'
@@ -568,3 +577,93 @@ sendButton.addEventListener('click', () => {
 renderScenario(SCENARIOS[0]!)
 void loadPresence()
 void loadProvider()
+
+/**
+ * Entrances, once each.
+ *
+ * A page about noticing should itself behave like it is paying attention:
+ * content arrives when it comes into view rather than being there already.
+ * Unobserved after firing, so nothing re-animates on the way back up, and the
+ * whole thing is skipped for anyone who has asked for less motion.
+ */
+function revealOnScroll(): void {
+  const targets = [...document.querySelectorAll<HTMLElement>('[data-reveal]')]
+  if (targets.length === 0) return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    for (const node of targets) node.classList.add('is-in')
+    return
+  }
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue
+        entry.target.classList.add('is-in')
+        observer.unobserve(entry.target)
+      }
+    },
+    { rootMargin: '0px 0px -12% 0px', threshold: 0.15 },
+  )
+  for (const node of targets) observer.observe(node)
+}
+
+/**
+ * The day's verse, shown on the page as well as in the composer.
+ *
+ * Same endpoint, same YouVersion text, same attribution rules. If it cannot be
+ * fetched the section says so plainly rather than inventing a verse.
+ */
+async function renderVerseOfTheDaySection(): Promise<void> {
+  const textNode = document.querySelector<HTMLElement>('#votd-text')
+  const refNode = document.querySelector<HTMLElement>('#votd-ref')
+  if (!textNode || !refNode) return
+  try {
+    const day = localDayOfYear(new Date())
+    const response = await fetch(`${API_BASE}/v1/verse-of-the-day?day=${day}`, {
+      signal: AbortSignal.timeout(PASSAGE_TIMEOUT_MS),
+    })
+    if (!response.ok) throw new Error(String(response.status))
+    const body: unknown = await response.json()
+    if (!isVerseOfTheDayResponse(body)) throw new Error('unverifiable verse')
+    textNode.textContent = balanceQuotes(body.verse_text)
+    refNode.textContent = `${body.display_reference} · ${body.translation} · ${body.attribution.split('\n')[0] ?? ''}`
+  } catch {
+    textNode.textContent = 'Today\u2019s verse could not be reached just now. Nothing is shown in its place.'
+    refNode.textContent = ''
+  }
+}
+
+revealOnScroll()
+void renderVerseOfTheDaySection()
+
+/**
+ * The last word of the headline rotates.
+ *
+ * "where your words happen" is one claim; the product is really about all of
+ * them. Each word is a different thing a sentence can do to somebody, and the
+ * set is the argument. Held long enough to read, and it stops entirely for
+ * anyone who has asked for less motion.
+ */
+function rotateHeadlineWord(): void {
+  const host = document.querySelector<HTMLElement>('#rotator')
+  if (!host) return
+  const words = ['happen', 'land', 'wound', 'heal', 'matter']
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  let index = 0
+  window.setInterval(() => {
+    const current = host.querySelector<HTMLElement>('.rotator__word.is-in')
+    index = (index + 1) % words.length
+    const next = document.createElement('span')
+    next.className = 'rotator__word'
+    next.textContent = words[index] ?? words[0]!
+    host.append(next)
+    requestAnimationFrame(() => {
+      next.classList.add('is-in')
+      current?.classList.remove('is-in')
+      current?.classList.add('is-out')
+      window.setTimeout(() => current?.remove(), 600)
+    })
+  }, 2600)
+}
+
+rotateHeadlineWord()
