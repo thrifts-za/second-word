@@ -198,9 +198,15 @@
   }
 
   /* The rotating word. Only the word moves; the line it sits on does not. */
+  /*
+   * Both words share one grid cell, so the box is as wide as the longest word
+   * in the set and never reflows the line. The full stop travels inside each
+   * word: with it outside, short words left it stranded ("land   ."), and
+   * taking the outgoing word out of flow instead made it overhang the box.
+   */
   .rotator {
-    position: relative;
     display: inline-grid;
+    justify-items: center;
     vertical-align: baseline;
     color: #e6b877;
   }
@@ -212,6 +218,11 @@
     white-space: nowrap;
   }
   .rotator__word.is-in { opacity: 1; transform: none; }
+  /*
+   * The outgoing word leaves the layout, so the grid is only ever as wide as
+   * the word on screen. Without this it stayed as wide as the longest word in
+   * the set and the full stop floated away from short ones: "land   ."
+   */
   .rotator__word.is-out { opacity: 0; transform: translateY(-.24em); }
 
   /* The hero light drifts between clay and gold rather than sitting still. */
@@ -501,7 +512,7 @@
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__copy">
         <p class="eyebrow eyebrow--gold">Introducing Second Word</p>
-        <h1 id="hero-title">The Word,<br />where your words <span class="rotator" id="rotator"><span class="rotator__word is-in">happen</span></span>.</h1>
+        <h1 id="hero-title">The Word,<br />where your words <span class="rotator" id="rotator"><span class="rotator__word is-in">happen.</span></span></h1>
         <p class="hero__lead">
           Other writing tools ask whether a sentence is correct. <strong>Second Word understands the human moment inside it</strong>—then brings verified Scripture into pressure, grief, courage, gratitude and conflict.
         </p>

@@ -646,7 +646,7 @@ void renderVerseOfTheDaySection()
 function rotateHeadlineWord(): void {
   const host = document.querySelector<HTMLElement>('#rotator')
   if (!host) return
-  const words = ['happen', 'land', 'wound', 'heal', 'matter']
+  const words = ['happen.', 'land.', 'wound.', 'heal.', 'matter.']
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
   let index = 0
