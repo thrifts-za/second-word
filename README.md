@@ -174,11 +174,11 @@ The concise public evidence summary is in [`docs/EVIDENCE.md`](docs/EVIDENCE.md)
 
 ## On the provider
 
-Built for Gloo AI Studio and one environment variable away from it. Gloo support confirmed
-on 2026-07-21 that it is investigating a similar access issue affecting another participant,
-so the demo currently runs on Cloudflare Workers AI behind the same interface, prompts and
-allow-lists. The cause is not yet established. Every response names the provider that
-actually ran, and the sandbox says so on the page.
+The deployed judging path runs on Gloo AI Studio with Gemini 2.5 Flash Lite. An atomic
+server-side allowance protects the competition credit through 31 July, and Cloudflare
+Workers AI remains the automatic availability fallback. Both providers use the same
+interface, prompts, schemas and reviewed allow-lists. Every response names the provider
+that actually ran, and the sandbox says so on the page.
 
 ## Licence
 

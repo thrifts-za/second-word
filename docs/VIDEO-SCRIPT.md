@@ -1,8 +1,8 @@
 # Second Word - three-minute video script
 
-Do not film the Gloo or Highlights scenes until the corresponding live checks
-are green. The story must be stronger than the technical proof, but never ahead
-of it.
+Gloo is live and verified. Do not include YouVersion Highlights: it is outside
+this competition demo. The story must be stronger than the technical proof,
+but never ahead of it.
 
 ## 0:00 - 0:18 - the human problem
 
@@ -52,23 +52,23 @@ a gold Guide; a neutral calendar acknowledgement quietly receives nothing.
 and leave ordinary messages alone. Guide is gold: no correction and no rewrite,
 only a word for this good moment.”
 
-## 2:00 - 2:30 - proof
+## 2:00 - 2:32 - proof
 
-**Visual:** `npm run preflight`; Worker health; today's verified daily reference; rewrite
-tamper rejection; extension package gate; brief test summary. After live Gloo
-credentials are configured, show `REQUIRE_GLOO=1 npm run preflight` passing.
+**Visual:** `REQUIRE_GLOO=1 npm run preflight`; Worker health naming Gloo;
+today's verified daily reference; rewrite tamper rejection; extension package
+gate; brief test summary.
 
 **Voice:** “This is a working extension and Worker, not a mock-up: bounded
 requests, no draft persistence, strict provenance, and a rewrite tied to the
 exact words it analysed.”
 
-## 2:30 - 2:50 - durable spiritual loop (only when implemented live)
+## 2:32 - 2:50 - where this can matter
 
-**Visual:** Person explicitly approves YouVersion data exchange and saves the
-passage to their real YouVersion Highlights. Show the confirmation there.
+**Visual:** Quick return through Gmail, Slack, WhatsApp and the public reply.
+Each surface keeps the same quiet Second Word mark. No card is forced open.
 
-**Voice:** “And the word does not disappear when the tab closes. With the
-person’s permission, it can return to the Bible they already carry.”
+**Voice:** “Across work, public conversation and private life, the Word can
+meet people in the place they were already about to speak.”
 
 ## 2:50 - 3:00 - closing
 
