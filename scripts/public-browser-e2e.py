@@ -79,10 +79,10 @@ def click_shadow_button(driver, text):
     assert clicked, f"Panel button not found: {text}"
 
 
-def click_named(elements, text):
+def click_named(driver, elements, text):
     matches = [element for element in elements if element.text.strip() == text]
     assert len(matches) == 1, f"Expected one {text!r} control, found {len(matches)}"
-    matches[0].parent.execute_script("arguments[0].click()", matches[0])
+    driver.execute_script("arguments[0].click()", matches[0])
 
 
 def click_element(driver, element):
@@ -90,7 +90,8 @@ def click_element(driver, element):
 
 
 options = webdriver.ChromeOptions()
-options.binary_location = CHROME_BINARY
+if Path(CHROME_BINARY).exists():
+    options.binary_location = CHROME_BINARY
 options.add_argument("--headless=new")
 options.add_argument("--window-size=1440,1100")
 options.add_argument("--disable-gpu")
@@ -118,7 +119,7 @@ with webdriver.Chrome(options=options) as driver:
     close_panel(driver)
 
     # Guard: automatic noticing, exact moment card, and optional rewrite.
-    click_named(driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "The rejection")
+    click_named(driver, driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "The rejection")
     click_element(driver, driver.find_element(By.ID, "fill"))
     wait_until(driver, lambda d: "guard" in badge_class(d), "Guard badge")
     assert "A word for this" in badge_text(driver)
@@ -133,7 +134,7 @@ with webdriver.Chrome(options=options) as driver:
     # Guide: good moment, gold treatment, no interrogation and no rewrite.
     slack = driver.find_element(By.CSS_SELECTOR, '[aria-label="Show Second Word in Slack"]')
     click_element(driver, slack)
-    click_named(driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "A willing yes")
+    click_named(driver, driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "A willing yes")
     click_element(driver, driver.find_element(By.ID, "fill"))
     wait_until(driver, lambda d: "guide" in badge_class(d), "Guide badge")
     click_badge(driver)
@@ -143,7 +144,7 @@ with webdriver.Chrome(options=options) as driver:
     close_panel(driver)
 
     # Silence: neutral logistics return to Presence with no corrective invitation.
-    click_named(driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "Knows when to stay quiet")
+    click_named(driver, driver.find_elements(By.CSS_SELECTOR, ".scenario-tab"), "Knows when to stay quiet")
     click_element(driver, driver.find_element(By.ID, "fill"))
     wait_until(driver, lambda d: "presence" in badge_class(d), "deliberate Silence")
     assert panel_text(driver) == ""
